@@ -1,0 +1,209 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #070708;
+  --color-coal: #0c0c0f;
+  --color-carbon: #131317;
+  --color-steel: #1b1b21;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-line-bright: rgba(255, 255, 255, 0.16);
+  --color-ember: #ff5c1c;
+  --color-flare: #ffb85c;
+  --color-blood: #ff2e4d;
+  --color-ivory: #f2ede6;
+  --color-fog: #9b96a3;
+  --color-smoke: #615c6b;
+
+  --font-display: var(--font-space-grotesk), "Space Grotesk", ui-sans-serif,
+    system-ui, sans-serif;
+  --font-body: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument), "Instrument Serif", Georgia, serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+
+  --animate-marquee: marquee 28s linear infinite;
+  --animate-marquee-slow: marquee 60s linear infinite;
+  --animate-pulse-soft: pulse-soft 3.2s ease-in-out infinite;
+  --animate-spin-slow: spin 14s linear infinite;
+  --animate-caret: caret 1.05s steps(1) infinite;
+  --animate-flicker: flicker 4s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.04);
+    }
+  }
+  @keyframes caret {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    92% {
+      opacity: 1;
+    }
+    93% {
+      opacity: 0.4;
+    }
+    94% {
+      opacity: 1;
+    }
+    97% {
+      opacity: 0.7;
+    }
+    98% {
+      opacity: 1;
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-ember);
+  color: #070708;
+}
+
+/* ------- scrollbar ------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0c0c0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #26262e;
+  border-radius: 8px;
+  border: 2px solid #0c0c0f;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff5c1c;
+}
+
+/* ------- utilities ------- */
+.font-serif-d {
+  font-family: var(--font-serif);
+}
+.text-gradient-ember {
+  background: linear-gradient(100deg, #ff5c1c 0%, #ffb85c 48%, #ff5c1c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-stroke {
+  -webkit-text-stroke: 1px rgba(242, 237, 230, 0.34);
+  color: transparent;
+}
+.text-stroke-ember {
+  -webkit-text-stroke: 1px rgba(255, 92, 28, 0.65);
+  color: transparent;
+}
+
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+.bg-blueprint {
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+.mask-fade-y {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+}
+.mask-fade-x {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+}
+
+.glow-ember {
+  box-shadow: 0 0 24px rgba(255, 92, 28, 0.35), 0 0 80px rgba(255, 92, 28, 0.12);
+}
+
+.card-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.card-sheen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 92, 28, 0.09),
+    transparent 42%
+  );
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.spec-markdown {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
