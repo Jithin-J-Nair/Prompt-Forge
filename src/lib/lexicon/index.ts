@@ -174,4 +174,32 @@ export const ARTIFACTS: Artifact[] = [
     ["kw:micro/matrix-rain-tokens", "kw:micro/text-scramble-loop", "kw:micro/empty-state-poetry", "kw:micro/glass-command-bar"], 172, "2026-09-28"),
   A("kernel-harbor", "Kernel Harbor", "SaaS with a scroll-jacked product tour and spring-snap section thresholds.", "SaaS", "Dark",
     ["kw:micro/scroll-jacked-gallery", "kw:micro/spring-entrance", "kw:micro/ghost-preloader", "kw:micro/stacked-pricing"], 166, "2026-09-24"),
+
+  /* -- "our own takes" wave: original PromptForge builds in the styles  */
+  /* -- the showcase galleries made famous. Every stack keys a real      */
+  /* -- registry module, so every card and theatre previews LIVE.        */
+  A("synapse-portrait", "Synapse Portrait", "A human silhouette authored from 60k drifting particles that scatter from the pointer and reform on a spring — scroll descends the camera through the head into the work.", "Portfolio", "Dark",
+    ["kw:motion/particle-morph", "kw:motion/image-particles", "kw:micro/char-cascade", "kw:micro/page-bloom", "kw:motion/scroll-3d-camera"], 402, "2026-11-10"),
+  A("aurelia-orb", "Aurelia Orb", "A chrome point-cloud sphere built from the site's own media, rotating in three-space; panels orbit it as scroll scrubs the camera path.", "Interactive", "Dark",
+    ["kw:webgl/point-cloud", "kw:motion/camera-orbit", "kw:motion/scroll-scrub", "kw:micro/magnetic-cursor"], 341, "2026-11-09"),
+  A("static-age", "Static Age", "Archive-culture vaporwave: CRT plasma haze, tracking-error image treatment, per-character index typography.", "Portfolio", "Dark",
+    ["kw:backgrounds/plasma-field", "kw:typography/character-animation", "kw:micro/noise-tattoo", "kw:micro/text-scramble-loop"], 288, "2026-11-06"),
+  A("valley-of-forms", "Valley of Forms", "A procedurally-grown meadow: flow-field blooms and fog depth respond to scroll; nothing is a video, everything is math.", "Creative", "Dark",
+    ["kw:math/procedural-landscape", "kw:math/flow-field", "kw:math/volumetric-fog-math", "kw:micro/perlin-flow-field"], 276, "2026-11-04"),
+  A("mercury-store", "Mercury Store", "Liquid-metal e-commerce: product cards skim over a mercury pond; hover displacement ripples the material; cart slides from the right.", "E-commerce", "Dark",
+    ["kw:backgrounds/liquid-metal-bg", "kw:micro/hover-distortion", "kw:micro/cart-drawer", "kw:micro/spring-entrance"], 261, "2026-11-01"),
+  A("ribbon-reel", "Ribbon Reel", "A fashion lookbook carried on an endless media ribbon: horizontal scrub, velocity skew, per-look pinning.", "Fashion", "Light",
+    ["kw:motion/horizontal-scroll", "kw:micro/velocity-skew", "kw:micro/scroll-jacked-gallery", "kw:motion/scroll-velocity"], 249, "2026-10-30"),
+  A("mind-fold", "Mind Fold", "AI landing page under a living fBM sky: domain-warped clouds resolve to the product wordmark as you pass the hero fold.", "AI", "Dark",
+    ["kw:math/fbm", "kw:math/domain-warping", "kw:micro/fbm-warp-bg", "kw:motion/text-mask-reveal"], 246, "2026-10-26"),
+  A("coral-synapse", "Coral Synapse", "A reaction-diffusion organism coats the background and grows toward the cursor; pricing floats as hairline cards above it.", "SaaS", "Dark",
+    ["kw:math/reaction-diffusion", "kw:micro/stacked-pricing", "kw:micro/hairline-grid", "kw:micro/noise-tattoo"], 232, "2026-10-23"),
+  A("ink-office", "Ink Office", "Charcoal-and-paper agency: Bézier ink connects case studies, chapters wipe with a liquid mask.", "Agency", "Light",
+    ["kw:micro/bezier-ruler-lines", "kw:motion/liquid-transition", "kw:micro/microcopy-voice", "kw:micro/goo-morph"], 219, "2026-10-18"),
+  A("halo-index", "Halo Index", "Photography index where the cursor drags a trail of thumbnails that resolve and stack, then wipe into the full piece.", "Portfolio", "Dark",
+    ["kw:motion/cursor-media-trail", "kw:micro/page-bloom", "kw:motion/inertia-scroll", "kw:micro/chroma-aberration"], 207, "2026-10-15"),
+  A("terrain-atlas", "Terrain Atlas", "Travel journal over marching-cubes terrain; each chapter carves a new contour band as you read.", "Travel", "Dark",
+    ["kw:math/marching-cubes", "kw:math/procedural-landscape", "kw:motion/scroll-typography", "kw:micro/char-cascade"], 198, "2026-10-11"),
+  A("echo-chamber", "Echo Chamber", "Audio-visual label: particles pump to the track's spectrum; every transition lands on the kick.", "Music", "Dark",
+    ["kw:motion/audio-reactive-particles", "kw:backgrounds/audio-reactive-bg", "kw:micro/drag-inertia", "kw:micro/magnetic-cursor"], 193, "2026-10-08"),
 ];
