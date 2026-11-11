@@ -3,5 +3,6 @@ export * from "./categories";
 export * from "./registry";
 export * from "./search";
 export * from "./compiler";
+export * from "./params";
 export * from "./presets";
 export * from "./previews";

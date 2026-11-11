@@ -7,9 +7,10 @@ import {
   Loader2, Plus, RotateCcw, Save, Search, Sparkles, Trash2, X,
 } from "lucide-react";
 import { PreviewFrame } from "@/components/preview/preview-frame";
+import { resolveParams } from "@/lib/studio/params";
 import {
   CATEGORIES, MODULE_MAP, MODULES, compile, searchModules, getModule,
-  PRESETS, resolveParams,
+  PRESETS,
   type CategoryId, type CompileOutput, type ParamDef, type ParamValues, type PromptModule,
   type SelectionInput,
 } from "@/lib/studio";
