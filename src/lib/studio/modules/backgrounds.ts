@@ -74,7 +74,7 @@ export const BACKGROUND_MODULES = [
       "An infinite perspective grid plane scrolling toward the viewer — retro-tech runway beneath heroes.",
     prompt:
       "Render a perspective grid floor: a plane in rotateX({tilt}°) with repeating grid lines scrolling toward the viewer at {speed}px/s (offset modulo cell so the loop is seamless), horizon line softened by a vertical fade mask; color the lines {line} on transparent; pair with a radial sun/glow at the horizon for full commitment.",
-    implementation: "",
+    implementation: "CSS-only: one oversized grid layer (repeating-linear-gradient both axes) on a 3D-transform parent, animated via background-position or translateY modulo the cell size; horizon fade via mask-image linear-gradient.",
     stack: ["CSS"],
     params: [
       range("tilt", "Tilt", 62, 40, 78, 1, "°"),
