@@ -27,7 +27,15 @@ export function Nav() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  useEffect(() => setOpen(false), [pathname]);
+  // Mobile menu closes via link onClick + Escape; no sync setState in effects.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
     <header
@@ -95,6 +103,7 @@ export function Nav() {
               <Link
                 key={l.href}
                 href={l.href}
+                onClick={() => setOpen(false)}
                 className="border-b border-line py-4 font-display text-2xl font-bold tracking-tight text-ivory last:border-none"
               >
                 {l.label}

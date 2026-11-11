@@ -62,8 +62,11 @@ export function TypeCycle({
       if (text.length > 0) {
         t = setTimeout(() => setText(current.slice(0, text.length - 1)), 14);
       } else {
-        idx.current += 1;
-        setPhase("typing");
+        // advance phrase asynchronously — never call setState synchronously in an effect body
+        t = setTimeout(() => {
+          idx.current += 1;
+          setPhase("typing");
+        }, 24);
       }
     }
     return () => clearTimeout(t);

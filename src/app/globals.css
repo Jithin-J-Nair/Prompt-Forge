@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
 
 @theme {
   --color-ink: #070708;
@@ -14,11 +18,11 @@
   --color-fog: #9b96a3;
   --color-smoke: #615c6b;
 
-  --font-display: var(--font-space-grotesk), "Space Grotesk", ui-sans-serif,
+  --font-display: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif,
     system-ui, sans-serif;
-  --font-body: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-instrument), "Instrument Serif", Georgia, serif;
-  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+  --font-body: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
 
   --animate-marquee: marquee 28s linear infinite;
   --animate-marquee-slow: marquee 60s linear infinite;

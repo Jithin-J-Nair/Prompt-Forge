@@ -1,27 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Space_Grotesk, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-  display: "swap",
-});
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains",
-  display: "swap",
-});
-
-const instrument = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-instrument",
-  display: "swap",
-});
+/**
+ * Fonts are self-hosted via @fontsource packages (imported in globals.css).
+ * This keeps the build hermetic (no runtime Google Fonts fetch) and removes
+ * third-party font requests entirely — faster LCP and offline-safe builds.
+ */
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://promptforge.app"),
@@ -63,9 +48,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${spaceGrotesk.variable} ${jetbrains.variable} ${instrument.variable} bg-ink text-ivory antialiased`}
-      >
+      <body className="bg-ink text-ivory antialiased">
         {children}
       </body>
     </html>
