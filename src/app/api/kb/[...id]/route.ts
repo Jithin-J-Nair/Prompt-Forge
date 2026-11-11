@@ -9,9 +9,9 @@ export async function GET(
 ) {
   const parts = (await ctx.params).id;
   const decoded = decodeURIComponent(parts.join("/"));
-  const module = getModule(decoded);
-  if (!module) {
+  const mod = getModule(decoded);
+  if (!mod) {
     return NextResponse.json({ error: `Unknown module '${decoded}'.` }, { status: 404 });
   }
-  return NextResponse.json({ module });
+  return NextResponse.json({ module: mod });
 }

@@ -110,16 +110,16 @@ export function resolveSelections(input: SelectionInput[]): {
     const id = sel.id;
     if (seen.has(id)) continue; // duplicates never double-compile
     seen.add(id);
-    const module = getModule(id);
-    if (!module) {
+    const mod = getModule(id);
+    if (!mod) {
       unknownIds.push(id);
       continue;
     }
     const params: ParamValues = {};
-    for (const def of module.params) {
+    for (const def of mod.params) {
       params[def.key] = resolveParam(def, sel.params?.[def.key]);
     }
-    resolved.push({ module, params });
+    resolved.push({ module: mod, params });
   }
   return { resolved, unknownIds };
 }
@@ -160,13 +160,13 @@ function fmtValue(def: ParamDef | undefined, v: string | number | boolean): stri
   return String(v);
 }
 
-export function renderFragment(module: PromptModule, params: ParamValues): string {
-  return interpolate(module.prompt, module, params);
+export function renderFragment(mod: PromptModule, params: ParamValues): string {
+  return interpolate(mod.prompt, mod, params);
 }
 
-function interpolate(text: string, module: PromptModule, params: ParamValues): string {
+function interpolate(text: string, mod: PromptModule, params: ParamValues): string {
   let out = text;
-  for (const def of module.params) {
+  for (const def of mod.params) {
     const v = params[def.key] ?? def.default;
     out = out.replaceAll(`{${def.key}}`, fmtValue(def, v));
   }
@@ -174,9 +174,9 @@ function interpolate(text: string, module: PromptModule, params: ParamValues): s
 }
 
 /** tokens may also appear in implementation/a11y/responsive/fallback lines */
-function labeledField(label: string, text: string | undefined, module: PromptModule, params: ParamValues): string | null {
+function labeledField(label: string, text: string | undefined, mod: PromptModule, params: ParamValues): string | null {
   if (!text) return null;
-  return `${label}: ${interpolate(text, module, params)}`;
+  return `${label}: ${interpolate(text, mod, params)}`;
 }
 
 function paramSummaryLines(module: PromptModule, params: ParamValues): string[] {

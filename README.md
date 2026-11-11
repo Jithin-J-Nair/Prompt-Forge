@@ -34,6 +34,37 @@ The project uses a **deterministic, heuristic-based enhancement engine** rather 
 > [!NOTE]
 > The engine is deterministic and template-driven. It does not call an external LLM to generate the specification.
 
+## What's new: the Visual Prompt Engineering Studio
+
+On top of the original spec engine, PromptForge now ships a full **visual prompt engineering
+environment**:
+
+- **`/studio` — the Studio.** A three-panel workspace: a hierarchical category explorer (11
+  categories, typed subcategories), a searchable browser of **279 substantial technique modules**
+  (websites, art direction, layout, typography, color/materials, motion across 9 subcategories,
+  mathematical/generative systems, WebGL/shaders, backgrounds, interaction, engineering), and a
+  live composer with typed parameter editors, reordering, conflict banners that explain and
+  suggest resolutions (selections are never silently dropped), editable output, copy and
+  Markdown/TXT/JSON export, and save/restore of compositions.
+- **`/motion-lab` — Motion Lab.** Every referenced motion technique *actually running*: spring
+  integration, verlet rope, drag-and-throw with wall restitution, IntersectionObserver-driven
+  scroll suites, particle networks, SVG path self-draw, procedural film grain, Bayer dithering —
+  all honoring `prefers-reduced-motion`.
+- **`/math-lab` — Math Lab.** Generative systems rendered with the real math: RK4-integrated
+  Lorenz, Gray–Scott reaction-diffusion (feed/kill pairs), Julia sets with smooth coloring,
+  Voronoi, marching-squares metaballs, fBM and IQ domain warping, phyllotaxis at the golden
+  angle — with sliders exposing the same parameters the compiler embeds in prompts.
+- **A compatibility-aware compiler** (`src/lib/studio/compiler.ts`) that validates and clamps
+  typed params, interpolates them into prompt fragments, groups selections into a 17-section
+  build specification, detects symmetric conflicts with explanations, adapts its acceptance
+  criteria to the selection, and renders Markdown / plain text / JSON.
+- **21 curated presets** composed solely from module IDs, search over names/aliases/tags/
+  descriptions, and five new API surfaces: `/api/kb`, `/api/search`, `/api/compile`,
+  `/api/presets`, `/api/compositions` (with an in-memory fallback when no database is configured).
+
+Documentation: `docs/research/COMPETITIVE-RESEARCH.md`, `docs/architecture/*` (4 files),
+`docs/quality/*` (3 files), `docs/IMPLEMENTATION-REPORT.md`.
+
 ## Features
 
 - **Prompt enhancement:** Converts a short brief into a structured website build specification.
