@@ -14,7 +14,7 @@ export function SvgPathDraw(p: PreviewProps) {
   return (
     <svg viewBox="0 8 180 80" className="block size-full" role="img" aria-label="SVG path draw-on animation">
       {paths.map((d, i) => (
-        <path key={i} d={d} fill="none" stroke={i % 2 ? "#ffb85c" : "#ff5c1c"} strokeWidth="3"
+        <path key={i} d={d} fill="none" stroke={i % 2 ? "#67e8f9" : "#8b7cf6"} strokeWidth="3"
           strokeLinecap="round" style={{
             strokeDasharray: 200,
             strokeDashoffset: p.animate && !p.still ? undefined : 0,
@@ -45,7 +45,7 @@ const SQUASH_D = "M16 50 q34 -36 68 0 q-34 20 -68 0";
 export function SvgMorph(p: PreviewProps) {
   return (
     <svg viewBox="0 0 100 100" className="block size-full" role="img" aria-label="SVG shape morph">
-      <path fill="none" stroke="#ff5c1c" strokeWidth="3" strokeLinecap="round" d={CIRCLE_D}>
+      <path fill="none" stroke="#8b7cf6" strokeWidth="3" strokeLinecap="round" d={CIRCLE_D}>
         {p.animate && !p.still && (
           <animate attributeName="d" values={`${CIRCLE_D};${SQUASH_D};${CIRCLE_D}`} dur="3.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
         )}
@@ -59,10 +59,10 @@ export function SvgFollow(p: PreviewProps) {
   return (
     <svg viewBox="0 0 200 100" className="block size-full" role="img" aria-label="Motion path follower">
       <path d="M20 72 C58 16 92 88 130 40 C150 16 172 30 186 24" fill="none" stroke="#2b2b31" strokeDasharray="4 4" />
-      <path d="M20 72 C58 16 92 88 130 40 C150 16 172 30 186 24" fill="none" stroke="rgba(255,92,28,0.5)" strokeWidth="1" />
+      <path d="M20 72 C58 16 92 88 130 40 C150 16 172 30 186 24" fill="none" stroke="rgba(139,124,246,0.5)" strokeWidth="1" />
       <g>
-        <circle r="8" fill="rgba(255,92,28,0.25)" />
-        <circle r="4" fill="#ffb85c" />
+        <circle r="8" fill="rgba(139,124,246,0.25)" />
+        <circle r="4" fill="#67e8f9" />
         {p.animate && !p.still ? (
           <animateMotion dur="3.4s" repeatCount="indefinite" path="M20 72 C58 16 92 88 130 40 C150 16 172 30 186 24" rotate="auto" />
         ) : (

@@ -29,7 +29,7 @@ function useThree(
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
     } catch {
-      host.innerHTML = `<div style="display:grid;place-items:center;height:100%;font:9px monospace;color:#ff2e4d;border:1px solid rgba(255,46,77,0.4);border-radius:6px;margin:6px">WebGL context unavailable</div>`;
+      host.innerHTML = `<div style="display:grid;place-items:center;height:100%;font:9px monospace;color:#fb7185;border:1px solid rgba(251,113,133,0.4);border-radius:6px;margin:6px">WebGL context unavailable</div>`;
       return;
     }
     const dpr = Math.min(1.75, window.devicePixelRatio || 1);

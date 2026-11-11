@@ -11,9 +11,9 @@
   --color-steel: #1b1b21;
   --color-line: rgba(255, 255, 255, 0.08);
   --color-line-bright: rgba(255, 255, 255, 0.16);
-  --color-ember: #ff5c1c;
-  --color-flare: #ffb85c;
-  --color-blood: #ff2e4d;
+  --color-ember: #8b7cf6;
+  --color-flare: #67e8f9;
+  --color-blood: #fb7185;
   --color-ivory: #f2ede6;
   --color-fog: #9b96a3;
   --color-smoke: #615c6b;
@@ -116,7 +116,7 @@ body {
   border: 2px solid #0c0c0f;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff5c1c;
+  background: #8b7cf6;
 }
 
 /* ------- utilities ------- */
@@ -124,7 +124,7 @@ body {
   font-family: var(--font-serif);
 }
 .text-gradient-ember {
-  background: linear-gradient(100deg, #ff5c1c 0%, #ffb85c 48%, #ff5c1c 100%);
+  background: linear-gradient(100deg, #8b7cf6 0%, #67e8f9 48%, #8b7cf6 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -134,7 +134,7 @@ body {
   color: transparent;
 }
 .text-stroke-ember {
-  -webkit-text-stroke: 1px rgba(255, 92, 28, 0.65);
+  -webkit-text-stroke: 1px rgba(139, 124, 246, 0.65);
   color: transparent;
 }
 
@@ -186,7 +186,7 @@ body {
 }
 
 .glow-ember {
-  box-shadow: 0 0 24px rgba(255, 92, 28, 0.35), 0 0 80px rgba(255, 92, 28, 0.12);
+  box-shadow: 0 0 24px rgba(139, 124, 246, 0.35), 0 0 80px rgba(139, 124, 246, 0.12);
 }
 
 .card-sheen {
@@ -199,7 +199,7 @@ body {
   inset: 0;
   background: radial-gradient(
     600px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 92, 28, 0.09),
+    rgba(139, 124, 246, 0.09),
     transparent 42%
   );
   pointer-events: none;
@@ -270,7 +270,7 @@ p, li, figcaption { text-wrap: pretty; }
   background: linear-gradient(
     105deg,
     transparent 40%,
-    rgba(255, 184, 92, 0.14) 50%,
+    rgba(103, 232, 249, 0.14) 50%,
     transparent 60%
   );
   transform: translateX(-120%);

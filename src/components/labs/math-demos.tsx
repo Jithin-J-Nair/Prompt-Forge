@@ -8,8 +8,8 @@ import { CanvasDemo, DemoTile, LabSlider, fbm, lerp, makeNoise2D, mulberry32 } f
 /* ------------------------------------------------------------------ */
 
 const INK = "#070708";
-const EMBER = "#ff5c1c";
-const FLARE = "#ffb85c";
+const EMBER = "#8b7cf6";
+const FLARE = "#67e8f9";
 const IVORY = "#f2ede6";
 
 /* ------------------------------ lissajous ------------------------------ */
@@ -37,7 +37,7 @@ export function LissajousDemo() {
             i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
           }
           ctx.closePath();
-          ctx.strokeStyle = pass === 0 ? "rgba(255,92,28,0.25)" : EMBER;
+          ctx.strokeStyle = pass === 0 ? "rgba(139,124,246,0.25)" : EMBER;
           ctx.lineWidth = pass === 0 ? 5 : 1.4;
           ctx.stroke();
         }
@@ -81,7 +81,7 @@ export function FourierDemo() {
           const ny = y + radius * Math.sin(angle);
           ctx.strokeStyle = "rgba(242,237,230,0.22)";
           ctx.beginPath(); ctx.arc(x, y, radius, 0, 7); ctx.stroke();
-          ctx.strokeStyle = "rgba(255,184,92,0.7)";
+          ctx.strokeStyle = "rgba(103,232,249,0.7)";
           ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(nx, ny); ctx.stroke();
           x = nx; y = ny;
         }
@@ -102,7 +102,7 @@ export function FourierDemo() {
           ctx.lineTo(startX + i, cy + sy);
         }
         ctx.stroke();
-        ctx.strokeStyle = "rgba(255,92,28,0.25)";
+        ctx.strokeStyle = "rgba(139,124,246,0.25)";
         ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(startX > x ? x + 40 : x, y); ctx.stroke();
       }} />
       <div className="space-y-2 border-t border-line px-4 py-3">
@@ -217,13 +217,13 @@ export function PolarRoseDemo() {
           const r = Math.cos(k * th + t * 0.2) * R;
           pts.push([cx + r * Math.cos(th), cy + r * Math.sin(th)]);
         }
-        ctx.strokeStyle = "rgba(255,92,28,0.6)";
+        ctx.strokeStyle = "rgba(139,124,246,0.6)";
         ctx.lineWidth = 1.2;
         ctx.beginPath();
         pts.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
         ctx.stroke();
         // Maurer chords
-        ctx.strokeStyle = "rgba(255,184,92,0.5)";
+        ctx.strokeStyle = "rgba(103,232,249,0.5)";
         ctx.lineWidth = 0.7;
         ctx.beginPath();
         const step = Math.max(2, Math.floor(N / 120));
@@ -332,7 +332,7 @@ export function SierpinskiDemo() {
         let px = cx, py = cy;
         const rnd = mulberry32(1234);
         const jumps = 20000;
-        ctx.fillStyle = "rgba(255,92,28,0.75)";
+        ctx.fillStyle = "rgba(139,124,246,0.75)";
         const spin = t * 0.1;
         const cos = Math.cos(spin), sin = Math.sin(spin);
         for (let i = 0; i < jumps; i++) {
@@ -544,7 +544,7 @@ export function TerrainDemo() {
         const noise = makeNoise2D(11);
         const rows = 26, cols = 30;
         const horizon = h * 0.32;
-        ctx.strokeStyle = "rgba(255,92,28,0.85)";
+        ctx.strokeStyle = "rgba(139,124,246,0.85)";
         for (let r = 0; r < rows; r++) {
           const rz = rows - r; // far→near
           const zt = (r + ((t * 3) % 1)) / rows;

@@ -101,7 +101,7 @@ export function usePreviewWebGL(
         const r = canvas.getBoundingClientRect();
         canvas.width = Math.max(2, r.width); canvas.height = Math.max(2, r.height);
         c2.fillStyle = "#0c0c0f"; c2.fillRect(0, 0, canvas.width, canvas.height);
-        c2.strokeStyle = "rgba(255,92,28,0.4)"; c2.strokeRect(6.5, 6.5, canvas.width - 13, canvas.height - 13);
+        c2.strokeStyle = "rgba(139,124,246,0.4)"; c2.strokeRect(6.5, 6.5, canvas.width - 13, canvas.height - 13);
         c2.fillStyle = "rgba(242,237,230,0.6)"; c2.font = "9px monospace"; c2.textAlign = "center";
         c2.fillText("WebGL2 unavailable — static fallback", canvas.width / 2, canvas.height / 2);
       }

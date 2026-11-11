@@ -36,7 +36,7 @@ function ChipCard({ k, index }: { k: Keyword; index: number }) {
         className={clsx(
           "group flex h-full w-full flex-col rounded-lg border p-4 text-left transition-all duration-300",
           on
-            ? "border-ember/60 bg-ember/10 shadow-[0_0_28px_-8px_rgba(255,92,28,0.35)]"
+            ? "border-ember/60 bg-ember/10 shadow-[0_0_28px_-8px_rgba(139,124,246,0.35)]"
             : "border-line bg-carbon/60 hover:-translate-y-0.5 hover:border-line-bright",
         )}
       >

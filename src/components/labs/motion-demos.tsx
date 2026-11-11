@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CanvasDemo, DemoTile, LabSlider, clamp, fbm, makeNoise2D, mulberry32, useReducedMotion } from "./lab-shell";
 
 const INK = "#070708";
-const EMBER = "#ff5c1c";
-const FLARE = "#ffb85c";
+const EMBER = "#8b7cf6";
+const FLARE = "#67e8f9";
 const IVORY = "#f2ede6";
 
 /* ------------------------------ text demos (DOM) ------------------------------ */
@@ -124,7 +124,7 @@ export function GradientSweepDemo() {
         <span
           className="bg-clip-text font-display text-5xl font-black tracking-tight text-transparent md:text-6xl"
           style={{
-            backgroundImage: `linear-gradient(${angle}deg, #ff5c1c, #ffb85c 30%, #ff2e4d 50%, #ff5c1c 75%, #ffb85c)`,
+            backgroundImage: `linear-gradient(${angle}deg, #8b7cf6, #67e8f9 30%, #fb7185 50%, #8b7cf6 75%, #67e8f9)`,
             backgroundSize: "300% 100%",
             animation: "sweep 6s ease-in-out infinite",
           }}
@@ -157,7 +157,7 @@ export function PathTextDemo() {
               <animate attributeName="startOffset" from="0%" to="45%" dur={`${6 / speed}s`} repeatCount="indefinite" />
             </textPath>
           </text>
-          <text fontSize="13" fill="rgba(255,184,92,0.5)" fontFamily="JetBrains Mono Variable, monospace" letterSpacing="3">
+          <text fontSize="13" fill="rgba(103,232,249,0.5)" fontFamily="JetBrains Mono Variable, monospace" letterSpacing="3">
             <textPath href="#pf-path" startOffset="-45%">
               FLOW · ALONG · THE · CURVE ·
               <animate attributeName="startOffset" from="-45%" to="0%" dur={`${6 / speed}s`} repeatCount="indefinite" />
@@ -476,7 +476,7 @@ export function SpotlightDemo() {
         <div
           className="absolute inset-0"
           style={{
-            background: `radial-gradient(180px circle at ${pos.x}% ${pos.y}%, rgba(255,92,28,0.22), rgba(255,184,92,0.06) 45%, transparent 70%)`,
+            background: `radial-gradient(180px circle at ${pos.x}% ${pos.y}%, rgba(139,124,246,0.22), rgba(103,232,249,0.06) 45%, transparent 70%)`,
           }}
         />
         <div className="absolute left-4 top-4 font-mono text-[10px] uppercase tracking-[0.2em] text-fog">Spotlight follows pointer</div>
@@ -565,7 +565,7 @@ export function SpringDemo() {
         s.vx += (tx - s.x) * stiff * 0.016 - s.vx * damp * 0.016;
         s.vy += (ty - s.y) * stiff * 0.016 - s.vy * damp * 0.016;
         s.x += s.vx; s.y += s.vy;
-        ctx.strokeStyle = "rgba(255,92,28,0.35)";
+        ctx.strokeStyle = "rgba(139,124,246,0.35)";
         ctx.beginPath();
         ctx.moveTo(s.x - s.vx * 3, s.y - s.vy * 3); ctx.lineTo(s.x, s.y); ctx.stroke();
         ctx.fillStyle = FLARE;
@@ -772,7 +772,7 @@ export function ParticleNetworkDemo() {
             const d2 = dx * dx + dy * dy;
             if (d2 < radius * radius) {
               const a = 1 - Math.sqrt(d2) / radius;
-              ctx.strokeStyle = `rgba(255,92,28,${a * 0.5})`;
+              ctx.strokeStyle = `rgba(139,124,246,${a * 0.5})`;
               ctx.beginPath(); ctx.moveTo(ps[i].x, ps[i].y); ctx.lineTo(ps[j].x, ps[j].y); ctx.stroke();
             }
           }
@@ -875,8 +875,8 @@ export function BlobDemo() {
         }
         ctx.closePath();
         const g = ctx.createRadialGradient(cx, cy, 10, cx, cy, R * 1.4);
-        g.addColorStop(0, "rgba(255,92,28,0.85)");
-        g.addColorStop(1, "rgba(255,46,77,0.5)");
+        g.addColorStop(0, "rgba(139,124,246,0.85)");
+        g.addColorStop(1, "rgba(251,113,133,0.5)");
         ctx.fillStyle = g;
         ctx.fill();
       }} />
@@ -1067,7 +1067,7 @@ export function MeshGradientDemo() {
       <CanvasDemo deps={[blobCount]} draw={(dc) => {
         const { ctx, w, h, t } = dc;
         ctx.fillStyle = "#0c0a12"; ctx.fillRect(0, 0, w, h);
-        const colors = ["#ff5c1c", "#ff2e4d", "#7c3aed", "#0ea5e9", "#ffb85c", "#10b981"];
+        const colors = ["#8b7cf6", "#fb7185", "#7c3aed", "#0ea5e9", "#67e8f9", "#10b981"];
         ctx.globalCompositeOperation = "lighter";
         for (let i = 0; i < blobCount; i++) {
           const x = w / 2 + Math.sin(t * 0.4 + i * 2.4) * w * 0.36;

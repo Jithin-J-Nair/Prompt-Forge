@@ -101,7 +101,7 @@ export const INDUSTRIES: Industry[] = [
         colors: [
           { role: "Background", hex: "#0C0B09", note: "warm carbon" },
           { role: "Surface", hex: "#181512", note: "rubber + steel" },
-          { role: "Primary", hex: "#FF5C1C", note: "forge ember CTA" },
+          { role: "Primary", hex: "#8b7cf6", note: "forge ember CTA" },
           { role: "Secondary", hex: "#C6B69B", note: "worn leather tan" },
           { role: "Text", hex: "#F6F1E9", note: "bone" },
         ],
@@ -1187,7 +1187,7 @@ export const INDUSTRIES: Industry[] = [
           { role: "Background", hex: "#F6F3EC", note: "day-show cream (light-first)" },
           { role: "Surface", hex: "#FFFFFF", note: "ticket" },
           { role: "Primary", hex: "#121212", note: "poster black" },
-          { role: "Secondary", hex: "#FF5C1C", note: "marquee orange" },
+          { role: "Secondary", hex: "#8b7cf6", note: "marquee orange" },
           { role: "Text", hex: "#1A1814", note: "ink" },
         ],
       },
@@ -1592,7 +1592,7 @@ export const INDUSTRIES: Industry[] = [
         colors: [
           { role: "Background", hex: "#0B0B0D", note: "exhibition black" },
           { role: "Surface", hex: "#141418", note: "panel" },
-          { role: "Primary", hex: "#FF5C1C", note: "signal ember" },
+          { role: "Primary", hex: "#8b7cf6", note: "signal ember" },
           { role: "Secondary", hex: "#C9BFAE", note: "stone" },
           { role: "Text", hex: "#F2EEE6", note: "ivory" },
         ],

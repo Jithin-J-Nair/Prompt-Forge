@@ -158,7 +158,7 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
         {moduleId && getModule(moduleId) ? (
           <PreviewFrame module={getModule(moduleId)!} params={defaultParams(getModule(moduleId)!)} mode="card" className="absolute inset-0" />
         ) : (
-          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(80%_120%_at_30%_20%,rgba(255,92,28,0.16),transparent_60%),radial-gradient(70%_100%_at_80%_90%,rgba(255,46,77,0.1),transparent_60%)]" />
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(80%_120%_at_30%_20%,rgba(139,124,246,0.16),transparent_60%),radial-gradient(70%_100%_at_80%_90%,rgba(251,113,133,0.1),transparent_60%)]" />
         )}
         <div className="mask-fade-y pointer-events-none absolute inset-x-0 bottom-0 h-16 from-transparent to-transparent" />
         <span className={clsx("absolute left-3 top-3 rounded-full border px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.18em] backdrop-blur-md",
@@ -183,7 +183,7 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
               {a.industry} · <span className="tabular">{a.votes + (loved ? 1 : 0)}</span> votes · {stack.length} chips
             </p>
           </div>
-          <Link href={`/spec/${moduleId ?? "motion/scroll-reveal"}`} aria-label={`Inspect ${a.name}`}
+          <Link href={`/artifact/${a.id}`} aria-label={`Open ${a.name}`}
             className="press mt-1 grid size-8 shrink-0 place-items-center rounded-full border border-line text-smoke transition-colors hover:border-ember/50 hover:text-ember">
             <ArrowUpRight className="size-3.5" />
           </Link>

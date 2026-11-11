@@ -90,7 +90,7 @@ export function DmTypeStacked(p: PreviewProps) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-ink font-display font-black uppercase leading-[0.9]">
       <span className="text-2xl text-ivory">STACK</span>
-      <span className="text-2xl" style={{ WebkitTextStroke: "1px #ffb85c", color: "transparent" }}>STACK</span>
+      <span className="text-2xl" style={{ WebkitTextStroke: "1px #67e8f9", color: "transparent" }}>STACK</span>
       <span className="text-2xl text-ember">STACK</span>
     </div>
   );
@@ -108,7 +108,7 @@ export function DmTypeMask(p: PreviewProps) {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-ink">
       <span className="font-display text-3xl font-black uppercase" style={{
-        backgroundImage: "linear-gradient(110deg,#ff5c1c 20%,#ffb85c 45%,#ff5c1c 75%)",
+        backgroundImage: "linear-gradient(110deg,#8b7cf6 20%,#67e8f9 45%,#8b7cf6 75%)",
         backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent",
       }}>MASKED</span>
     </div>
@@ -119,7 +119,7 @@ export function DmTypeGradient(p: PreviewProps) {
     <div className="absolute inset-0 flex items-center justify-center bg-ink">
       <span className={clsx(T, "font-display text-3xl font-black uppercase")}
         style={{
-          backgroundImage: "linear-gradient(120deg,#ff5c1c,#ff2e4d 60%,#ffb85c)",
+          backgroundImage: "linear-gradient(120deg,#8b7cf6,#fb7185 60%,#67e8f9)",
           backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent",
         }}>
         SHEEN
@@ -334,7 +334,7 @@ export function DmSpotlight(p: PreviewProps) {
   return (
     <div className="absolute inset-0 bg-ink p-4">
       <div className="h-full rounded border border-line p-3" style={{
-        background: `radial-gradient(${radius}px at ${x}% ${y}%, rgba(255,92,28,0.22), transparent 65%)`,
+        background: `radial-gradient(${radius}px at ${x}% ${y}%, rgba(139,124,246,0.22), transparent 65%)`,
       }}>
         <div className="mb-2 h-2 w-24 rounded bg-wall" />
         <div className="h-2 w-40 rounded bg-wall" />
@@ -472,7 +472,7 @@ export function DmParallax(p: PreviewProps) {
                   left: `${12 + i * 26}%`,
                   top: `calc(${20 + i * 14}% + ${(pr - 0.5) * (20 + i * 26)}px)`,
                   width: 18 + i * 7, height: 18 + i * 7,
-                  background: i % 2 ? "rgba(255,92,28,0.4)" : "rgba(242,237,230,0.14)",
+                  background: i % 2 ? "rgba(139,124,246,0.4)" : "rgba(242,237,230,0.14)",
                   filter: i === 0 ? "blur(1px)" : undefined,
                 }} />
             ))}
@@ -535,7 +535,7 @@ export function DmMorphScene(p: PreviewProps) {
         style={{
           borderRadius: i === 0 ? 4 : i === 1 ? 10 : 32,
           transform: `rotate(${i * 30}deg) scale(${1 + i * 0.08})`,
-          background: `rgba(255,92,28,${0.15 + i * 0.1})`,
+          background: `rgba(139,124,246,${0.15 + i * 0.1})`,
         }} />
       <span className="absolute bottom-2 font-mono text-[8px] text-smoke">scene {i + 1}/3</span>
     </div>
@@ -682,7 +682,7 @@ export function DmMicro(p: PreviewProps) {
     <div className="absolute inset-0 grid place-items-center gap-1 bg-ink">
       <div className={clsx("flex h-6 w-11 cursor-pointer items-center rounded-full border border-line px-0.5", T, v && "border-ember bg-ember/25")}
         onClick={() => setOn(!on)} role="switch" aria-checked={v} tabIndex={0}>
-        <div className={clsx("size-4.5 rounded-full bg-ivory", T)} style={{ transform: `translateX(${v ? 20 : 0}px)`, background: v ? "#ffb85c" : "#4b4b55" }} />
+        <div className={clsx("size-4.5 rounded-full bg-ivory", T)} style={{ transform: `translateX(${v ? 20 : 0}px)`, background: v ? "#67e8f9" : "#4b4b55" }} />
       </div>
       <span className="font-mono text-[8px] text-smoke">{v ? "engage" : "idle"}</span>
     </div>
@@ -842,7 +842,7 @@ export function DmLayout(p: PreviewProps, variant?: string) {
         <div className="absolute bottom-[16%] right-[14%] h-1.5 w-16 rounded bg-wall" />
       </>)}
       {v === "diagonal" && (<>
-        <div className="absolute inset-0" style={{ clipPath: "polygon(0 0, 100% 0, 100% 40%, 0 78%)", background: "rgba(255,92,28,0.5)" }} />
+        <div className="absolute inset-0" style={{ clipPath: "polygon(0 0, 100% 0, 100% 40%, 0 78%)", background: "rgba(139,124,246,0.5)" }} />
         <div className="absolute bottom-2 right-3 font-display text-sm font-black text-ivory">↘</div>
       </>)}
       {v === "editorial" && (<div className="absolute inset-x-4 inset-y-3 columns-2 gap-2">
@@ -879,7 +879,7 @@ export function DmRamp(p: PreviewProps) {
 }
 export function DmGradient(p: PreviewProps, variant?: string) {
   const colors = numP(p.params, "colors", 3);
-  const stops = ["#ff5c1c", "#ff2e4d", "#ffb85c", "#7c3aed", "#0ea5e9"].slice(0, clamp(colors, 2, 5));
+  const stops = ["#8b7cf6", "#fb7185", "#67e8f9", "#7c3aed", "#0ea5e9"].slice(0, clamp(colors, 2, 5));
   return (
     <div className="absolute inset-0" style={{
       background: variant === "conic"
@@ -911,7 +911,7 @@ export function DmHolo(p: PreviewProps) {
     <div className="absolute inset-0 bg-ink">
       <div className="absolute inset-[18%] rounded-xl"
         style={{
-          background: `linear-gradient(${a}deg, rgba(255,92,28,.6), rgba(255,184,92,.5), rgba(124,58,237,.5), rgba(14,165,233,.5), rgba(255,92,28,.6))`,
+          background: `linear-gradient(${a}deg, rgba(139,124,246,.6), rgba(103,232,249,.5), rgba(124,58,237,.5), rgba(14,165,233,.5), rgba(139,124,246,.6))`,
           filter: "saturate(1.5)",
         }} />
       <span className="absolute bottom-1.5 left-2 font-mono text-[8px] text-smoke">∠{Math.round(a)}°</span>
@@ -1044,10 +1044,10 @@ export function DmCards(p: PreviewProps) {
           <div key={i} className={clsx("h-14 w-11 rounded-md border border-line bg-panel", T)}
             style={{
               transform: sel === i ? "translateY(-6px) scale(1.06)" : "none",
-              borderColor: sel === i ? "#ff5c1c" : undefined,
+              borderColor: sel === i ? "#8b7cf6" : undefined,
             }}>
             <div className="m-1.5 h-1.5 w-2/3 rounded bg-wall" />
-            <div className="m-1.5 h-1 w-1/2 rounded" style={{ background: sel === i ? "#ffb85c" : "#2b2b31" }} />
+            <div className="m-1.5 h-1 w-1/2 rounded" style={{ background: sel === i ? "#67e8f9" : "#2b2b31" }} />
           </div>
         ))}
       </div>
@@ -1220,7 +1220,7 @@ export function DmForms(p: PreviewProps) {
         <div className={clsx("rounded border bg-panel px-2 py-1.5 font-mono text-[8px]", T, v ? "border-signal/60" : "border-blood/60")}>
           <span className={v ? "text-fog" : "text-blood"}>{v ? "forge@arena.dev ✓" : "forge@arena…"}</span>
         </div>
-        <div className="flex items-center gap-1 font-mono text-[7.5px]" style={{ color: v ? "#34d399" : "#ff2e4d" }}>
+        <div className="flex items-center gap-1 font-mono text-[7.5px]" style={{ color: v ? "#34d399" : "#fb7185" }}>
           {v ? "✓ valid — saved" : "✗ complete the input"}
         </div>
       </div>
@@ -1358,7 +1358,7 @@ export function DmMedia(p: PreviewProps) {
   return (
     <div className="absolute inset-0 grid place-items-center bg-ink">
       <div className={clsx("grid size-14 place-items-center rounded-md border border-line", T)}
-        style={{ background: `rgba(255,92,28,${0.1 + v * 0.12})`, filter: v === 0 ? "blur(2px)" : v === 1 ? "blur(0.5px)" : "none" }}>
+        style={{ background: `rgba(139,124,246,${0.1 + v * 0.12})`, filter: v === 0 ? "blur(2px)" : v === 1 ? "blur(0.5px)" : "none" }}>
         <span className="font-mono text-[8px] text-fog">{["lqip", "webp", "avif"][v]}</span>
       </div>
     </div>

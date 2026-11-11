@@ -149,7 +149,7 @@ export function ForgeConsole() {
                 "group mt-5 flex h-13 w-full items-center justify-center gap-2.5 rounded-lg font-mono text-[12.5px] font-medium tracking-[0.16em] uppercase transition-all duration-200",
                 phase === "forging"
                   ? "cursor-wait bg-steel text-fog"
-                  : "bg-ember text-ink hover:bg-flare hover:shadow-[0_0_40px_rgba(255,92,28,0.35)]",
+                  : "bg-ember text-ink hover:bg-flare hover:shadow-[0_0_40px_rgba(139,124,246,0.35)]",
               )}
             >
               {phase === "forging" ? (

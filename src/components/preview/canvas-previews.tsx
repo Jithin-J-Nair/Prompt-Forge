@@ -6,8 +6,8 @@ import {
 } from "./runtime";
 
 const INK = "#070708";
-const EMBER = "#ff5c1c";
-const FLARE = "#ffb85c";
+const EMBER = "#8b7cf6";
+const FLARE = "#67e8f9";
 const IVORY = "#f2ede6";
 
 function Cv({
@@ -59,7 +59,7 @@ export function CvParticleNetwork(p: PreviewProps) {
     for (let i = 0; i < st.length; i++) for (let j = i + 1; j < st.length; j++) {
       const dx = st[i].x - st[j].x, dy = st[i].y - st[j].y, d2 = dx * dx + dy * dy;
       if (d2 < radius * radius) {
-        ctx.strokeStyle = `rgba(255,92,28,${(1 - Math.sqrt(d2) / radius) * 0.5})`;
+        ctx.strokeStyle = `rgba(139,124,246,${(1 - Math.sqrt(d2) / radius) * 0.5})`;
         ctx.beginPath(); ctx.moveTo(st[i].x, st[i].y); ctx.lineTo(st[j].x, st[j].y); ctx.stroke();
       }
     }
@@ -209,7 +209,7 @@ export function CvSpring(p: PreviewProps) {
     ctx.strokeStyle = "rgba(242,237,230,0.2)";
     ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(s.x, s.y); ctx.stroke();
     ctx.fillStyle = FLARE; ctx.beginPath(); ctx.arc(s.x, s.y, 6, 0, 7); ctx.fill();
-    ctx.strokeStyle = "rgba(255,184,92,0.35)";
+    ctx.strokeStyle = "rgba(103,232,249,0.35)";
     ctx.beginPath(); ctx.arc(tx, ty, 3, 0, 7); ctx.stroke();
   }} />;
 }
@@ -281,7 +281,7 @@ export function CvBlob(p: PreviewProps) {
     }
     ctx.closePath();
     const g = ctx.createRadialGradient(cx, cy, 8, cx, cy, R * 1.4);
-    g.addColorStop(0, "rgba(255,92,28,0.9)"); g.addColorStop(1, "rgba(255,46,77,0.45)");
+    g.addColorStop(0, "rgba(139,124,246,0.9)"); g.addColorStop(1, "rgba(251,113,133,0.45)");
     ctx.fillStyle = g; ctx.fill();
   }} />;
 }
@@ -350,7 +350,7 @@ export function CvInertia(p: PreviewProps) {
     ctx.translate(0, -st.x * 0.6);
     for (let i = -2; i < 14; i++) {
       const y = (i * 46 + st.x) % (h + 92);
-      ctx.fillStyle = i % 3 ? "rgba(242,237,230,0.12)" : "rgba(255,92,28,0.5)";
+      ctx.fillStyle = i % 3 ? "rgba(242,237,230,0.12)" : "rgba(139,124,246,0.5)";
       ctx.fillRect(14, y + 40, w - 28 - (i % 4) * 30, 26);
     }
     ctx.restore();
@@ -420,7 +420,7 @@ export function CvFourier(p: PreviewProps) {
       const nx = x + r * Math.cos(n * theta), ny = y + r * Math.sin(n * theta);
       ctx.strokeStyle = "rgba(242,237,230,0.18)";
       ctx.beginPath(); ctx.arc(x, y, Math.abs(r), 0, 7); ctx.stroke();
-      ctx.strokeStyle = "rgba(255,184,92,0.7)";
+      ctx.strokeStyle = "rgba(103,232,249,0.7)";
       ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(nx, ny); ctx.stroke();
       x = nx; y = ny;
     }
@@ -483,7 +483,7 @@ export function CvPolarRose(p: PreviewProps) {
     ctx.fillStyle = INK; ctx.fillRect(0, 0, w, h);
     const cx = w / 2, cy = h / 2, R = Math.min(w, h) / 2 - 10;
     const k = n / d, N = 300 * d;
-    ctx.strokeStyle = "rgba(255,92,28,0.75)"; ctx.lineWidth = 1.1; ctx.beginPath();
+    ctx.strokeStyle = "rgba(139,124,246,0.75)"; ctx.lineWidth = 1.1; ctx.beginPath();
     for (let i = 0; i <= N; i++) {
       const th = (i / N) * Math.PI * 2 * d;
       const r = Math.cos(k * th + t * 0.2) * R;
@@ -498,7 +498,7 @@ export function CvSpirals(p: PreviewProps) {
   return <Cv props={p} draw={(ctx, w, h, t) => {
     ctx.fillStyle = INK; ctx.fillRect(0, 0, w, h);
     const cx = w / 2, cy = h / 2;
-    ctx.strokeStyle = "rgba(255,184,92,0.8)"; ctx.lineWidth = 1; ctx.beginPath();
+    ctx.strokeStyle = "rgba(103,232,249,0.8)"; ctx.lineWidth = 1; ctx.beginPath();
     const b = 0.30635; // golden-spiral constant r = a·e^(bθ)
     for (let i = 0; i < 620; i++) {
       const th = i * 0.02 + t * 0.15;
@@ -588,7 +588,7 @@ export function CvVoronoi(p: PreviewProps) {
     }
     for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
       if ((x + 1 < gw && owner[y * gw + x + 1] !== owner[y * gw + x]) || (y + 1 < gh && owner[(y + 1) * gw + x] !== owner[y * gw + x])) {
-        ctx.fillStyle = "rgba(255,92,28,0.8)";
+        ctx.fillStyle = "rgba(139,124,246,0.8)";
         ctx.fillRect(x * cw, y * ch, Math.ceil(cw), Math.ceil(ch));
       }
     }
@@ -628,7 +628,7 @@ export function CvTessellation(p: PreviewProps) {
     for (let row = -1; row * s * 0.866 < h + s; row++) {
       for (let col = -1; col * s * 1.5 < w + s; col++) {
         const cx = col * s * 1.5, cy = row * s * 0.866 + (col % 2 ? s * 0.433 : 0);
-        ctx.strokeStyle = `rgba(255,92,28,${0.14 + ((row + col) % 3) * 0.12})`;
+        ctx.strokeStyle = `rgba(139,124,246,${0.14 + ((row + col) % 3) * 0.12})`;
         ctx.beginPath();
         for (let k = 0; k < 6; k++) {
           const a = rot + (k / 6) * Math.PI * 2;
@@ -688,7 +688,7 @@ export function CvHull(p: PreviewProps) {
     ctx.strokeStyle = EMBER; ctx.lineWidth = 1.4; ctx.beginPath();
     hull.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
     ctx.closePath(); ctx.stroke();
-    ctx.fillStyle = "rgba(255,92,28,0.06)"; ctx.fill();
+    ctx.fillStyle = "rgba(139,124,246,0.06)"; ctx.fill();
     ctx.fillStyle = IVORY;
     for (const [x, y] of pts) { ctx.beginPath(); ctx.arc(x, y, 1.8, 0, 7); ctx.fill(); }
   }} />;
@@ -760,7 +760,7 @@ export function CvSierpinski(p: PreviewProps) {
     }
     const rnd = mulberry32(1234);
     let px = cx, py = cy;
-    ctx.fillStyle = "rgba(255,92,28,0.7)";
+    ctx.fillStyle = "rgba(139,124,246,0.7)";
     const spin = t * 0.1, cos = Math.cos(spin), sin = Math.sin(spin);
     for (let i = 0; i < 9000; i++) {
       const v = verts[Math.floor(rnd() * 3)];
@@ -1024,7 +1024,7 @@ export function CvCells(p: PreviewProps) {
     }
     ctx.fillStyle = INK; ctx.fillRect(0, 0, w, h);
     const cw = w / gw, ch = h / gh;
-    ctx.fillStyle = "rgba(255,92,28,0.75)";
+    ctx.fillStyle = "rgba(139,124,246,0.75)";
     for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
       if (st.g[y * gw + x]) ctx.fillRect(x * cw + 0.5, y * ch + 0.5, cw - 1, ch - 1);
     }
@@ -1114,7 +1114,7 @@ export function CvTerrain(p: PreviewProps) {
       const zt = (r + ((t * 2.4) % 1)) / rows;
       const y = horizon + (h - horizon) * Math.pow(zt, 1.6);
       const depth = (r + ((t * 2.4) % 1)) * 1.4;
-      ctx.strokeStyle = "rgba(255,92,28,0.75)";
+      ctx.strokeStyle = "rgba(139,124,246,0.75)";
       ctx.lineWidth = 0.5 + zt;
       ctx.beginPath();
       for (let c = 0; c <= cols; c++) {
@@ -1330,7 +1330,7 @@ export function CvMesh(p: PreviewProps) {
   const count = clamp(numP(p.params, "blobs", numP(p.params, "colors", 4)), 2, 7);
   return <Cv props={p} deps={[count]} draw={(ctx, w, h, t) => {
     ctx.fillStyle = "#0c0a12"; ctx.fillRect(0, 0, w, h);
-    const cols = ["#ff5c1c", "#ff2e4d", "#7c3aed", "#0ea5e9", "#ffb85c", "#10b981", "#f472b6"];
+    const cols = ["#8b7cf6", "#fb7185", "#7c3aed", "#0ea5e9", "#67e8f9", "#10b981", "#f472b6"];
     ctx.globalCompositeOperation = "lighter";
     for (let i = 0; i < count; i++) {
       const x = w / 2 + Math.sin(t * 0.4 + i * 2.4) * w * 0.34;
@@ -1449,7 +1449,7 @@ export function CvRays(p: PreviewProps) {
     for (let i = 0; i < 7; i++) {
       const a = (i / 7) * Math.PI + Math.sin(t * 0.3 + i) * 0.12;
       const g = ctx.createLinearGradient(w / 2, 0, w / 2 + Math.cos(a) * w, h);
-      g.addColorStop(0, "rgba(255,184,92,0.35)");
+      g.addColorStop(0, "rgba(103,232,249,0.35)");
       g.addColorStop(1, "transparent");
       ctx.fillStyle = g;
       ctx.save();
@@ -1600,7 +1600,7 @@ export function CvBloom(p: PreviewProps) {
       // tight + wide additive halos = bloom approximation
       for (const [r, a] of [[26, 0.12], [12, 0.25], [4, 0.9]] as const) {
         const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, `rgba(255,184,92,${a})`); g.addColorStop(1, "transparent");
+        g.addColorStop(0, `rgba(103,232,249,${a})`); g.addColorStop(1, "transparent");
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
       }
     }
