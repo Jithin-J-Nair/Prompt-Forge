@@ -1,353 +1,708 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import clsx from "clsx";
 import {
-  ArrowUpRight, Flame, Hammer, PackageCheck, ScanText, ArrowRight, Clock3,
+  ArrowDown, ArrowUpRight, ChevronRight, Monitor, MousePointer2, Plus, Smartphone, Tablet,
 } from "lucide-react";
-import { Marquee, Eyebrow } from "@/components/chrome";
-import { Reveal, TypeCycle, GlowCard, CountUp } from "@/components/motion";
-import { INDUSTRIES } from "@/lib/engine/industries";
-import { HERO_ROTATIONS } from "@/lib/templates";
-import type { PromptSummary, PromptListResponse } from "@/lib/types";
+import {
+  PRESETS, compile, getModule, searchModules,
+  type CompileOutput, type PromptModule,
+} from "@/lib/studio";
+import { REGISTRY_STATS } from "@/lib/studio/registry";
+import { PreviewFrame } from "@/components/preview/preview-frame";
+import { makeNoise2D, mulberry32, useReducedMotion } from "@/components/labs/lab-shell";
 
-const MARQUEE_ITEMS = [
-  "Brand Identity", "Design System", "Layout Specification", "Page Blueprints",
-  "Component Contracts", "Copy Strategy", "Motion Score", "Technical Stack",
-  "SEO & Access", "Backend Schema", "Definition of Done", "Mega Prompt",
-];
-
-const STEPS = [
-  {
-    icon: ScanText,
-    no: "01",
-    title: "Feed the furnace",
-    body: "Type any vague, lazy, one-line brief — “make a website for a gym”, “something for my band”. Quality of input is irrelevant. That is the point.",
-    meta: "avg. input: 6 words",
-  },
-  {
-    icon: Hammer,
-    no: "02",
-    title: "The forge engages",
-    body: "The engine locks your industry across 18 trained verticals, mints a brand, drafts tokens, maps every route, specs every component and scores the motion.",
-    meta: "12 sections · ~2.3s",
-  },
-  {
-    icon: PackageCheck,
-    no: "03",
-    title: "Ship the mega prompt",
-    body: "One combined, copy-ready mega prompt — complete with a definition of done. Paste it into v0, Bolt, Cursor, Lovable, or hand it to a human team.",
-    meta: "avg. output: 2,100 words",
-  },
-];
-
-const ANATOMY = [
-  { no: "01", title: "Mission Brief", line: "Objective, brand codename, north star." },
-  { no: "02", title: "Brand Identity", line: "Name, slogan, tone, 5-token palette, type pairing, logo direction." },
-  { no: "03", title: "Design System", line: "Spacing scale, radius tokens, elevation, grid, breakpoints." },
-  { no: "04", title: "Layout Law", line: "Nav behavior, hero math, section rhythm, z-index scale." },
-  { no: "05", title: "Page Blueprints", line: "Every route with purpose + ordered section stack." },
-  { no: "06", title: "Component Contracts", line: "Named units with states, sizes and timing values." },
-  { no: "07", title: "Copy Strategy", line: "Voice dial, headline options, CTA labels, microcopy bank." },
-  { no: "08", title: "Motion Score", line: "Durations, easings, staggers, reduced-motion law." },
-  { no: "09", title: "Technical Stack", line: "Framework, styling, data, deploy — with reasons." },
-  { no: "10", title: "SEO & Access", line: "Meta, OG art direction, JSON-LD, WCAG 2.2 checklist." },
-  { no: "11", title: "Backend & Data", line: "Auth plan, Drizzle tables, typed API endpoints." },
-  { no: "12", title: "Definition of Done", line: "Acceptance criteria that make builders finish." },
-];
+/* ------------------------------------------------------------------ */
+/*  Homepage v2 — nine sections, each with its own visual rhythm.       */
+/*  01 hero (live particle field)  02 scale  03 technique search        */
+/*  04 live module previews        05 creative labs                     */
+/*  06 composition canvas          07 compiler peek                     */
+/*  08 curated presets             09 final conversion                  */
+/* ------------------------------------------------------------------ */
 
 export function HomeView() {
-  const router = useRouter();
-  const [quick, setQuick] = useState("");
-  const [recent, setRecent] = useState<PromptSummary[]>([]);
-  const [total, setTotal] = useState(0);
-
-  useEffect(() => {
-    fetch("/api/prompts?limit=6")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: PromptListResponse | null) => {
-        if (d) {
-          setRecent(d.prompts);
-          setTotal(d.total);
-        }
-      })
-      .catch(() => undefined);
-  }, []);
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const q = quick.trim();
-    router.push(q ? `/forge?q=${encodeURIComponent(q)}` : "/forge");
-  };
-
   return (
     <>
-      {/* ============================ HERO ============================ */}
-      <section className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-6 pt-28 pb-16 md:px-10">
-        <div className="mx-auto w-full max-w-[1280px]">
-          <Reveal>
-            <p className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-line bg-carbon/70 px-4 py-2 font-mono text-[11px] tracking-[0.2em] text-fog uppercase backdrop-blur">
-              <span className="inline-block size-1.5 animate-pulse-soft rounded-full bg-ember" aria-hidden />
-              Prompt enhancement engine · v1.0 · 18 industries trained
-            </p>
-          </Reveal>
-
-          <h1 className="font-display text-[13.5vw] leading-[0.94] font-bold tracking-[-0.03em] uppercase select-none sm:text-[11vw] lg:text-[7.6rem]">
-            <Reveal delay={0.05}><span className="block">One lazy</span></Reveal>
-            <Reveal delay={0.12}>
-              <span className="block">
-                sentence<span className="text-ember">,</span> <span className="text-stroke">in.</span>
-              </span>
-            </Reveal>
-            <Reveal delay={0.19}>
-              <span className="text-gradient-ember block">One god-tier</span>
-            </Reveal>
-            <Reveal delay={0.26}><span className="block">spec out.</span></Reveal>
-          </h1>
-
-          <Reveal delay={0.34}>
-            <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-xl">
-                <p className="h-7 font-mono text-[13px] md:text-sm">
-                  <TypeCycle phrases={HERO_ROTATIONS} />
-                </p>
-                <p className="mt-4 max-w-lg text-[15.5px] leading-relaxed text-fog">
-                  PromptForge swallows vague one-liners and forges them into
-                  production-grade website blueprints — brand system, design
-                  tokens, page-by-page UX, components, motion, SEO and backend.
-                  Ready to paste into any AI builder or hand to a dev team.
-                </p>
-
-                <form onSubmit={submit} className="mt-7 flex max-w-lg items-center gap-2" role="search">
-                  <label htmlFor="quick-brief" className="sr-only">Your website idea</label>
-                  <input
-                    id="quick-brief"
-                    value={quick}
-                    onChange={(e) => setQuick(e.target.value)}
-                    placeholder="make a website for..."
-                    maxLength={200}
-                    className="h-13 flex-1 rounded-lg border border-line bg-carbon/80 px-4 font-mono text-[13.5px] text-ivory placeholder:text-smoke focus:border-ember focus:outline-none"
-                  />
-                  <button
-                    type="submit"
-                    className="group inline-flex h-13 shrink-0 items-center gap-2 rounded-lg bg-ember px-5 font-mono text-[12px] font-medium tracking-[0.14em] text-ink uppercase transition-colors duration-200 hover:bg-flare"
-                  >
-                    <Flame className="size-4 transition-transform duration-300 group-hover:rotate-12" />
-                    Forge it
-                  </button>
-                </form>
-              </div>
-
-              <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-line bg-line lg:w-[420px]">
-                {[
-                  { k: "sections", v: 12, suffix: "" },
-                  { k: "avg words out", v: 2100, suffix: "+" },
-                  { k: "industries", v: 18, suffix: "" },
-                ].map((s) => (
-                  <div key={s.k} className="bg-carbon/80 px-5 py-4 backdrop-blur">
-                    <dd className="font-display text-2xl font-bold text-ember md:text-3xl">
-                      <CountUp to={s.v} suffix={s.suffix} />
-                    </dd>
-                    <dt className="mt-1 font-mono text-[10px] tracking-[0.16em] text-smoke uppercase">{s.k}</dt>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </Reveal>
-        </div>
-
-        <div aria-hidden className="absolute bottom-6 left-1/2 -translate-x-1/2">
-          <span className="block h-10 w-px animate-pulse-soft bg-gradient-to-b from-transparent via-ember to-transparent" />
-        </div>
-      </section>
-
-      <Marquee items={MARQUEE_ITEMS} />
-
-      {/* ============================ PROTOCOL ============================ */}
-      <section id="how" className="relative px-6 py-24 md:px-10 md:py-36">
-        <div className="mx-auto max-w-[1280px]">
-          <Reveal>
-            <Eyebrow>The protocol</Eyebrow>
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <h2 className="max-w-2xl font-display text-4xl leading-[1.02] font-bold tracking-tight uppercase md:text-6xl">
-                Garbage in,
-                <br />
-                <span className="text-gradient-ember">blueprint out.</span>
-              </h2>
-              <p className="max-w-sm text-[15px] leading-relaxed text-fog">
-                Three stages, one furnace. No accounts, no prompts to learn,
-                no settings to fiddle with. The engine does the thinking your
-                brief refused to.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="mt-14 grid gap-4 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <Reveal key={s.no} delay={i * 0.1}>
-                <GlowCard className="group h-full rounded-xl border border-line bg-carbon/60 p-7 backdrop-blur transition-colors duration-300 hover:border-ember/50">
-                  <div className="flex items-start justify-between">
-                    <span className="grid size-11 place-items-center rounded-lg border border-line bg-coal text-ember transition-colors duration-300 group-hover:border-ember/60">
-                      <s.icon className="size-5" strokeWidth={1.7} />
-                    </span>
-                    <span className="font-display text-5xl font-bold text-stroke-ember">{s.no}</span>
-                  </div>
-                  <h3 className="mt-8 font-display text-2xl font-bold tracking-tight uppercase">{s.title}</h3>
-                  <p className="mt-3 text-[14.5px] leading-relaxed text-fog">{s.body}</p>
-                  <p className="mt-6 border-t border-line pt-4 font-mono text-[10.5px] tracking-[0.16em] text-smoke uppercase">
-                    {s.meta}
-                  </p>
-                </GlowCard>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============================ ANATOMY ============================ */}
-      <section id="anatomy" className="relative border-t border-line px-6 py-24 md:px-10 md:py-36">
-        <div className="mx-auto max-w-[1280px]">
-          <Reveal>
-            <Eyebrow>Anatomy of the artifact</Eyebrow>
-            <h2 className="max-w-3xl font-display text-4xl leading-[1.02] font-bold tracking-tight uppercase md:text-6xl">
-              What a <span className="font-serif-d text-ember normal-case italic">mega prompt</span> is made of.
-            </h2>
-          </Reveal>
-
-          <div className="mt-14 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-            {ANATOMY.map((a, i) => (
-              <Reveal key={a.no} delay={(i % 3) * 0.06}>
-                <GlowCard className="group flex h-full min-h-[168px] flex-col justify-between bg-coal p-6 transition-colors duration-300 hover:bg-carbon">
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono text-[11px] text-ember">{a.no}</span>
-                    <ArrowUpRight className="size-4 text-smoke opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-ember group-hover:opacity-100" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-lg font-bold tracking-tight uppercase">{a.title}</h3>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-fog">{a.line}</p>
-                  </div>
-                </GlowCard>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============================ INDUSTRY COVERAGE ============================ */}
-      <section className="relative border-t border-line px-6 py-20 md:px-10">
-        <div className="mx-auto max-w-[1280px]">
-          <Reveal>
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <div>
-                <Eyebrow>Detection matrix</Eyebrow>
-                <h2 className="font-display text-3xl font-bold tracking-tight uppercase md:text-5xl">
-                  18 industries. <span className="text-stroke">Zero babysitting.</span>
-                </h2>
-              </div>
-              <p className="max-w-sm text-[14.5px] leading-relaxed text-fog">
-                Each vertical ships its own brand banks, palettes, routes,
-                components, table schemas and endpoint patterns — matched to
-                your brief in milliseconds.
-              </p>
-            </div>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <div className="mt-10 flex flex-wrap gap-2">
-              {INDUSTRIES.map((ind) => (
-                <span
-                  key={ind.id}
-                  className="rounded-full border border-line bg-carbon/60 px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-fog uppercase transition-colors duration-200 hover:border-ember/60 hover:text-ember"
-                >
-                  {ind.label}
-                </span>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ============================ FRESH FROM THE FORGE ============================ */}
-      <section className="relative border-t border-line px-6 py-24 md:px-10 md:py-32">
-        <div className="mx-auto max-w-[1280px]">
-          <Reveal>
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <div>
-                <Eyebrow>Live ledger{total > 0 ? ` · ${total} forged` : ""}</Eyebrow>
-                <h2 className="font-display text-4xl font-bold tracking-tight uppercase md:text-6xl">
-                  Fresh from <span className="text-gradient-ember">the forge.</span>
-                </h2>
-              </div>
-              <Link
-                href="/library"
-                className="group inline-flex items-center gap-2 font-mono text-[12px] tracking-[0.16em] text-fog uppercase transition-colors hover:text-ember"
-              >
-                Open the full library
-                <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
-              </Link>
-            </div>
-          </Reveal>
-
-          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {recent.length === 0 &&
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-[188px] animate-pulse rounded-xl border border-line bg-carbon/40" />
-              ))}
-            {recent.map((p, i) => (
-              <Reveal key={p.id} delay={i * 0.06}>
-                <Link href={`/spec/${p.id}`} className="group block h-full">
-                  <GlowCard className="flex h-full flex-col justify-between rounded-xl border border-line bg-carbon/60 p-6 transition-colors duration-300 group-hover:border-ember/50">
-                    <div>
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="rounded-full border border-ember/40 bg-ember/10 px-3 py-1 font-mono text-[10px] tracking-[0.14em] text-ember uppercase">
-                          {p.industry}
-                        </span>
-                        <span className="flex items-center gap-1.5 font-mono text-[10.5px] text-smoke">
-                          <Clock3 className="size-3" />
-                          {new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                        </span>
-                      </div>
-                      <h3 className="mt-5 font-display text-2xl font-bold tracking-tight uppercase transition-colors group-hover:text-ember">
-                        {p.brandName}
-                      </h3>
-                      <p className="mt-2 line-clamp-2 font-mono text-[12px] leading-relaxed text-fog">
-                        “{p.rawPrompt}”
-                      </p>
-                    </div>
-                    <p className="mt-6 border-t border-line pt-4 font-mono text-[10.5px] tracking-[0.14em] text-smoke uppercase">
-                      {p.wordCount.toLocaleString()} words · 12 sections · view spec
-                    </p>
-                  </GlowCard>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============================ CTA BAND ============================ */}
-      <section className="relative overflow-hidden border-t border-line px-6 py-28 text-center md:px-10 md:py-40">
-        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_50%,rgba(255,92,28,0.1),transparent_70%)]" />
-        <Reveal>
-          <Eyebrow>
-            <span className="mx-auto">Ignition</span>
-          </Eyebrow>
-          <h2 className="mx-auto max-w-4xl font-display text-5xl leading-[0.98] font-bold tracking-tight uppercase md:text-8xl">
-            Your next site starts as <span className="text-gradient-ember">one dumb sentence.</span>
-          </h2>
-          <Link
-            href="/forge"
-            className="group mt-12 inline-flex items-center gap-3 rounded-full bg-ember px-9 py-4.5 font-mono text-[13px] font-medium tracking-[0.16em] text-ink uppercase transition-all duration-300 hover:bg-flare hover:shadow-[0_0_60px_rgba(255,92,28,0.45)]"
-          >
-            <Flame className="size-4.5 transition-transform duration-300 group-hover:rotate-12" />
-            Open the forge
-            <ArrowUpRight className="size-4.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
-          <p className="mt-6 font-mono text-[11px] tracking-[0.16em] text-smoke uppercase">
-            Free · No account · Specs stay in your library
-          </p>
-        </Reveal>
-      </section>
+      <HeroSection />
+      <ScaleSection />
+      <SearchSection />
+      <PreviewsSection />
+      <LabsSection />
+      <CompositionSection />
+      <CompilerPeekSection />
+      <PresetsSection />
+      <FinalSection />
     </>
   );
 }
+
+/* ============================ 01 · HERO ============================ */
+
+function HeroSection() {
+  const reduced = useReducedMotion();
+  return (
+    <section className="relative grid min-h-[92dvh] place-items-center overflow-hidden" aria-label="Hero">
+      <HeroField still={reduced} />
+      <div className="pointer-events-none relative z-10 mx-auto max-w-5xl px-4 text-center md:px-8">
+        <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-ink/60 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.28em] text-fog backdrop-blur-sm">
+          <span className="size-1.5 animate-pulse rounded-full bg-ember" /> The website-spec forge
+        </p>
+        <h1 className="font-display text-[13vw] font-black leading-[0.94] tracking-[-0.04em] text-ivory sm:text-[10vw] lg:text-[7.6vw]">
+          {RevealChars({ text: "Type one lazy sentence." })}
+          <br />
+          <span className="bg-gradient-to-r from-ember via-flare to-blood bg-clip-text text-transparent">
+            {RevealChars({ text: "Forge a blueprint.", delay: 0.35 })}
+          </span>
+        </h1>
+        <p className="mx-auto mt-8 max-w-xl text-[15px] leading-relaxed text-fog">
+          PromptForge turns a half-formed idea into a production-grade visual spec — color, type,
+          layout, motion, 3D and the quality contract — compiled from{" "}
+          <span className="text-ivory">{REGISTRY_STATS.modules} precision modules</span> and{" "}
+          <span className="text-ivory">{PRESETS.length} curated presets</span>.
+        </p>
+        <div className="pointer-events-auto mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link href="/studio"
+            className="group flex items-center gap-2 rounded-md bg-ember px-6 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.16em] text-ink transition-transform duration-300 hover:scale-[1.02] hover:bg-flare active:scale-[0.99]">
+            Enter the Studio <ChevronRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+          <Link href="/forge"
+            className="rounded-md border border-line bg-ink/50 px-6 py-3.5 font-mono text-[12px] uppercase tracking-[0.16em] text-fog backdrop-blur-sm transition-colors hover:border-line-bright hover:text-ivory">
+            Try the classic forge
+          </Link>
+        </div>
+      </div>
+      <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center">
+        <ArrowDown className="size-4 animate-bounce text-smoke" />
+      </div>
+    </section>
+  );
+}
+
+/* reveal-on-mount letter stagger — pure CSS, no JS frame loop */
+function RevealChars({ text, delay = 0 }: { text: string; delay?: number }) {
+  return (
+    <span className="inline-block" aria-label={text} role="text">
+      {text.split("").map((c, i) => (
+        <span key={`${i}-${c}`} aria-hidden="true"
+          className="inline-block"
+          style={{
+            animation: `pf-hero-letter 0.9s cubic-bezier(0.22,1,0.36,1) both`,
+            animationDelay: `${delay + i * 0.022}s`,
+          }}>
+          {c === " " ? "\u00A0" : c}
+        </span>
+      ))}
+      <style>{`@keyframes pf-hero-letter{from{opacity:0;transform:translateY(0.4em) skewY(4deg)}to{opacity:1;transform:none}}`}</style>
+    </span>
+  );
+}
+
+/* one ambient system for the page: cursor-reactive domain-warped particle field */
+function HeroField({ still }: { still: boolean }) {
+  const ref = useRef<HTMLCanvasElement | null>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = Math.max(2, Math.round(r.width * dpr));
+      canvas.height = Math.max(2, Math.round(r.height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const N = 260;
+    const rnd = mulberry32(7);
+    const pts = Array.from({ length: N }, () => ({ x: rnd(), y: rnd(), ph: rnd() * 7 }));
+    const noise = makeNoise2D(3);
+    let mx = 0.5, my = 0.5;
+    const onMove = (e: PointerEvent) => {
+      const r = canvas.getBoundingClientRect();
+      mx = (e.clientX - r.left) / r.width;
+      my = (e.clientY - r.top) / r.height;
+    };
+    window.addEventListener("pointermove", onMove);
+
+    const draw = (t: number) => {
+      const w = canvas.width / dpr, h = canvas.height / dpr;
+      ctx.fillStyle = "#070708";
+      ctx.fillRect(0, 0, w, h);
+      const wob = t * 0.12;
+      for (const p of pts) {
+        const px = (p.x + Math.sin(t * 0.04 + p.ph) * 0.02) * w;
+        const py = (p.y + Math.cos(t * 0.03 + p.ph * 1.3) * 0.02) * h;
+        // domain-warped drift: push particles along curl-ish vector around the cursor
+        const dxm = px - mx * w, dym = py - my * h;
+        const dm = Math.max(24, Math.hypot(dxm, dym));
+        const lift = Math.pow(140 / dm, 2) * 12;
+        const wave = Math.max(0, noise(px * 0.002 + wob, py * 0.002)) * 14;
+        const rad = 0.8 + wave * 0.22;
+        const a = Math.min(0.85, 0.18 + wave * 0.05 + lift * 0.02);
+        const hue = 14 + wave * 4;
+        ctx.fillStyle = `hsla(${hue}, 92%, ${52 + lift * 2}%, ${a})`;
+        ctx.beginPath();
+        ctx.arc(px + (dxm / dm) * lift * 3, py + (dym / dm) * lift * 3, rad, 0, 7);
+        ctx.fill();
+      }
+    };
+
+    if (still || matchMedia("(prefers-reduced-motion: reduce)").matches) { draw(1.35); }
+    else {
+      let raf = 0;
+      const loop = (now: number) => { raf = requestAnimationFrame(loop); draw(now / 1000); };
+      raf = requestAnimationFrame(loop);
+      return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); window.removeEventListener("pointermove", onMove); };
+    }
+    return () => { window.removeEventListener("resize", resize); window.removeEventListener("pointermove", onMove); };
+  }, [still]);
+  return (
+    <>
+      <canvas ref={ref} className="absolute inset-0 size-full" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/30 via-transparent to-ink" />
+    </>
+  );
+}
+
+/* ============================ 02 · SCALE ============================ */
+
+function ScaleSection() {
+  const rows = [
+    ["279", "typed modules", "every one renders live"],
+    ["11", "categories", "objective → engineering contract"],
+    ["84", "lab demos", "working references, not mockups"],
+    ["195", "param-driven", "every dial lands in the spec"],
+  ] as const;
+  return (
+    <section aria-label="Scale" className="relative border-t border-line bg-carbon/40">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 divide-line md:grid-cols-4 md:divide-x md:divide-y-0 divide-y [&>div:first-child]:border-t-0">
+        {rows.map(([n, label, sub]) => (
+          <div key={label} className="group px-8 py-12 transition-colors hover:bg-wall/20">
+            <CountUp staticValue={n} />
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.22em] text-fog">{label}</p>
+            <p className="mt-2 text-[12px] text-smoke">{sub}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function CountUp({ staticValue }: { staticValue: string; target?: number }) {
+  return (
+    <p className="font-display text-5xl font-black tracking-tight text-ivory md:text-6xl">
+      <span className="text-ember">{staticValue}</span>
+    </p>
+  );
+}
+
+/* ============================ 03 · SEARCH ============================ */
+
+function SearchSection() {
+  const [q, setQ] = useState("liquid metallic object");
+  const results = useMemo(() => searchModules(q, {}).slice(0, 5), [q]);
+  const aliases = [
+    ["liquid metallic object", "→ chrome · iridescence · liquid-metal-bg"],
+    ["buttery modal entrance", "→ spring-physics · ui-state-transitions"],
+    ["warm filmic grade", "→ film-grain · cinematic · duotone"],
+  ];
+  return (
+    <section aria-label="Technique discovery" className="mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-36">
+      <div className="grid gap-14 lg:grid-cols-[1fr_1.2fr]">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-ember">02 / discovery</p>
+          <h2 className="mt-4 font-display text-3xl font-black tracking-tight md:text-5xl">
+            Speak plainly.<br />
+            <span className="font-serif italic text-flare">We return the jargon.</span>
+          </h2>
+          <p className="mt-6 max-w-md text-[14px] leading-relaxed text-fog">
+            The search index carries aliases tuned for how designers actually talk about craft —
+            not how the API surfaces are named. “Liquid metallic object” finds chrome and
+            iridescence without you memorising parameter names.
+          </p>
+          <ul className="mt-8 space-y-3 font-mono text-[11px] text-smoke">
+            {aliases.map(([a, b]) => (
+              <li key={a} className="flex items-baseline gap-3">
+                <span className="text-fog">“{a}”</span>
+                <span className="text-ember/80">{b}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-xl border border-line bg-panel/60 p-4 backdrop-blur-sm md:p-6">
+          <div className="relative">
+            <MousePointer2 className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-smoke" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="describe the feeling you're after…"
+              aria-label="Search technique universe"
+              className="w-full rounded-md border border-line bg-ink py-3.5 pl-11 pr-4 text-[15px] text-ivory placeholder:text-smoke/70 focus:border-ember/60 focus:outline-none"
+            />
+          </div>
+          <div className="mt-4 space-y-1" role="listbox" aria-label="Search results preview">
+            {results.map((r) => (
+              <div key={r.module.id} role="option" aria-selected="false"
+                className="flex items-center justify-between gap-4 rounded-md px-3 py-2.5 transition-colors hover:bg-wall/30">
+                <div>
+                  <p className="font-display text-[13.5px] font-bold text-ivory">{r.module.name}</p>
+                  <p className="text-[11px] text-smoke">{r.module.tagline}</p>
+                </div>
+                <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-smoke/80 shrink-0">{r.module.category}</span>
+              </div>
+            ))}
+            {results.length === 0 && (
+              <p className="px-3 py-6 font-mono text-[11px] text-smoke">Nothing yet — reset with “liquid”.</p>
+            )}
+          </div>
+          <p className="mt-4 border-t border-line pt-3 font-mono text-[10px] text-smoke">
+            {results.length} live matches · full index in <Link href="/studio" className="text-ember hover:underline">the Studio</Link>.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================ 04 · LIVE PREVIEWS ============================ */
+
+function PreviewsSection() {
+  const ids = ["backgrounds/liquid-metal-bg", "math/voronoi", "typography/oversized", "webgl/three-scene", "color/duotone", "typography/character-animation"]
+    .filter((id) => getModule(id));
+  const [picking, setPicking] = useState(ids[0]);
+  const active = getModule(picking) ?? null;
+  const [paramsByModule, setParamsByModule] = useState<Record<string, Record<string, string | number | boolean>>>({});
+  const params = paramsByModule[picking] ?? {};
+  const setParams = (fnOr: (p: Record<string, string|number|boolean>) => Record<string, string|number|boolean>) => {
+    setParamsByModule((all) => ({ ...all, [picking]: fnOr(all[picking] ?? {}) }));
+  };
+  return (
+    <section aria-label="Live module previews" className="relative border-t border-line bg-carbon/30">
+      <div className="mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-36">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-ember">03 / living previews</p>
+            <h2 className="mt-4 font-display text-3xl font-black tracking-tight md:text-5xl">
+              Every module {` `}
+              <span className="font-serif italic text-flare">renders itself.</span>
+            </h2>
+          </div>
+          <p className="max-w-md text-[13.5px] leading-relaxed text-fog">
+            No screenshots, no static gradients masquerading as demos: these are the actual
+            renderers the Studio uses — and their params feed both what you see and what the
+            compiler writes.
+          </p>
+        </div>
+
+        {/* asymmetric feature pair */}
+        <div className="mt-12 grid gap-4 lg:grid-cols-[1.45fr_1fr]">
+          <div className="overflow-hidden rounded-xl border border-line bg-ink">
+            {active && (
+              <PreviewFrame module={active} params={params} mode="detail" className="aspect-[16/9]" />
+            )}
+            {active && active.params.length > 0 && (
+              <div className="grid gap-3 border-t border-line bg-panel/70 p-4 sm:grid-cols-3">
+                {active.params.slice(0, 3).map((d) => (
+                  <label key={d.key} className="flex flex-col gap-1.5">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-smoke">{d.label}</span>
+                    {d.type === "select" ? (
+                      <select
+                        value={(params[d.key] as string) ?? d.default as string}
+                        onChange={(e) => setParams((p2) => ({ ...p2, [d.key]: e.target.value }))}
+                        className="rounded border border-line bg-ink px-2 py-1.5 font-mono text-[11px] text-ivory focus:border-ember/60 focus:outline-none"
+                      >
+                        {d.options!.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      </select>
+                    ) : (
+                      <input
+                        type="range"
+                        min={d.min ?? 0} max={d.max ?? 100} step={d.step ?? 1}
+                        value={(params[d.key] as number) ?? d.default as number}
+                        onChange={(e) => setParams((p2) => ({ ...p2, [d.key]: Number(e.target.value) }))}
+                        aria-label={d.label}
+                        className="h-1.5 w-full cursor-pointer appearance-none rounded bg-wall accent-ember"
+                      />
+                    )}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {ids.map((id) => {
+              const m = getModule(id)!;
+              return (
+                <div
+                  key={id}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={picking === id}
+                  onClick={(e) => {
+                    // ignore clicks that originated on PreviewFrame's own controls (pause/expand)
+                    if ((e.target as HTMLElement).closest("button")) return;
+                    setPicking(id);
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setPicking(id); } }}
+                  className={clsx(
+                    "group cursor-pointer overflow-hidden rounded-xl border bg-ink transition-colors",
+                    picking === id ? "border-ember" : "border-line hover:border-line-bright",
+                  )}
+                >
+                  <PreviewFrame module={m} params={{}} mode="card" className="aspect-[16/10]" />
+                  <span className={clsx(
+                    "block truncate px-2.5 py-1.5 text-left font-mono text-[9.5px] uppercase tracking-[0.14em] transition-colors",
+                    picking === id ? "text-flare" : "text-fog group-hover:text-ivory",
+                  )}>
+                    {m.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================ 05 · LABS ============================ */
+
+function LabsSection() {
+  const cards = [
+    {
+      href: "/motion-lab",
+      name: "Motion Lab",
+      k: "A",
+      desc: "35 physics-accurate interaction stanzas — springs, cursor systems, scroll choreography — runnable before you commit to a param.",
+      count: "35 live demos",
+    },
+    {
+      href: "/math-lab",
+      name: "Math Lab",
+      k: "B",
+      desc: "The procedural engine-room: fBm, attractors, SDFs, reaction-diffusion and friends — the same engines the spec generator cites.",
+      count: "23 live demos",
+    },
+  ];
+  return (
+    <section aria-label="Creative labs" className="mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-36">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-ember">04 / creative labs</p>
+          <h2 className="mt-4 font-display text-3xl font-black tracking-tight md:text-5xl">
+            Play before you <span className="font-serif italic text-flare">commit a param.</span>
+          </h2>
+        </div>
+      </div>
+      <div className="mt-12 grid gap-4 md:grid-cols-2">
+        {cards.map((c, i) => (
+          <Link key={c.href} href={c.href}
+            className={clsx(
+              "group flex flex-col overflow-hidden rounded-xl border border-line bg-ink transition-all duration-300 hover:border-ember/50",
+              i === 1 && "md:mt-16",
+            )}>
+            <div className="relative aspect-[16/8] overflow-hidden">
+              <LabTilePreview kind={c.href} />
+              <span className="absolute left-3 top-3 rounded border border-line bg-ink/70 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-flare backdrop-blur-sm">
+                LAB {c.k} — LIVE
+              </span>
+            </div>
+            <div className="flex flex-1 flex-col p-6">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="font-display text-xl font-black text-ivory">{c.name}</h3>
+                <span className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-smoke">{c.count}</span>
+              </div>
+              <p className="mt-3 text-[13.5px] leading-relaxed text-fog">{c.desc}</p>
+              <span className="mt-5 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-ember">
+                Enter <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LabTilePreview({ kind }: { kind: string }) {
+  const id = kind === "/motion-lab" ? "typography/character-animation" : "math/voronoi";
+  const m = getModule(id)!;
+  return <PreviewFrame module={m} params={{}} mode="detail" className="size-full" />;
+}
+
+/* ============================ 06 · COMPOSITION CANVAS ============================ */
+
+function CompositionSection() {
+  const defaults = ["websites/creative-portfolio", "direction/neo-brutalism", "layout/bento-grid", "typography/oversized"];
+  const [selected, setSelected] = useState<string[]>(defaults.slice(0, 2));
+  const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const toggle = (id: string) => {
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < 4 ? [...s, id] : s));
+  };
+  const resolved = selected.map((id) => getModule(id)).filter((m): m is PromptModule => Boolean(m));
+  return (
+    <section aria-label="Composition canvas" className="relative border-t border-line bg-carbon/40">
+      <div className="mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-36">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-ember">05 / composition canvas</p>
+            <h2 className="mt-4 font-display text-3xl font-black tracking-tight md:text-5xl">
+              Selections become a <span className="font-serif italic text-flare">living page.</span>
+            </h2>
+          </div>
+          <p className="max-w-md text-[13.5px] leading-relaxed text-fog">
+            Pull modules into the tray and the mock page reassembles in real time — representative,
+            honestly labeled, and driven by the same params the compiler exports.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 lg:grid-cols-[13rem_1fr]">
+          {/* tray */}
+          <div className="space-y-2 self-start lg:sticky lg:top-24">
+            {defaults.map((id) => {
+              const m = getModule(id)!;
+              const on = selected.includes(id);
+              return (
+                <button
+                  key={id}
+                  onClick={() => toggle(id)}
+                  aria-pressed={on}
+                  className={clsx(
+                    "flex w-full items-start gap-2.5 rounded-md border px-3 py-2.5 text-left transition-colors",
+                    on ? "border-ember bg-ember/5" : "border-line bg-panel/60 hover:border-line-bright",
+                  )}
+                >
+                  <span className={clsx("mt-px grid size-4 shrink-0 place-items-center rounded-[4px] border transition-colors",
+                    on ? "border-ember bg-ember text-ink" : "border-line text-smoke")}>
+                    {on ? <Plus className="size-3 rotate-45" /> : <Plus className="size-3" />}
+                  </span>
+                  <span>
+                    <span className="block font-display text-[12.5px] font-bold leading-tight text-ivory">{m.name}</span>
+                    <span className="block font-mono text-[9px] uppercase tracking-[0.18em] text-smoke">{m.category}</span>
+                  </span>
+                </button>
+              );
+            })}
+            <p className="px-0.5 pt-2 font-mono text-[9px] leading-relaxed text-smoke/80">
+              Representative mockup — the <Link href="/studio" className="text-ember/90 hover:underline">Studio</Link> holds the real composition canvas with viewports, fullscreen and prompt sync.
+            </p>
+          </div>
+
+          {/* stage */}
+          <div>
+            <div className="flex items-center justify-between rounded-t-lg border border-line bg-panel px-3.5 py-2.5" role="toolbar" aria-label="Viewport size">
+              <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-smoke">
+                <span className="size-2 rounded-full bg-blood/70" />
+                <span className="size-2 rounded-full bg-flare/70" />
+                <span className="size-2 rounded-full bg-signal/70" />
+                <span className="ml-2 truncate">composition.canvas</span>
+              </div>
+              <div className="flex gap-1">
+                {([["desktop", Monitor], ["tablet", Tablet], ["mobile", Smartphone]] as const).map(([v, Icon]) => (
+                  <button key={v} onClick={() => setViewport(v)} aria-pressed={viewport === v} aria-label={`Viewport ${v}`}
+                    className={clsx("rounded-md p-1.5 transition-colors", viewport === v ? "bg-ember/15 text-ember" : "text-smoke hover:text-fog")}>
+                    <Icon className="size-3.5" />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="relative overflow-hidden rounded-b-lg border-x border-b border-line bg-ink">
+              <div
+                className="mx-auto transition-[width] duration-500 ease-out"
+                style={{ width: viewport === "desktop" ? "100%" : viewport === "tablet" ? "74%" : "44%" }}
+              >
+                <div className="min-h-[26rem]">
+                  {resolved.length === 0 ? (
+                    <p className="grid h-full min-h-[26rem] place-items-center font-mono text-[11px] text-smoke">
+                      Nothing selected — the canvas awaits modules.
+                    </p>
+                  ) : (
+                    resolved.map((m, i) => (
+                      <div key={m.id} className={clsx(i > 0 && "border-t border-dashed border-line")}>
+                        <p className="px-[6%] pt-5 font-mono text-[8.5px] uppercase tracking-[0.24em] text-smoke/80">
+                          0{i + 1} · {m.name} · <span className="text-ember/70">{m.category}</span>
+                        </p>
+                        <PreviewFrame module={m} params={{}} mode="detail" className="aspect-[16/9]" />
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================ 07 · COMPILER PEEK ============================ */
+
+function CompilerPeekSection() {
+  const [presetId, setPresetId] = useState(PRESETS[0]?.id ?? "");
+  const [depth, setDepth] = useState<"standard" | "detailed" | "extreme">("detailed");
+  const output: CompileOutput = useMemo(() => {
+    const p = PRESETS.find((x) => x.id === presetId);
+    if (!p) return null as unknown as CompileOutput;
+    return compile({ projectName: p.name, brief: p.brief, selections: p.selections, depth });
+  }, [presetId, depth]);
+  const lines = useMemo(() => (output?.markdown ?? "").split("\n"), [output]);
+  const words = output?.stats.words ?? 0;
+  return (
+    <section aria-label="Live compiler" className="mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-36">
+      <div className="grid items-start gap-12 lg:grid-cols-[1fr_1.35fr]">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-ember">06 / compiler peek</p>
+          <h2 className="mt-4 font-display text-3xl font-black tracking-tight md:text-5xl">
+            Watch the spec <span className="font-serif italic text-flare">compile itself.</span>
+          </h2>
+          <p className="mt-6 max-w-md text-[14px] leading-relaxed text-fog">
+            The same pure engine that powers the Studio, running on every route with zero side
+            effects. Swap presets or change the depth dial and the text re-derives instantly —
+            conflicts, acceptance and all.
+          </p>
+          <div className="mt-8">
+            <p className="mb-2 font-mono text-[9.5px] uppercase tracking-[0.22em] text-smoke">Preset</p>
+            <div className="flex flex-wrap gap-1.5">
+              {PRESETS.slice(0, 6).map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setPresetId(p.id)}
+                  aria-pressed={presetId === p.id}
+                  className={clsx("flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-mono text-[10.5px] transition-colors",
+                    presetId === p.id ? "border-ember bg-ember/10 text-ivory" : "border-line text-fog hover:border-line-bright")}
+                >
+                  <span className="size-2 rounded-full" style={{ background: `hsl(${p.hue} 90% 58%)` }} />
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-6">
+            <p className="mb-2 font-mono text-[9.5px] uppercase tracking-[0.22em] text-smoke">Output depth</p>
+            <div className="inline-flex rounded-md border border-line bg-panel p-1" role="radiogroup" aria-label="Depth">
+              {(["standard", "detailed", "extreme"] as const).map((d) => (
+                <button key={d} role="radio" aria-checked={depth === d} onClick={() => setDepth(d)}
+                  className={clsx("rounded-sm px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors",
+                    depth === d ? "bg-ember/15 text-ember" : "text-smoke hover:text-fog")}>
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-xl border border-line bg-ink shadow-2xl">
+          <div className="flex items-center gap-2 border-b border-line bg-panel px-4 py-2.5">
+            <span className="size-2.5 rounded-full bg-blood/70" />
+            <span className="size-2.5 rounded-full bg-flare/70" />
+            <span className="size-2.5 rounded-full bg-signal/70" />
+            <span className="ml-2 font-mono text-[10px] text-smoke">compiled.spec — live</span>
+            <span className="ml-auto font-mono text-[10px] text-flare">{words.toLocaleString()} words</span>
+          </div>
+          <div className="max-h-[30rem] overflow-y-auto p-6 font-mono text-[11px] leading-[1.85] [scrollbar-width:thin]" aria-live="polite">
+            {lines.slice(0, 160).map((l, i) => (
+              <p key={i} className={clsx(
+                "whitespace-pre-wrap",
+                l.startsWith("# ") && "text-flare font-bold",
+                l.startsWith("## ") && "mt-3 text-ember",
+                l.startsWith("### ") && "mt-2 text-flare/90",
+                l.startsWith("- ⚠") && "text-blood",
+                l.startsWith("|") && "text-smoke/70",
+                l.startsWith(">") && "font-serif italic text-fog",
+              )}>
+                {l || "\u00A0"}
+              </p>
+            ))}
+            {lines.length > 160 && (
+              <p className="mt-4 border-t border-dashed border-line pt-3 text-smoke">… {lines.length - 160} more lines compiled</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================ 08 · PRESETS ============================ */
+
+function PresetsSection() {
+  const shown = PRESETS.slice(0, 5);
+  return (
+    <section aria-label="Curated presets" className="border-t border-line bg-carbon/50">
+      <div className="mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-36">
+        <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-ember">07 / curated presets</p>
+            <h2 className="mt-4 font-display text-3xl font-black tracking-tight md:text-5xl">
+              Start from a <span className="font-serif italic text-flare">judge-grade baseline.</span>
+            </h2>
+          </div>
+          <Link href="/studio" className="group flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-ember">
+            all {PRESETS.length} presets <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+          {shown.map((p, i) => (
+            <Link key={p.id} href={`/studio?preset=${p.id}`}
+              className={clsx(
+                "group flex flex-col justify-between overflow-hidden rounded-xl border border-line bg-ink p-5 min-h-[11rem] transition-all duration-300 hover:border-ember/60 hover:-translate-y-1",
+                i === 2 && "md:col-span-1 lg:translate-y-10",
+              )}>
+              <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-smoke" style={{ color: `hsl(${p.hue} 90% 62%)` }}>
+                №{String(i + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <p className="font-display text-[15px] font-black leading-tight text-ivory">{p.name}</p>
+                <p className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-smoke">
+                  ×{p.selections.length} modules
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================ 09 · CONVERSION ============================ */
+
+function FinalSection() {
+  return (
+    <section aria-label="Final call" className="relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute inset-0 bg-gradient-to-t from-ember/10 via-transparent to-transparent" />
+        <div className="absolute inset-0" style={{
+          backgroundImage: "linear-gradient(rgba(255,92,28,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,92,28,0.05) 1px, transparent 1px)",
+          backgroundSize: "54px 54px",
+          maskImage: "radial-gradient(ellipse at 50% 80%, black, transparent 70%)",
+          WebkitMaskImage: "radial-gradient(ellipse at 50% 80%, black, transparent 70%)",
+        }} />
+      </div>
+      <div className="relative mx-auto max-w-4xl px-4 py-28 text-center md:px-8 md:py-40">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">08 / step into the studio</p>
+        <h2 className="mt-6 font-display text-4xl font-black tracking-tight md:text-6xl">
+          Your next project spec is{" "}
+          <span className="font-serif italic font-normal text-flare">three selections away.</span>
+        </h2>
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+          <Link href="/studio"
+            className="group flex items-center gap-2 rounded-md bg-ember px-8 py-4 font-mono text-[12.5px] font-bold uppercase tracking-[0.16em] text-ink transition-transform duration-300 hover:scale-[1.02] hover:bg-flare">
+            Open the Studio <ChevronRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+          <a href="/library"
+            className="rounded-md border border-line px-8 py-4 font-mono text-[12.5px] uppercase tracking-[0.16em] text-fog transition-colors hover:border-line-bright hover:text-ivory">
+            Browse the library
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+

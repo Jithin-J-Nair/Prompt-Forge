@@ -83,6 +83,8 @@ export function StudioApp() {
   const [copied, setCopied] = useState(false);
   const [edited, setEdited] = useState<string | null>(null);
   const [showSaved, setShowSaved] = useState(false);
+  const [inspecting, setInspecting] = useState<string | null>(null);
+  const [depth, setDepth] = useState<"standard" | "detailed" | "extreme">("detailed");
 
   /* compile live — pure + fast at this size */
   const output: CompileOutput = useMemo(
@@ -91,8 +93,9 @@ export function StudioApp() {
         projectName,
         brief,
         selections: selections.map<SelectionInput>((s) => ({ id: s.moduleId, params: s.params })),
+        depth,
       }),
-    [selections, projectName, brief],
+    [selections, projectName, brief, depth],
   );
 
   const selectedIds = useMemo(() => new Set(selections.map((s) => s.moduleId)), [selections]);
@@ -335,6 +338,7 @@ export function StudioApp() {
                 conflicted={output.conflicts.some((c) => c.aId === m.id || c.bId === m.id)}
                 onAdd={() => dispatch({ kind: "add", moduleId: m.id })}
                 onRemove={() => dispatch({ kind: "remove", moduleId: m.id })}
+                onExpand={() => setInspecting(m.id)}
               />
             ))}
           </div>
@@ -344,6 +348,16 @@ export function StudioApp() {
             </p>
           )}
         </section>
+
+        {inspecting && (
+          <Inspector
+            moduleId={inspecting}
+            selected={selectedIds.has(inspecting)}
+            onClose={() => setInspecting(null)}
+            onAdd={() => dispatch({ kind: "add", moduleId: inspecting })}
+            onRemove={() => dispatch({ kind: "remove", moduleId: inspecting })}
+          />
+        )}
 
         {/* RIGHT — composer */}
         <Composer
@@ -358,6 +372,8 @@ export function StudioApp() {
           onBrief={setBrief}
           onName={setProjectName}
           onEdited={setEdited}
+          depth={depth}
+          onDepth={setDepth}
           onCopy={copyPrompt}
           onExport={exportFile}
           onSave={save}
@@ -564,11 +580,124 @@ function ConflictList({
 function nameOf(id: string) { return MODULE_MAP.get(id)?.name ?? id; }
 function shortName(id: string) { const n = nameOf(id); return n.length > 18 ? n.slice(0, 17) + "…" : n; }
 
+/* ------------------------------ Inspector (detail drawer) ------------------------------ */
+
+function Inspector({
+  moduleId, selected, onClose, onAdd, onRemove,
+}: {
+  moduleId: string;
+  selected: boolean;
+  onClose: () => void;
+  onAdd: () => void;
+  onRemove: () => void;
+}) {
+  const mod = MODULE_MAP.get(moduleId);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  if (!mod) return null;
+  return (
+    <div
+      role="dialog" aria-modal="true" aria-labelledby={`inspector-${mod.id}`}
+      className="fixed inset-0 z-50 flex items-stretch justify-end bg-ink/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <aside
+        className="h-full w-full max-w-md overflow-y-auto border-l border-line bg-carbon [scrollbar-width:thin] sm:w-[32rem]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-line bg-carbon/95 p-5 backdrop-blur">
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.24em] text-ember">{mod.category} / {mod.subcategory}</p>
+            <h2 id={`inspector-${mod.id}`} className="mt-1 font-display text-xl font-black text-ivory">{mod.name}</h2>
+          </div>
+          <button onClick={onClose} aria-label="Close inspector"
+            className="rounded border border-line p-1.5 text-fog hover:border-ember/60 hover:text-ember">
+            <X className="size-4" />
+          </button>
+        </div>
+        <PreviewFrame module={mod} params={{}} mode="detail" className="aspect-[16/10] border-b border-line" />
+        <div className="space-y-5 p-5 text-[13px] leading-relaxed text-fog">
+          <p>{mod.description}</p>
+          <div className="rounded border border-line bg-panel/60 p-3 font-mono text-[10.5px] leading-relaxed text-fog whitespace-pre-wrap">
+            <span className="text-smoke">// prompt fragment</span>
+            {"\n"}{mod.prompt}
+          </div>
+          <div>
+            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-smoke">Implementation</p>
+            <p>{mod.implementation}</p>
+          </div>
+          {mod.a11y && (
+            <div>
+              <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-signal/90">Accessibility contract</p>
+              <p>{mod.a11y}</p>
+            </div>
+          )}
+          {mod.responsive && (
+            <div>
+              <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-smoke">Responsive behaviour</p>
+              <p>{mod.responsive}</p>
+            </div>
+          )}
+          {mod.fallback && (
+            <div>
+              <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-smoke">Graceful degradation</p>
+              <p>{mod.fallback}</p>
+            </div>
+          )}
+          {mod.extreme && (
+            <div className="rounded border border-ember/30 bg-ember/5 p-3">
+              <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-ember">Extreme detail sections</p>
+              <ul className="list-disc space-y-1 pl-4 font-mono text-[10px] text-fog">
+                {Object.entries(mod.extreme).map(([k, v]) => v ? <li key={k}><span className="text-flare">{k}</span> — {(v as string).slice(0, 90)}…</li> : null)}
+              </ul>
+            </div>
+          )}
+          {(mod.conflicts?.length ?? 0) > 0 && (
+            <div>
+              <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-blood">Conflicts</p>
+              <ul className="list-disc space-y-1 pl-4">
+                {mod.conflicts!.map((c) => (
+                  <li key={c.id}><span className="text-blood">{MODULE_MAP.get(c.id)?.name ?? c.id}</span> — {c.reason}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {(mod.suggests?.length ?? 0) > 0 && (
+            <div>
+              <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-smoke">Pairs well with</p>
+              <div className="flex flex-wrap gap-1.5">
+                {mod.suggests!.map((sid) => (
+                  <span key={sid} className="rounded-full border border-line px-2 py-0.5 font-mono text-[9px] text-fog">
+                    {MODULE_MAP.get(sid)?.name ?? sid}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="sticky bottom-0 flex gap-2 border-t border-line bg-carbon/95 p-4 backdrop-blur">
+          <button
+            onClick={selected ? onRemove : onAdd}
+            aria-pressed={selected}
+            className={clsx("flex-1 rounded-md px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider transition-colors",
+              selected ? "bg-blood/15 text-blood hover:bg-blood/25" : "bg-ember text-ink hover:bg-flare")}
+          >
+            {selected ? "Remove from composition" : "Add to composition"}
+          </button>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
 /* ------------------------------ Composer ------------------------------ */
 
 function Composer({
   tab, selections, output, projectName, brief, edited, saveState, copied,
-  onName, onBrief, onEdited, onCopy, onExport, onSave, dispatch,
+  onName, onBrief, onEdited, onCopy, onExport, onSave, dispatch, depth, onDepth,
 }: {
   tab: string;
   selections: ComposerSel[];
@@ -585,6 +714,8 @@ function Composer({
   onExport: (kind: "md" | "json" | "txt") => void;
   onSave: () => void;
   dispatch: React.Dispatch<Action>;
+  depth: "standard" | "detailed" | "extreme";
+  onDepth: (d: "standard" | "detailed" | "extreme") => void;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const textRef = useRef<HTMLDivElement | null>(null);
@@ -613,6 +744,29 @@ function Composer({
             rows={2}
             className="w-full resize-none bg-transparent text-[12.5px] leading-relaxed text-fog placeholder:text-smoke/60 focus:outline-none"
           />
+        </div>
+
+        {/* depth selector */}
+        <div className="flex items-center justify-between border-b border-line px-4 py-2.5" role="radiogroup" aria-label="Compile depth">
+          <div className="flex gap-1">
+            {(["standard", "detailed", "extreme"] as const).map((d) => (
+              <button
+                key={d}
+                role="radio"
+                aria-checked={depth === d}
+                onClick={() => onDepth(d)}
+                className={clsx("rounded-sm px-2 py-1 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors",
+                  depth === d ? "bg-ember/15 text-ember" : "text-smoke hover:text-fog")}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+          <span className="font-mono text-[9px] text-smoke leading-relaxed text-right">
+            {depth === "standard" && "lean fragments"}
+            {depth === "detailed" && "+implementation a11y"}
+            {depth === "extreme" && "+technical contracts"}
+          </span>
         </div>
 
         {/* selections */}

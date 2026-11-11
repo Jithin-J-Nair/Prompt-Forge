@@ -38,7 +38,7 @@ export function DmTypeMono(p: PreviewProps) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 bg-ink font-mono text-[11px] text-fog">
       <span className="text-ember">$ const craft = true;</span>
-      <span>// precision type</span>
+      <span>{"// precision type"}</span>
       <span className="text-signal">01. rendered live</span>
     </div>
   );
@@ -136,11 +136,6 @@ export function DmCharStagger(p: PreviewProps) {
   const [key, setKey] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setKey((k) => k + 1), 2600);
-    let mo: MutationObserver | undefined;
-    if (!p.animate) {
-      // still animating? hover-gated by parent — reset on pause
-      setKey((k) => k + 1);
-    }
     return () => { clearInterval(id); };
   }, [p.animate]);
   void key;
@@ -166,7 +161,6 @@ export function DmScramble(p: PreviewProps) {
   const [txt, setTxt] = useState("FORGE");
   useEffect(() => {
     const target = "FORGE";
-    setTxt(target);
     if (!p.animate || p.still) return;
     let frame = 0;
     const id = setInterval(() => {
@@ -196,7 +190,7 @@ export function DmTypeMorph(p: PreviewProps) {
 function MaskCycle({ words, animate, className, interval }: { words: string[]; animate: boolean; className: string; interval: number }) {
   const [i, setI] = useState(0);
   useEffect(() => {
-    if (!animate) { setI(0); return; }
+    if (!animate) return;
     const id = setInterval(() => setI((v) => (v + 1) % words.length), interval);
     return () => clearInterval(id);
   }, [animate, interval, words.length]);
@@ -212,7 +206,7 @@ export function DmTypeWave(p: PreviewProps) {
   const freq = clamp(numP(p.params, "frequency", 0.5), 0.1, 2);
   const [t, setT] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setT(1); return; }
+    if (!p.animate || p.still) return;
     let raf = 0;
     const start = performance.now();
     const loop = (now: number) => { raf = requestAnimationFrame(loop); setT((now - start) / 1000); };
@@ -239,7 +233,7 @@ export function DmVariable(p: PreviewProps) {
   const wMax = clamp(numP(p.params, "maxWeight", 700), 500, 900);
   const [w, setW] = useState(wMin);
   useEffect(() => {
-    if (!p.animate || p.still) { setW((wMin + wMax) / 2); return; }
+    if (!p.animate || p.still) return;
     let raf = 0;
     const start = performance.now();
     const loop = (now: number) => {
@@ -308,7 +302,7 @@ export function DmMagnetic(p: PreviewProps) {
   const strength = clamp(numP(p.params, "strength", 0.4), 0.1, 1);
   const [t, setT] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setT(0); return; }
+    if (!p.animate || p.still) return;
     let raf = 0; const s0 = performance.now();
     const loop = (now: number) => { raf = requestAnimationFrame(loop); setT((now - s0) / 1000); };
     raf = requestAnimationFrame(loop);
@@ -335,7 +329,7 @@ export function DmSpotlight(p: PreviewProps) {
   const radius = clamp(numP(p.params, "radius", numP(p.params, "size", 90)), 30, 200);
   const [t, setT] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setT(1); return; }
+    if (!p.animate || p.still) return;
     let raf = 0; const s0 = performance.now();
     const loop = (now: number) => { raf = requestAnimationFrame(loop); setT((now - s0) / 1000); };
     raf = requestAnimationFrame(loop);
@@ -361,7 +355,7 @@ export function DmTilt(p: PreviewProps) {
   const max = clamp(numP(p.params, "maxTilt", numP(p.params, "tilt", 10)), 3, 22);
   const [t, setT] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setT(0.7); return; }
+    if (!p.animate || p.still) return;
     let raf = 0; const s0 = performance.now();
     const loop = (now: number) => { raf = requestAnimationFrame(loop); setT((now - s0) / 1000); };
     raf = requestAnimationFrame(loop);
@@ -390,7 +384,7 @@ function ScrollMeter({ animate, still, children }: PreviewProps["params"] extend
 }) {
   const [p, setP] = useState(0);
   useEffect(() => {
-    if (!animate || still) { setP(0.62); return; }
+    if (!animate || still) return;
     let raf = 0; const s0 = performance.now();
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
@@ -536,7 +530,7 @@ export function DmProgressive(p: PreviewProps) {
 export function DmMorphScene(p: PreviewProps) {
   const [i, setI] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setI(0); return; }
+    if (!p.animate || p.still) return;
     const id = setInterval(() => setI(v => (v + 1) % 3), 1400);
     return () => clearInterval(id);
   }, [p.animate, p.still]);
@@ -594,7 +588,7 @@ export function DmWipe(p: PreviewProps) {
   const dir = strP(p.params, "direction", "left");
   const [a, setA] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setA(0); return; }
+    if (!p.animate || p.still) return;
     const id = setInterval(() => setA(v => 1 - v), 1500);
     return () => clearInterval(id);
   }, [p.animate, p.still]);
@@ -645,7 +639,7 @@ export function DmZoom(p: PreviewProps) {
 export function DmPreloader(p: PreviewProps) {
   const [n, setN] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setN(87); return; }
+    if (!p.animate || p.still) return;
     const id = setInterval(() => setN(v => (v >= 100 ? 0 : v + 3)), 90);
     return () => clearInterval(id);
   }, [p.animate, p.still]);
@@ -725,25 +719,18 @@ export function DmVelocity(p: PreviewProps) {
 }
 
 function Skewed({ pr }: { pr: number }) {
-  const [vel, setVel] = useState(0);
-  const prev = useRefTm(pr);
-  useEffect(() => setVel(Math.abs(pr - prev) * 30), [pr, prev]);
+  const vel = clamp(Math.abs(Math.sin(pr * Math.PI)) * 26, 0, 26);
   return (
-    <span className="font-display text-2xl font-black text-ivory" style={{ transform: `skewX(${clamp(vel * 4, -1, 26) - 1}deg)` }}>
+    <span className="font-display text-2xl font-black text-ivory" style={{ transform: `skewX(${vel - 1}deg)` }}>
       VELOCITY
     </span>
   );
-}
-function useRefTm<T>(v: T): T {
-  const [prev, setPrev] = useState(v);
-  useEffect(() => { setPrev(v); }, [v]);
-  return prev;
 }
 
 export function DmCountUp(p: PreviewProps) {
   const [n, setN] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setN(12847); return; }
+    if (!p.animate || p.still) return;
     let raf = 0; const s0 = performance.now();
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
@@ -942,7 +929,7 @@ export function DmChrome(p: PreviewProps) {
       <span className="font-display text-2xl font-black uppercase" style={{
         backgroundImage: "linear-gradient(180deg,#fdfdfd 0%,#8a8a93 38%,#3a3a44 50%,#c8c8d2 62%,#7a7a86 78%,#e8e8f0 100%)",
         backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent",
-        transform: `skewX(${p.animate && !p.still ? Math.sin(Date.now() / 900) * 2 : 0}deg)`,
+        transform: "skewX(0deg)",
       }}>CHROME</span>
     </div>
   );
@@ -1050,7 +1037,7 @@ export function DmDirectionSeeded(p: PreviewProps & { seedLabel?: string }) {
 export function DmCards(p: PreviewProps) {
   const [sel, setSel] = useState(-1);
   useEffect(() => {
-    if (!p.animate || p.still) { setSel(1); return; }
+    if (!p.animate || p.still) return;
     let i = 0;
     const id = setInterval(() => { i = (i + 1) % 3; setSel(i); }, 1100);
     return () => clearInterval(id);
@@ -1076,7 +1063,7 @@ export function DmCards(p: PreviewProps) {
 export function DmDrag(p: PreviewProps) {
   const [t, setT] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setT(0.5); return; }
+    if (!p.animate || p.still) return;
     let raf = 0; const s0 = performance.now();
     const loop = (now: number) => { raf = requestAnimationFrame(loop); setT((now - s0) / 1000); };
     raf = requestAnimationFrame(loop);
@@ -1097,7 +1084,7 @@ export function DmDrag(p: PreviewProps) {
 export function DmHoverPrev(p: PreviewProps) {
   const [hov, setHov] = useState(-1);
   useEffect(() => {
-    if (!p.animate || p.still) { setHov(1); return; }
+    if (!p.animate || p.still) return;
     let i = -1;
     const id = setInterval(() => { i = i === 2 ? 0 : i + 1; setHov(i); }, 1300);
     return () => clearInterval(id);
@@ -1208,7 +1195,7 @@ export function DmPalette(p: PreviewProps) {
 export function DmSwipe(p: PreviewProps) {
   const [t, setT] = useState(0);
   useEffect(() => {
-    if (!p.animate || p.still) { setT(0.4); return; }
+    if (!p.animate || p.still) return;
     let raf = 0; const s0 = performance.now();
     const loop = (now: number) => { raf = requestAnimationFrame(loop); setT((now - s0) / 1000); };
     raf = requestAnimationFrame(loop);
