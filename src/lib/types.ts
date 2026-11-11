@@ -1,5 +1,6 @@
 export interface PromptSummary {
-  id: number;
+  id: string; // serial id as string, or a "spec_…" id for memory-records (no DATABASE_URL)
+  persisted?: "database" | "memory";
   rawPrompt: string;
   title: string;
   industry: string;

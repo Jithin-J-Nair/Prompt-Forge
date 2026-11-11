@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { prompts } from "@/db/schema";
+import { deleteSpec, getSpec } from "@/lib/engine/store";
 
 export const dynamic = "force-dynamic";
 
@@ -9,12 +7,11 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
-  const num = Number(id);
-  if (!Number.isInteger(num)) {
+  if (!/^[a-z0-9_]+$/i.test(id) || id.length > 64) {
     return NextResponse.json({ error: "Invalid id." }, { status: 400 });
   }
   try {
-    const [row] = await db.select().from(prompts).where(eq(prompts.id, num)).limit(1);
+    const row = await getSpec(id);
     if (!row) return NextResponse.json({ error: "Spec not found." }, { status: 404 });
     return NextResponse.json({ prompt: row });
   } catch (err) {
@@ -25,16 +22,12 @@ export async function GET(_req: Request, ctx: Ctx) {
 
 export async function DELETE(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
-  const num = Number(id);
-  if (!Number.isInteger(num)) {
+  if (!/^[a-z0-9_]+$/i.test(id) || id.length > 64) {
     return NextResponse.json({ error: "Invalid id." }, { status: 400 });
   }
   try {
-    const [row] = await db
-      .delete(prompts)
-      .where(eq(prompts.id, num))
-      .returning({ id: prompts.id });
-    if (!row) return NextResponse.json({ error: "Spec not found." }, { status: 404 });
+    const ok = await deleteSpec(id);
+    if (!ok) return NextResponse.json({ error: "Spec not found." }, { status: 404 });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("delete prompt failed", err);

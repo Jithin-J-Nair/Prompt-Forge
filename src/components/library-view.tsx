@@ -10,7 +10,7 @@ export function LibraryView() {
   const [items, setItems] = useState<PromptSummary[] | null>(null);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState(false);
-  const [confirming, setConfirming] = useState<number | null>(null);
+  const [confirming, setConfirming] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/prompts?limit=48")
@@ -22,7 +22,7 @@ export function LibraryView() {
       .catch(() => setError(true));
   }, []);
 
-  const remove = async (id: number) => {
+  const remove = async (id: string) => {
     const res = await fetch(`/api/prompts/${id}`, { method: "DELETE" });
     if (res.ok) {
       setItems((prev) => prev?.filter((p) => p.id !== id) ?? null);

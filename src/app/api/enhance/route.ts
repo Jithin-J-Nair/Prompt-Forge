@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { prompts } from "@/db/schema";
 import { enhancePrompt } from "@/lib/engine/enhancer";
+import { saveSpec } from "@/lib/engine/store";
 
 export const dynamic = "force-dynamic";
 
@@ -24,22 +23,16 @@ export async function POST(req: Request) {
     }
 
     const spec = enhancePrompt(prompt);
+    // persistence is best-effort: without DATABASE_URL the spec is kept in the
+    // process ledger so the forge never cracks just because a DB is missing
+    const record = await saveSpec(spec);
 
-    const [row] = await db
-      .insert(prompts)
-      .values({
-        rawPrompt: spec.rawPrompt,
-        title: spec.title,
-        industry: spec.industry,
-        industryId: spec.industryId,
-        brandName: spec.brand.name,
-        spec: spec as unknown as Record<string, unknown>,
-        megaPrompt: spec.megaPrompt,
-        wordCount: spec.stats.words,
-      })
-      .returning({ id: prompts.id, createdAt: prompts.createdAt });
-
-    return NextResponse.json({ id: row.id, createdAt: row.createdAt, spec });
+    return NextResponse.json({
+      id: record.id,
+      createdAt: record.createdAt,
+      persisted: record.persisted,
+      spec,
+    });
   } catch (err) {
     console.error("enhance failed", err);
     return NextResponse.json(
