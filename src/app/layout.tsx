@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { StackProvider, StackTray } from "@/components/lexicon/stack";
 import "./globals.css";
 
 /**
@@ -49,7 +50,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="dark" data-scroll-behavior="smooth">
       <body className="bg-ink text-ivory antialiased">
-        {children}
+        <StackProvider>
+          {children}
+          <StackTray />
+        </StackProvider>
       </body>
     </html>
   );

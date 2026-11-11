@@ -17,6 +17,7 @@ import { motionTokens, springs } from "@/lib/motion/tokens";
 /* ------------------------------------------------------------------ */
 
 const NAV_LINKS = [
+  { href: "/lexicon", label: "Lexicon" },
   { href: "/studio", label: "Studio" },
   { href: "/motion-lab", label: "Motion Lab" },
   { href: "/math-lab", label: "Math Lab" },
