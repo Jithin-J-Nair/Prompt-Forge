@@ -320,3 +320,49 @@ export function Ticker({
     </div>
   );
 }
+
+/* ------ TILT (pointer-driven 3D card tilt, spring-settled) ------ */
+
+export function Tilt({
+  children,
+  className,
+  max = 7,
+  scaleOnHover = 1.015,
+}: {
+  children: ReactNode;
+  className?: string;
+  max?: number;
+  scaleOnHover?: number;
+}) {
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const sc = useMotionValue(1);
+  const srx = useSpring(rx, { stiffness: 260, damping: 22 });
+  const sry = useSpring(ry, { stiffness: 260, damping: 22 });
+  const ssc = useSpring(sc, { stiffness: 260, damping: 24 });
+  const ref = useRef<HTMLDivElement>(null);
+  const allow = useRef(false);
+  useEffect(() => {
+    allow.current = !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+      window.matchMedia("(pointer: fine)").matches;
+  }, []);
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      style={{ rotateX: srx, rotateY: sry, scale: ssc, transformPerspective: 900, transformStyle: "preserve-3d" }}
+      onPointerMove={(e) => {
+        if (!allow.current || !ref.current) return;
+        const r = ref.current.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        ry.set(px * max * 2);
+        rx.set(-py * max * 2);
+        sc.set(scaleOnHover);
+      }}
+      onPointerLeave={() => { rx.set(0); ry.set(0); sc.set(1); }}
+    >
+      {children}
+    </motion.div>
+  );
+}

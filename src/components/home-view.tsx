@@ -10,7 +10,8 @@ import { getModule } from "@/lib/studio";
 import { defaultParams } from "@/lib/studio/params";
 import { artifactPrimaryModule, artifactStack } from "@/lib/lexicon/compile";
 import { PreviewFrame } from "@/components/preview/preview-frame";
-import { Ticker, Magnetic, CharReveal } from "@/components/motion";
+import { Ticker, Magnetic, CharReveal, Tilt } from "@/components/motion";
+import { NebulaField } from "@/components/nebula";
 import { useStack } from "@/components/lexicon/stack";
 import { useReducedMotion } from "@/components/labs/lab-shell";
 import { motionTokens, springs } from "@/lib/motion/tokens";
@@ -98,8 +99,9 @@ export function HomeView() {
 function HeroStrip({ reduced }: { reduced: boolean }) {
   const ref = useRef<HTMLElement>(null);
   return (
-    <section ref={ref} className="relative z-10 mx-auto max-w-[1440px] px-4 pb-14 pt-36 md:px-8 md:pt-44" aria-label="Intro">
-      <div className="grid items-end gap-10 lg:grid-cols-[1.5fr_1fr]">
+    <section ref={ref} className="relative z-10 mx-auto overflow-hidden px-4 pb-14 pt-36 md:px-8 md:pt-44" aria-label="Intro">
+      <NebulaField className="absolute inset-0 -z-0 size-full opacity-80 [mask-image:radial-gradient(90%_80%_at_50%_20%,black_30%,transparent_100%)]" />
+      <div className="relative z-10 mx-auto grid max-w-[1440px] items-end gap-10 lg:grid-cols-[1.5fr_1fr]">
         <div>
           <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-ink/60 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.28em] text-fog">
             <Zap className="size-3 text-ember" aria-hidden /> The prompt lexicon, weaponized
@@ -108,7 +110,10 @@ function HeroStrip({ reduced }: { reduced: boolean }) {
             {reduced ? "One stack in." : <CharReveal text="One stack in." delay={0.2} />}
             <br />
             <span className="text-gradient-ember">
-              {reduced ? "An award-tier brief out." : <CharReveal text="An award-tier brief out." delay={0.6} />}
+              {reduced ? "An award-tier " : <CharReveal text="An award-tier " delay={0.6} />}
+              <span className="font-serif-d italic tracking-normal">
+                {reduced ? "brief out." : <CharReveal text="brief out." delay={1.15} />}
+              </span>
             </span>
           </h1>
         </div>
@@ -130,6 +135,20 @@ function HeroStrip({ reduced }: { reduced: boolean }) {
               </Link>
             </Magnetic>
           </div>
+          <dl className="mt-10 flex max-w-md items-center gap-5 border-t border-line pt-5">
+            {[
+              [LEXICON.length, "keywords"],
+              [ARTIFACTS.length, "artifacts"],
+              [4, "export targets"],
+              [0, "api keys"],
+            ].map(([n, label]) => (
+              <div key={label as string}>
+                <dt className="sr-only">{label}</dt>
+                <dd className="tabular font-display text-2xl font-black text-ivory">{n}</dd>
+                <dd className="font-mono text-[9px] uppercase tracking-[0.24em] text-smoke">{label}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     </section>
@@ -146,12 +165,18 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
   const [loved, setLoved] = useState(false);
 
   return (
+    <Tilt className="h-full">
     <motion.article
+      onMouseMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+        e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+      }}
       initial={{ opacity: 0, y: motionTokens.distance.lg }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: motionTokens.duration.slow * 0.8, delay: (index % 3) * motionTokens.stagger.normal, ease: [...motionTokens.easing.outExpo] }}
-      className="group relative overflow-hidden rounded-xl border border-line bg-carbon/60 transition-colors duration-300 hover:border-line-bright"
+      className="card-sheen group relative h-full overflow-hidden rounded-xl border border-line bg-carbon/60 transition-all duration-300 hover:border-ember/40 hover:shadow-[0_32px_90px_-28px_rgba(139,124,246,0.45)]"
     >
       {/* live preview window */}
       <div className="relative aspect-[16/10] overflow-hidden border-b border-line bg-ink">
@@ -215,6 +240,7 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
         </button>
       </div>
     </motion.article>
+    </Tilt>
   );
 }
 

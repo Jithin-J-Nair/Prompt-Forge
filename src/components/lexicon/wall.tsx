@@ -80,7 +80,7 @@ export function LexiconWall() {
         </p>
         <h1 className="font-display text-5xl font-black leading-[0.95] tracking-[-0.04em] text-ivory md:text-7xl">
           Every keyword.<br />
-          <span className="text-gradient-ember">Individually clickable.</span>
+          <span className="font-serif-d font-normal italic tracking-normal text-gradient-ember">individually clickable.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-lg text-[14.5px] leading-relaxed text-fog">
           Click chips to stack them. The tray follows you everywhere; compile to

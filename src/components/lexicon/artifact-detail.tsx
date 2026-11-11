@@ -17,6 +17,7 @@ import { getModule } from "@/lib/studio";
 import { defaultParams } from "@/lib/studio/params";
 import { PreviewFrame } from "@/components/preview/preview-frame";
 import { useStack } from "@/components/lexicon/stack";
+import { Tilt } from "@/components/motion";
 import { motionTokens, springs } from "@/lib/motion/tokens";
 
 export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
@@ -39,6 +40,7 @@ export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1.35fr_1fr]">
         {/* theatre */}
+        <Tilt max={4}>
         <motion.div
           initial={{ opacity: 0, scale: motionTokens.scale.enter }}
           animate={{ opacity: 1, scale: 1 }}
@@ -54,6 +56,7 @@ export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
             Live preview
           </span>
         </motion.div>
+        </Tilt>
 
         {/* control panel */}
         <motion.aside
