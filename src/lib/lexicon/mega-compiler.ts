@@ -1,4 +1,4 @@
-import { compile, getModule, type CompileDepth, type ParamValues } from "@/lib/studio";
+import { compile, getModule, resolveParams, type CompileDepth, type ParamValues } from "@/lib/studio";
 import { LEXICON_MAP, type Keyword } from "./index";
 import type { ExportTarget } from "./compile";
 
@@ -91,11 +91,15 @@ export function buildMegaPrompt(options: MegaPromptOptions): MegaPromptResult {
 
   const tunedParameterLines = modules.flatMap((keyword) => {
     const module = getModule(keyword.module!);
-    const values = options.paramsByKeywordId?.[keyword.id] ?? {};
-    return Object.entries(values).map(([key, value]) => {
-      const definition = module?.params.find((param) => param.key === key);
-      return `- ${keyword.name} — ${definition?.label ?? key}: ${String(value)}`;
-    });
+    if (!module) return [];
+    const overrides = options.paramsByKeywordId?.[keyword.id] ?? {};
+    const resolved = resolveParams(module, overrides);
+    return module.params
+      .filter((definition) =>
+        Object.prototype.hasOwnProperty.call(overrides, definition.key) &&
+        resolved[definition.key] !== definition.default,
+      )
+      .map((definition) => `- ${keyword.name} — ${definition.label}: ${String(resolved[definition.key])}`);
   });
 
   const microSections = groupKeywords(microKeywords).map(([family, keywords]) => [

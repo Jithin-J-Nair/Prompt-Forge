@@ -73,4 +73,27 @@ describe("PromptForge prompt modes", () => {
     expect(result.warnings).toContain('Unknown keyword ID "not-a-real-keyword" was not compiled.');
   });
 
+  it("validates tuned values and ignores unknown parameter keys before compiling", () => {
+    const keyword = LEXICON.find((item) => item.module && getModule(item.module)?.params.some((param) => param.type === "select" || param.type === "range" || param.type === "number"));
+    expect(keyword?.module).toBeTruthy();
+    const module = getModule(keyword!.module!);
+    const parameter = module!.params.find((param) => param.type === "select" || param.type === "range" || param.type === "number")!;
+
+    const result = buildMegaPrompt({
+      brief: "A portfolio for an illustrator",
+      keywordIds: [keyword!.id],
+      paramsByKeywordId: {
+        [keyword!.id]: {
+          [parameter.key]: "not-a-valid-value",
+          unknownInjectedKey: "SHOULD_NOT_LEAK",
+        },
+      },
+      target: "raw",
+      depth: "extreme",
+    });
+
+    expect(result.prompt).not.toContain("SHOULD_NOT_LEAK");
+    expect(result.prompt).not.toContain(`— ${parameter.label}: not-a-valid-value`);
+  });
+
 });
