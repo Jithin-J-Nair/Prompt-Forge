@@ -17,16 +17,17 @@ import { motionTokens, springs } from "@/lib/motion/tokens";
 /* ------------------------------------------------------------------ */
 
 const NAV_LINKS = [
+  { href: "/", label: "Gallery" },
   { href: "/lexicon", label: "Lexicon" },
   { href: "/studio", label: "Studio" },
-  { href: "/motion-lab", label: "Motion Lab" },
-  { href: "/math-lab", label: "Math Lab" },
-  { href: "/forge", label: "The Forge" },
+  { href: "/motion-lab", label: "Labs" },
   { href: "/library", label: "Library" },
 ];
 
 function isActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/" || pathname.startsWith("/artifact");
   if (href === "/library") return pathname.startsWith("/library") || pathname.startsWith("/spec");
+  if (href === "/motion-lab") return pathname.includes("-lab");
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -118,10 +119,10 @@ export function Nav() {
               );
             })}
             <Link
-              href="/forge"
+              href="/lexicon"
               className="press glint ml-1.5 inline-flex items-center gap-1.5 rounded-full bg-ivory px-4 py-2 font-mono text-[10.5px] font-bold uppercase tracking-[0.16em] text-ink transition-colors duration-200 hover:bg-ember"
             >
-              Forge
+              Start stacking
               <ArrowUpRight className="size-3" />
             </Link>
           </nav>

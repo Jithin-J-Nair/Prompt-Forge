@@ -12,6 +12,8 @@ import { artifactPrimaryModule, artifactStack } from "@/lib/lexicon/compile";
 import { PreviewFrame } from "@/components/preview/preview-frame";
 import { Ticker, Magnetic, CharReveal, Tilt } from "@/components/motion";
 import { NebulaField } from "@/components/nebula";
+import { SiteMock } from "@/components/site-mock";
+import { Eyebrow } from "@/components/chrome";
 import { useStack } from "@/components/lexicon/stack";
 import { useReducedMotion } from "@/components/labs/lab-shell";
 import { motionTokens, springs } from "@/lib/motion/tokens";
@@ -54,7 +56,8 @@ export function HomeView() {
           "Mathematical graphics", "v0 · Cursor · Claude export", "Deterministic — zero API keys",
         ]}
       />
-      <section className="relative z-10 mx-auto max-w-[1440px] px-4 pb-40 md:px-8" aria-label="Artifact gallery">
+      <HowItWorks />
+      <section id="gallery" className="relative z-10 mx-auto max-w-[1440px] px-4 pb-40 md:px-8" aria-label="Artifact gallery">
         {/* tab + industry rail — the motionsites grammar */}
         <div className="sticky top-[76px] z-30 flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
           <div className="glass inline-flex w-fit rounded-full p-1">
@@ -263,5 +266,32 @@ function Outro() {
         </Link>
       </Magnetic>
     </div>
+  );
+}
+
+/* -------------------------- how it works -------------------------- */
+
+function HowItWorks() {
+  const steps = [
+    { n: "01", title: "Pick keywords", body: "Every award-tier technique exists here as its own chip — motion, math, type, colour, 3D. Click to stack.", href: "/lexicon", cta: "Open the lexicon" },
+    { n: "02", title: "Or steal a whole site", body: "Each artifact below is a finished, named build. Open it, watch it live, take its entire stack.", href: "#gallery", cta: "Browse artifacts" },
+    { n: "03", title: "Export for your builder", body: "One click compiles your stack for v0, Cursor, Claude or a raw spec. Paste it where you build.", href: "/studio", cta: "Deep studio" },
+  ];
+  return (
+    <section className="relative z-10 mx-auto max-w-[1440px] px-4 py-20 md:px-8" aria-label="How it works">
+      <Eyebrow>How PromptForge works</Eyebrow>
+      <div className="grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-3">
+        {steps.map((s) => (
+          <a key={s.n} href={s.href} className="group bg-coal p-6 transition-colors duration-300 hover:bg-carbon">
+            <p className="font-mono text-[10px] tracking-[0.3em] text-ember">{s.n}</p>
+            <h3 className="mt-3 font-display text-xl font-bold tracking-tight text-ivory">{s.title}</h3>
+            <p className="mt-2 text-[13px] leading-relaxed text-fog">{s.body}</p>
+            <p className="mt-4 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-smoke transition-colors group-hover:text-ember">
+              {s.cta} →
+            </p>
+          </a>
+        ))}
+      </div>
+    </section>
   );
 }
