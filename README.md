@@ -3,9 +3,9 @@
 
 # PROMPTFORGE
 
-### One lazy sentence in. One production-ready website build spec out.
+### One idea in. A concise prompt or a structured website build spec out.
 
-Turn a simple website idea into a detailed, structured specification for designers and developers—or AI coding tools.
+Create a short, copy-ready prompt from one brief, compose a detailed mega prompt from selected creative layers, or generate a full twelve-section site blueprint.
 
 <p>
   <a href="#features">Features</a> ·
@@ -27,12 +27,19 @@ Turn a simple website idea into a detailed, structured specification for designe
 
 ## Overview
 
-**PromptForge** is a full-stack Next.js application that transforms short website ideas into detailed, developer-oriented build specifications (“mega prompts”). The generated specification can guide an AI website builder, an AI coding assistant, or a human development team.
+**PromptForge** is a creative prompt workbench with three complementary paths: Quick Prompt, a concise one-brief prompt; Mega Prompt Builder, a composable specification built from selected creative layers; and Deep Spec, the original deterministic twelve-section site-blueprint generator. Outputs are intended to guide an AI coding assistant or a human development team.
 
 The project uses a **deterministic, heuristic-based enhancement engine** rather than external AI model calls. It classifies a brief against industry profiles and assembles a structured specification covering branding, design tokens, page layouts, components, interactions, SEO, accessibility, and backend considerations.
 
 > [!NOTE]
 > The engine is deterministic and template-driven. It does not call an external LLM to generate the specification.
+
+## Prompt creation modes
+
+- **Quick Prompt (`/forge`):** one sentence in, one concise instruction out.
+- **Mega Prompt Builder (`/forge`):** search and select individual creative directives or whole categories, preserve tuned Studio parameters, inspect conflicts, then forge a detailed implementation specification.
+- **Creative Layers (`/lexicon`):** preview and copy individual directives, bulk-add visible results, and carry the stack across the workbench.
+- **Deep Spec (`/enhance`):** deterministic twelve-section brand, design-system, page, component, interaction, technology, SEO and backend blueprint, with the original copy/download and best-effort library persistence workflow.
 
 ## What's new: the Visual Prompt Engineering Studio
 

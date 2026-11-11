@@ -8,6 +8,7 @@
 
 ### Product experience
 - [x] Added a dedicated `/forge` workbench with two clear paths: Quick Prompt and Mega Prompt.
+- [x] Preserved the original deterministic twelve-section generator and library persistence at `/enhance`; legacy `/forge?q=` links redirect to it.
 - [x] Quick Prompt produces a concise, copy-ready instruction from one brief.
 - [x] Mega Prompt combines the brief, audience, project name, target environment, depth, typed modules and curated micro-directives.
 - [x] Added category-level add/remove, select-all, clear-stack and keyword search controls.
@@ -51,6 +52,16 @@ Application notes:
 - Motion guidance was applied as restraint and performance hygiene. GSAP was not added because this pass did not require a new scroll-animation system and the project already uses Framer Motion.
 - `improve-ui` is audit-only/read-only and was not treated as permission to edit product source.
 - The `design-taste-frontend` app-screen reference file mentioned by its own instructions is absent from the checked-in skill bundle. No contents were invented to fill that gap.
+
+## Competitive research and product translation
+
+The research was used to extract workflows, not to copy a competitor's visual identity.
+
+- **MotionSites:** a searchable prompt gallery with Featured/Popular/Recent sorting, category filters (including hero, landing page, SaaS, 3D, portfolio and agency) and copy-ready prompt cards. PromptForge now has a searchable curated-build gallery, category selection and individual directive copy. A true Popular ranking is intentionally deferred until votes are persisted and abuse-protected.
+- **GetLayers:** separates templates, 3D scenes, sections, backgrounds and gradients; supports real sandboxed Three.js previews, color/parameter controls, presets, copy-prompt and copy-prompt-plus-UI workflows, favourites and source downloads. PromptForge has typed modules, parameter controls, preview families and parameter-aware copying, but still lacks full-scene sandbox previews, UI-over-scene composition, persisted presets/favourites and source-code downloads.
+- **Awwwards-style quality:** the mega-prompt now asks the implementation agent to self-audit Design (40%), Usability (30%), Creativity (20%) and Content (10%) with evidence, rather than promising an award or inventing a score.
+
+Reference pages: [MotionSites](https://motionsites.ai/), [GetLayers scene library](https://www.getlayers.ai/layer/blob), [GetLayers preview workflow](https://www.getlayers.ai/layer/pinwheel-galaxy), [Awwwards evaluation overview](https://www.awwwards.com/about-evaluation/).
 
 ## Verification status — not yet complete
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Nav, Footer, Atmosphere } from "@/components/chrome";
 import { ForgeWorkspace } from "@/components/forge-workspace";
 
@@ -8,7 +9,15 @@ export const metadata: Metadata = {
     "Start with one sentence or compose creative layers across motion, typography, layout, color, 3D and engineering. Forge a concise prompt or a deeply structured website build specification.",
 };
 
-export default function ForgePage() {
+export default async function ForgePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string | string[] }>;
+}) {
+  const query = (await searchParams).q;
+  const legacyBrief = Array.isArray(query) ? query[0] : query;
+  if (legacyBrief) redirect(`/enhance?q=${encodeURIComponent(legacyBrief.slice(0, 400))}`);
+
   return (
     <>
       <Atmosphere />

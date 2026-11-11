@@ -1,6 +1,7 @@
 name: PromptForge CI
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - codex/promptforge-redesign

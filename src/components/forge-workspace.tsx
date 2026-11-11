@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import {
-  ArrowDownToLine, Check, Copy, Layers3, Search, Sparkles, WandSparkles,
+  ArrowDownToLine, ArrowUpRight, Check, Copy, Layers3, Search, Sparkles, WandSparkles,
 } from "lucide-react";
 import clsx from "clsx";
 import { FAMILIES, LEXICON } from "@/lib/lexicon";
@@ -144,9 +145,14 @@ export function ForgeWorkspace() {
             <span className="mt-2 block">buildable brief.</span>
           </h1>
         </div>
-        <p className="max-w-md text-[15px] leading-relaxed text-fog">
-          Write one sentence for a concise prompt, or assemble a precise stack of creative techniques and forge them into one deeply structured build specification.
-        </p>
+        <div className="max-w-md">
+          <p className="text-[15px] leading-relaxed text-fog">
+            Write one sentence for a concise prompt, or assemble a precise stack of creative techniques and forge them into one deeply structured build specification.
+          </p>
+          <Link href="/enhance" className="press mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-ember hover:text-flare">
+            Need a full 12-section site blueprint? Open Deep Spec <ArrowUpRight className="size-4" aria-hidden />
+          </Link>
+        </div>
       </header>
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">

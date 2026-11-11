@@ -103,7 +103,7 @@ export function ForgeConsole() {
       const v = q.slice(0, 400);
       setBrief(v);
       void forge(v);
-      router.replace("/forge", { scroll: false });
+      router.replace("/enhance", { scroll: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
@@ -116,10 +116,10 @@ export function ForgeConsole() {
       <div className="grid gap-8 lg:grid-cols-[400px_1fr] lg:gap-12">
         {/* input panel */}
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <div className="rounded-xl border border-line bg-carbon/70 p-6 backdrop-blur">
+          <div className="rounded-xl border border-line bg-carbon/70 p-6 ">
             <div className="flex items-center justify-between">
               <label htmlFor="brief" className="font-mono text-[11px] tracking-[0.2em] text-ember uppercase">
-                Your lazy brief
+                Your website brief
               </label>
               <span className={clsx("font-mono text-[10.5px]", brief.length > 380 ? "text-blood" : "text-smoke")}>
                 {brief.length}/400
@@ -127,15 +127,16 @@ export function ForgeConsole() {
             </div>
             <textarea
               id="brief"
+              name="deepSpecBrief"
+              autoComplete="off"
               value={brief}
               onChange={(e) => setBrief(e.target.value.slice(0, 400))}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void forge();
               }}
-              placeholder="make a website for a gym"
+              placeholder="A website for a neighborhood gym with class schedules and memberships…"
               rows={4}
-              autoFocus
-              className="mt-3 w-full resize-none rounded-lg border border-line bg-coal px-4 py-3 font-mono text-[14px] leading-relaxed text-ivory placeholder:text-smoke focus:border-ember focus:outline-none"
+              className="mt-3 min-h-11 w-full resize-none rounded-lg border border-line bg-coal px-4 py-3 text-base leading-relaxed text-ivory placeholder:text-smoke focus-visible:border-ember focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember/60 focus-visible:ring-offset-2 focus-visible:ring-offset-ink md:text-sm"
               aria-describedby="brief-hint"
             />
             <p id="brief-hint" className="mt-2 font-mono text-[10.5px] text-smoke">
@@ -146,21 +147,21 @@ export function ForgeConsole() {
               onClick={() => void forge()}
               disabled={phase === "forging"}
               className={clsx(
-                "group mt-5 flex h-13 w-full items-center justify-center gap-2.5 rounded-lg font-mono text-[12.5px] font-medium tracking-[0.16em] uppercase transition-all duration-200",
+                "group press mt-5 flex min-h-11 w-full items-center justify-center gap-2.5 rounded-lg font-mono text-[12.5px] font-medium tracking-[0.16em] uppercase transition-[background-color,border-color,transform] duration-200",
                 phase === "forging"
                   ? "cursor-wait bg-steel text-fog"
-                  : "bg-ember text-ink hover:bg-flare hover:shadow-[0_0_40px_rgba(139,124,246,0.35)]",
+                  : "bg-ember text-ink hover:bg-flare hover:shadow-[0_10px_24px_-18px_rgba(0,0,0,0.8)]",
               )}
             >
               {phase === "forging" ? (
                 <>
-                  <Loader2 className="size-4.5 animate-spin" />
+                  <Loader2 className="size-4.5 animate-spin" aria-hidden />
                   Forging…
                 </>
               ) : (
                 <>
-                  <Flame className="size-4.5 transition-transform duration-300 group-hover:rotate-12" />
-                  Forge the mega prompt
+                  <Flame className="size-4.5 transition-transform duration-300 group-hover:rotate-12" aria-hidden />
+                  Generate full site blueprint
                 </>
               )}
             </button>
@@ -173,7 +174,7 @@ export function ForgeConsole() {
                   setResult(null);
                   setStage(0);
                 }}
-                className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-line font-mono text-[11px] tracking-[0.16em] text-fog uppercase transition-colors hover:border-ember hover:text-ember"
+                className="press mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-line font-mono text-[11px] tracking-[0.16em] text-fog uppercase transition-colors hover:border-ember hover:text-ember"
               >
                 <RotateCcw className="size-3.5" />
                 Quench & start over
@@ -183,8 +184,8 @@ export function ForgeConsole() {
             {/* examples */}
             <div className="mt-6 border-t border-line pt-5">
               <p className="mb-3 flex items-center gap-2 font-mono text-[10.5px] tracking-[0.18em] text-smoke uppercase">
-                <Sparkles className="size-3.5 text-ember" />
-                Or strike a ready spark
+                <Sparkles className="size-3.5 text-ember" aria-hidden />
+                Start from an example
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {EXAMPLE_PROMPTS.map((t) => (
@@ -195,7 +196,7 @@ export function ForgeConsole() {
                       void forge(t.prompt);
                     }}
                     disabled={phase === "forging"}
-                    className="rounded-full border border-line bg-coal px-3 py-1.5 font-mono text-[10.5px] text-fog transition-colors duration-150 hover:border-ember/60 hover:text-ember disabled:opacity-40"
+                    className="press min-h-11 rounded-full border border-line bg-coal px-3 py-1.5 text-xs text-fog transition-colors duration-150 hover:border-ember/60 hover:text-ember disabled:opacity-40"
                   >
                     {t.label}
                   </button>
@@ -245,7 +246,7 @@ export function ForgeConsole() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="rounded-xl border border-line bg-carbon/70 p-7 backdrop-blur"
+                className="rounded-xl border border-line bg-carbon/70 p-7 "
               >
                 <div className="flex items-center justify-between">
                   <p className="font-mono text-[11px] tracking-[0.2em] text-ember uppercase">
@@ -303,7 +304,7 @@ export function ForgeConsole() {
                 {phase === "forging" && (
                   <div className="mt-6 h-1 overflow-hidden rounded-full bg-steel">
                     <motion.div
-                      className="h-full bg-gradient-to-r from-ember to-flare"
+                      className="h-full bg-ember"
                       initial={{ width: "0%" }}
                       animate={{ width: `${(stage / 10) * 100}%` }}
                       transition={{ ease: "easeOut", duration: 0.3 }}
@@ -319,7 +320,7 @@ export function ForgeConsole() {
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="rounded-xl border border-ember/40 bg-gradient-to-br from-ember/[0.09] to-carbon p-7"
+                className="rounded-xl border border-ember/40 bg-carbon p-7"
               >
                 <Eyebrow>{result.persisted === "database" ? "Forged & filed to your library" : "Forged — held in session ledger (no database configured)"}</Eyebrow>
                 <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">

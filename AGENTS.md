@@ -6,6 +6,7 @@ PromptForge is a creative prompt workbench, not a generic AI landing-page genera
 
 - **Quick Prompt:** one sentence becomes a concise, copy-ready instruction.
 - **Mega Prompt Builder:** a user brief plus selected creative ingredients becomes one coherent, implementation-aware specification.
+- **Deep Spec (`/enhance`):** preserve the deterministic twelve-section generator and its library-persistence workflow; label it accurately as deterministic, not an LLM.
 - **Creative Layers:** users can search, copy individual directives, select individual layers, entire categories or the full library.
 - **Studio:** typed modules expose parameters; parameter overrides must travel with the selected layer through the shared stack, compilation, persistence and share links.
 - **Discovery:** curated builds are examples, not fake social proof or promises of guaranteed awards.

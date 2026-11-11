@@ -37,11 +37,11 @@ function CopyButton({ text, label, className }: { text: string; label: string; c
       }}
       className={
         className ??
-        "inline-flex items-center gap-2 rounded-full border border-line bg-carbon px-4 py-2 font-mono text-[11px] tracking-[0.14em] text-ivory uppercase transition-all duration-200 hover:border-ember hover:text-ember"
+        "inline-flex items-center gap-2 min-h-11 rounded-full border border-line bg-carbon px-4 py-2 font-mono text-[11px] tracking-[0.14em] text-ivory uppercase transition-[border-color,background-color,color] duration-200 hover:border-ember hover:text-ember"
       }
       aria-label={label}
     >
-      {done ? <Check className="size-3.5 text-ember" /> : <Copy className="size-3.5" />}
+      {done ? <Check className="size-3.5 text-ember" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
       {done ? "Copied" : label}
     </button>
   );
@@ -78,7 +78,7 @@ function Section({
           <span className="font-mono text-[11px] tracking-[0.2em] text-smoke uppercase">{index}</span>
           <div>
             <span className="mb-3 grid size-9 place-items-center rounded-md border border-line bg-carbon text-ember">
-              <Icon className="size-4" strokeWidth={1.8} />
+              <Icon className="size-4" strokeWidth={1.8} aria-hidden />
             </span>
             <h3 className="font-display text-lg font-bold tracking-tight uppercase">{title}</h3>
             {note && <p className="mt-1 font-mono text-[11px] leading-relaxed text-smoke">{note}</p>}
@@ -102,7 +102,7 @@ function SwatchRow({ role, hex, note }: { role: string; hex: string; note: strin
           setTimeout(() => setCopied(false), 1200);
         }
       }}
-      className="group flex w-full items-center gap-4 border-b border-line py-3 text-left transition-colors last:border-none hover:bg-steel/40"
+      className="group flex min-h-11 w-full items-center gap-4 border-b border-line py-3 text-left transition-colors last:border-none hover:bg-steel/40"
       title={`Copy ${hex}`}
     >
       <span
@@ -154,7 +154,7 @@ export function SpecRenderer({ spec, createdAt }: { spec: EnhancedSpec; createdA
     <div className="relative">
       {/* ---------- header ---------- */}
       <header className="border-t border-line pt-14 pb-10 md:pt-20">
-        <Eyebrow>Forged spec · confidence {(spec.confidence * 100).toFixed(0)}%</Eyebrow>
+        <Eyebrow>Generated spec · heuristic industry match {(spec.confidence * 100).toFixed(0)}%</Eyebrow>
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <h2 className="font-display text-4xl leading-[1.02] font-bold tracking-tight uppercase md:text-6xl">
@@ -465,10 +465,10 @@ export function SpecRenderer({ spec, createdAt }: { spec: EnhancedSpec; createdA
               </span>
             </div>
             <div className="flex gap-2">
-              <CopyButton text={spec.megaPrompt} label="Copy mega prompt" className="inline-flex items-center gap-2 rounded-full bg-ember px-4 py-2 font-mono text-[11px] font-medium tracking-[0.14em] text-ink uppercase transition-all duration-200 hover:bg-flare" />
+              <CopyButton text={spec.megaPrompt} label="Copy mega prompt" className="inline-flex items-center gap-2 rounded-full bg-ember px-4 py-2 font-mono text-[11px] font-medium tracking-[0.14em] text-ink uppercase transition-[border-color,background-color,color] duration-200 hover:bg-flare" />
               <button
                 onClick={() => downloadMd(`${spec.brand.name.toLowerCase().replace(/\s+/g, "-")}.mega.md`, spec.megaPrompt)}
-                className="inline-flex items-center gap-2 rounded-full border border-line bg-carbon px-4 py-2 font-mono text-[11px] tracking-[0.14em] text-ivory uppercase transition-all duration-200 hover:border-ember hover:text-ember"
+                className="inline-flex items-center gap-2 rounded-full border border-line bg-carbon px-4 py-2 font-mono text-[11px] tracking-[0.14em] text-ivory uppercase transition-[border-color,background-color,color] duration-200 hover:border-ember hover:text-ember"
                 aria-label="Download markdown"
               >
                 <Download className="size-3.5" />
