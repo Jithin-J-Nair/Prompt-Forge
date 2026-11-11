@@ -3,7 +3,7 @@
 /* ------------------------------------------------------------------ */
 /*  The Stack Tray — the product. A persistent, cross-page tray of      */
 /*  selected keyword chips with compile + export + share.               */
-/*  Persistence: localStorage (survives refresh). Sharing: base36 URL.  */
+/*  Persistence: localStorage (survives refresh). Sharing: versioned stable-ID URL.  */
 /* ------------------------------------------------------------------ */
 
 import {
@@ -14,14 +14,19 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Copy, Layers, Check, Trash2, X } from "lucide-react";
 import { LEXICON_MAP } from "@/lib/lexicon";
-import { compileStack, decodeStack, encodeStack, EXPORT_TARGETS, type ExportTarget } from "@/lib/lexicon/compile";
+import type { ParamValues } from "@/lib/studio";
+import { decodeStack, encodeStack, EXPORT_TARGETS, type ExportTarget } from "@/lib/lexicon/compile";
+import { buildMegaPrompt } from "@/lib/lexicon/mega-compiler";
 import { springs, motionTokens } from "@/lib/motion/tokens";
 import clsx from "clsx";
 
 const LS_KEY = "pf-stack-v1";
+const PARAMS_KEY = "pf-stack-params-v1";
 
 interface StackCtx {
   ids: string[];
+  paramsById: Record<string, ParamValues>;
+  setParams: (id: string, params: ParamValues) => void;
   has: (id: string) => boolean;
   toggle: (id: string) => void;
   addAll: (ids: string[]) => void;
@@ -40,23 +45,45 @@ export function useStack(): StackCtx {
 
 export function StackProvider({ children }: { children: ReactNode }) {
   const [ids, setIds] = useState<string[]>([]);
+  const [paramsById, setParamsById] = useState<Record<string, ParamValues>>({});
   const [open, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   // hydrate once from localStorage + incoming share link (?stack=…) — event-sourced, no sync setState
   useEffect(() => {
     let next: string[] = [];
+    let nextParams: Record<string, ParamValues> = {};
     try {
-      const qs = new URLSearchParams(window.location.search).get("stack");
-      if (qs) {
-        next = decodeStack(qs);
+      const query = new URLSearchParams(window.location.search);
+      const sharedStack = query.get("stack");
+      if (sharedStack) {
+        next = decodeStack(sharedStack);
+        const sharedParams = query.get("stackParams");
+        if (sharedParams) {
+          const parsed = JSON.parse(sharedParams) as Record<string, unknown>;
+          nextParams = Object.fromEntries(
+            Object.entries(parsed).filter(([id, value]) =>
+              LEXICON_MAP.has(id) && value !== null && typeof value === "object" && !Array.isArray(value),
+            ),
+          ) as Record<string, ParamValues>;
+        }
       } else {
         const raw = window.localStorage.getItem(LS_KEY);
         if (raw) next = JSON.parse(raw) as string[];
+        const rawParams = window.localStorage.getItem(PARAMS_KEY);
+        if (rawParams) {
+          const parsed = JSON.parse(rawParams) as Record<string, unknown>;
+          nextParams = Object.fromEntries(
+            Object.entries(parsed).filter(([id, value]) =>
+              LEXICON_MAP.has(id) && value !== null && typeof value === "object" && !Array.isArray(value),
+            ),
+          ) as Record<string, ParamValues>;
+        }
       }
     } catch { /* corrupted storage: start empty */ }
     const t = setTimeout(() => {
       setIds(next.filter((id) => LEXICON_MAP.has(id)));
+      setParamsById(nextParams);
       setHydrated(true);
     }, 0);
     return () => clearTimeout(t);
@@ -70,6 +97,13 @@ export function StackProvider({ children }: { children: ReactNode }) {
     } catch { /* private mode */ }
   }, [ids, hydrated]);
 
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem(PARAMS_KEY, JSON.stringify(paramsById));
+    } catch { /* private mode */ }
+  }, [paramsById, hydrated]);
+
   const toggle = useCallback(
     (id: string) => setIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])),
     [],
@@ -78,12 +112,28 @@ export function StackProvider({ children }: { children: ReactNode }) {
     (add: string[]) => setIds((prev) => [...prev, ...add.filter((id) => !prev.includes(id))]),
     [],
   );
-  const clear = useCallback(() => setIds([]), []);
+  const clear = useCallback(() => {
+    setIds([]);
+    setParamsById({});
+  }, []);
+  const setParams = useCallback((id: string, params: ParamValues) => {
+    setParamsById((prev) => {
+      const next = { ...params };
+      if (!Object.keys(next).length) {
+        if (!prev[id]) return prev;
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      }
+      if (JSON.stringify(prev[id] ?? {}) === JSON.stringify(next)) return prev;
+      return { ...prev, [id]: next };
+    });
+  }, []);
   const has = useCallback((id: string) => ids.includes(id), [ids]);
 
   const value = useMemo(
-    () => ({ ids, has, toggle, addAll, clear, open, setOpen }),
-    [ids, has, toggle, addAll, clear, open],
+    () => ({ ids, paramsById, setParams, has, toggle, addAll, clear, open, setOpen }),
+    [ids, paramsById, setParams, has, toggle, addAll, clear, open],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
@@ -92,10 +142,21 @@ export function StackProvider({ children }: { children: ReactNode }) {
 /* ------------------------------ the tray ------------------------------ */
 
 export function StackTray() {
-  const { ids, clear, toggle, open, setOpen } = useStack();
+  const { ids, paramsById, clear, toggle, open, setOpen } = useStack();
   const [copied, setCopied] = useState<"none" | "prompt" | "link">("none");
   const [target, setTarget] = useState<ExportTarget>("raw");
   const chips = ids.map((id) => LEXICON_MAP.get(id)).filter((k): k is NonNullable<typeof k> => !!k);
+  const output = useMemo(() => open ? buildMegaPrompt({
+    brief: "Create a website experience guided by the selected creative layers.",
+    keywordIds: ids,
+    paramsByKeywordId: paramsById,
+    target,
+    depth: "extreme",
+  }).prompt : "", [open, ids, paramsById, target]);
+  const output = useMemo(() => buildMegaPrompt({
+    brief: "Create a website experience guided by the selected creative layers.",
+    keywordIds: ids, target, depth: "extreme",
+  }).prompt, [ids, target]);
 
   useEffect(() => {
     if (copied === "none") return;
@@ -104,10 +165,12 @@ export function StackTray() {
   }, [copied]);
 
   if (!chips.length) return null;
-  const output = compileStack(ids, target);
+
   const shareUrl = () => {
     const u = new URL(window.location.origin + "/lexicon");
     u.searchParams.set("stack", encodeStack(ids));
+    const activeParams = Object.fromEntries(ids.filter((id) => paramsById[id]).map((id) => [id, paramsById[id]]));
+    u.searchParams.set("stackParams", JSON.stringify(activeParams));
     return u.toString();
   };
 

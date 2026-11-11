@@ -5,18 +5,18 @@
 @import "@fontsource/instrument-serif/400-italic.css";
 
 @theme {
-  --color-ink: #070708;
-  --color-coal: #0c0c0f;
-  --color-carbon: #131317;
-  --color-steel: #1b1b21;
-  --color-line: rgba(255, 255, 255, 0.08);
-  --color-line-bright: rgba(255, 255, 255, 0.16);
-  --color-ember: #8b7cf6;
-  --color-flare: #67e8f9;
-  --color-blood: #fb7185;
-  --color-ivory: #f2ede6;
-  --color-fog: #9b96a3;
-  --color-smoke: #615c6b;
+  --color-ink: #0b0d09;
+  --color-coal: #12150f;
+  --color-carbon: #191d15;
+  --color-steel: #242a1d;
+  --color-line: rgba(239, 244, 222, 0.11);
+  --color-line-bright: rgba(239, 244, 222, 0.22);
+  --color-ember: #d7f76a;
+  --color-flare: #edffad;
+  --color-blood: #ff786a;
+  --color-ivory: #f0f1e8;
+  --color-fog: #a5ad9b;
+  --color-smoke: #747d6a;
 
   --font-display: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif,
     system-ui, sans-serif;
@@ -84,6 +84,8 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: dark;
+  overflow-x: clip;
 }
 
 body {
@@ -94,12 +96,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: "ss01" on, "cv05" on;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 ::selection {
   background: var(--color-ember);
-  color: #070708;
+  color: #0b0d09;
 }
 
 /* ------- scrollbar ------- */
@@ -108,33 +110,28 @@ body {
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #0c0c0f;
+  background: #12150f;
 }
 ::-webkit-scrollbar-thumb {
-  background: #26262e;
+  background: #303728;
   border-radius: 8px;
-  border: 2px solid #0c0c0f;
+  border: 2px solid #12150f;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8b7cf6;
+  background: #d7f76a;
 }
 
 /* ------- utilities ------- */
 .font-serif-d {
   font-family: var(--font-serif);
 }
-.text-gradient-ember {
-  background: linear-gradient(100deg, #8b7cf6 0%, #67e8f9 48%, #8b7cf6 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
+.text-gradient-ember { color: var(--color-ember); }
 .text-stroke {
   -webkit-text-stroke: 1px rgba(242, 237, 230, 0.34);
   color: transparent;
 }
 .text-stroke-ember {
-  -webkit-text-stroke: 1px rgba(139, 124, 246, 0.65);
+  -webkit-text-stroke: 1px rgba(215, 247, 106, 0.65);
   color: transparent;
 }
 
@@ -185,26 +182,13 @@ body {
   );
 }
 
-.glow-ember {
-  box-shadow: 0 0 24px rgba(139, 124, 246, 0.35), 0 0 80px rgba(139, 124, 246, 0.12);
-}
+.glow-ember { box-shadow: 0 10px 28px rgba(0, 0, 0, 0.34); }
 
 .card-sheen {
   position: relative;
   overflow: hidden;
 }
-.card-sheen::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    600px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(139, 124, 246, 0.09),
-    transparent 42%
-  );
-  pointer-events: none;
-  transition: opacity 0.3s;
-}
+.card-sheen::before { content: none; }
 
 .spec-markdown {
   font-family: var(--font-mono);
@@ -238,17 +222,11 @@ p, li, figcaption { text-wrap: pretty; }
 /* 4 — tactile press: instant inward snap, then it springs home */
 .press {
   transition: transform 0.16s cubic-bezier(0.25, 1, 0.5, 1);
-  will-change: transform;
 }
 .press:active { transform: scale(0.96); }
 
 /* 5 — glass: one disciplined material, used for floating chrome */
-.glass {
-  background: rgba(12, 12, 15, 0.62);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid var(--color-line);
-}
+.glass { background: rgba(18, 21, 15, 0.96); border: 1px solid var(--color-line); }
 
 /* 6 — concentric radii: outer = inner + padding, optically coherent */
 :root {
@@ -270,7 +248,7 @@ p, li, figcaption { text-wrap: pretty; }
   background: linear-gradient(
     105deg,
     transparent 40%,
-    rgba(103, 232, 249, 0.14) 50%,
+    rgba(215, 247, 106, 0.12) 50%,
     transparent 60%
   );
   transform: translateX(-120%);
@@ -280,7 +258,7 @@ p, li, figcaption { text-wrap: pretty; }
 .glint:hover::after { transform: translateX(120%); }
 
 /* image edges never bleed into a dark surface */
-img { outline: 1px solid rgba(255, 255, 255, 0.08); outline-offset: -1px; }
+img { outline: 1px solid rgba(239, 244, 222, 0.11); outline-offset: -1px; }
 
 /* ember bloom — the hero's single divine flash, runs once at load */
 @keyframes ember-bloom {
@@ -304,4 +282,24 @@ img { outline: 1px solid rgba(255, 255, 255, 0.08); outline-offset: -1px; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+
+/* Keyboard and touch behavior */
+.press:focus-visible,
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-ember);
+  outline-offset: 3px;
+}
+button,
+a,
+input,
+textarea,
+select {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }

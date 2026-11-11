@@ -13,7 +13,7 @@ export default function LibraryPage() {
     <>
       <Atmosphere />
       <Nav />
-      <main className="relative z-10 mx-auto max-w-[1280px] px-6 pt-32 pb-24 md:px-10 md:pt-40">
+      <main id="main-content" className="relative z-10 mx-auto max-w-[1280px] px-6 pt-32 pb-24 md:px-10 md:pt-40">
         <header className="mb-12 md:mb-16">
           <Eyebrow>The ledger · persisted in postgres</Eyebrow>
           <h1 className="max-w-3xl font-display text-5xl leading-[0.98] font-bold tracking-tight uppercase md:text-7xl">

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function LexiconPage() {
   return (
-    <main className="relative min-h-screen">
+    <main id="main-content" className="relative min-h-screen">
       <Atmosphere />
       <Nav />
       <NebulaField className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[70vh] w-full opacity-60 [mask-image:linear-gradient(to_bottom,black_20%,transparent_95%)]" />

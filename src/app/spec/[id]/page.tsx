@@ -37,7 +37,7 @@ export default async function SpecPage({ params }: Props) {
     <>
       <Atmosphere />
       <Nav />
-      <main className="relative z-10 mx-auto max-w-[1280px] px-6 pt-32 pb-24 md:px-10 md:pt-40">
+      <main id="main-content" className="relative z-10 mx-auto max-w-[1280px] px-6 pt-32 pb-24 md:px-10 md:pt-40">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
           <Link
             href="/library"

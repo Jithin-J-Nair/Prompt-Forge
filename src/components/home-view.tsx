@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, ArrowUpRight, Check, Flame, Heart, Layers, Plus, Zap } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Flame, Layers, Plus, Search } from "lucide-react";
 import clsx from "clsx";
 import { ARTIFACTS, LEXICON, type Artifact } from "@/lib/lexicon";
 import { getModule } from "@/lib/studio";
@@ -11,26 +11,21 @@ import { defaultParams } from "@/lib/studio/params";
 import { artifactPrimaryModule, artifactStack } from "@/lib/lexicon/compile";
 import { PreviewFrame } from "@/components/preview/preview-frame";
 import { Ticker, Magnetic, CharReveal, Tilt } from "@/components/motion";
-import { NebulaField } from "@/components/nebula";
-import { SiteMock } from "@/components/site-mock";
-import { Eyebrow } from "@/components/chrome";
 import { useStack } from "@/components/lexicon/stack";
 import { useReducedMotion } from "@/components/labs/lab-shell";
 import { motionTokens, springs } from "@/lib/motion/tokens";
 
 /* ------------------------------------------------------------------ */
-/*  Homepage v4 — gallery-first, in the grammar of the sites that win   */
-/*  the awards: named whole-site artifacts, live preview per card,      */
-/*  Featured/Popular/Recent tabs, industry filters — and every card     */
-/*  decomposes into lexicon chips you pull straight into your Stack.    */
+/*  Homepage — discovery-led entry into a creative prompt workbench.    */
+/*  Quick creation, curated builds and a persistent creative stack.     */
 /* ------------------------------------------------------------------ */
 
-type Tab = "featured" | "popular" | "recent";
+type Tab = "featured" | "recent" | "all";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "featured", label: "Featured" },
-  { id: "popular", label: "Popular" },
   { id: "recent", label: "Recent" },
+  { id: "all", label: "All" },
 ];
 
 const INDUSTRIES = ["All", ...new Set(ARTIFACTS.map((a) => a.industry))];
@@ -39,21 +34,28 @@ export function HomeView() {
   const reduced = useReducedMotion();
   const [tab, setTab] = useState<Tab>("featured");
   const [industry, setIndustry] = useState("All");
+  const [query, setQuery] = useState("");
 
   const shown = useMemo(() => {
     const sorted = [...ARTIFACTS].sort((a, b) =>
-      tab === "popular" ? b.votes - a.votes : tab === "recent" ? +new Date(b.added) - +new Date(a.added) : b.votes - a.votes,
+      tab === "recent" ? +new Date(b.added) - +new Date(a.added)
+        : tab === "all" ? a.name.localeCompare(b.name)
+          : ARTIFACTS.indexOf(a) - ARTIFACTS.indexOf(b),
     );
-    return industry === "All" ? sorted : sorted.filter((a) => a.industry === industry);
-  }, [tab, industry]);
+    const needle = query.trim().toLowerCase();
+    return sorted.filter((artifact) =>
+      (industry === "All" || artifact.industry === industry) &&
+      (!needle || `${artifact.name} ${artifact.blurb} ${artifact.industry}`.toLowerCase().includes(needle)),
+    );
+  }, [tab, industry, query]);
 
   return (
     <>
       <HeroStrip reduced={reduced} />
       <Ticker
         items={[
-          `${LEXICON.length} clickable keywords`, "12 flagship artifacts", "Motion grammar",
-          "Mathematical graphics", "v0 · Cursor · Claude export", "Deterministic — zero API keys",
+          `${LEXICON.length} creative layers`, `${ARTIFACTS.length} curated builds`, "Quick prompts + mega specs",
+          "Motion · math · typography · 3D", "v0 · Cursor · Claude Code export", "One coherent brief, not random effects",
         ]}
       />
       <HowItWorks />
@@ -84,11 +86,37 @@ export function HomeView() {
           </div>
         </div>
 
+        <div className="mb-5 flex justify-end">
+          <label className="flex min-h-11 w-full max-w-md items-center gap-2 rounded-full border border-line bg-carbon px-4">
+            <Search className="size-4 text-smoke" aria-hidden />
+            <input
+              type="search"
+              name="buildSearch"
+              autoComplete="off"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search curated builds…"
+              aria-label="Search curated builds"
+              className="min-w-0 min-h-11 flex-1 bg-transparent text-base text-ivory placeholder:text-smoke focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember/60 md:text-sm"
+            />
+            {query ? <button type="button" onClick={() => setQuery("")} className="press min-h-11 px-2 text-xs text-fog hover:text-ivory">Clear</button> : null}
+          </label>
+        </div>
+
         {/* gallery grid */}
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {shown.map((a, i) => (
+          {shown.length ? shown.map((a, i) => (
             <ArtifactCard key={a.id} a={a} index={i} />
-          ))}
+          )) : (
+            <div className="col-span-full rounded-2xl border border-dashed border-line p-10 text-center">
+              <p className="font-display text-xl font-semibold text-ivory">No builds found.</p>
+              <p className="mt-2 text-sm text-fog">Try a different search or create a new prompt from your idea.</p>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                <button type="button" onClick={() => { setQuery(""); setIndustry("All"); }} className="press min-h-11 rounded-full border border-line px-4 py-2 text-sm text-ivory hover:border-ember/50">Clear filters</button>
+                <Link href="/forge" className="press min-h-11 rounded-full bg-ember px-4 py-2 text-sm font-semibold text-ink">Create a prompt</Link>
+              </div>
+            </div>
+          )}
         </div>
 
         <Outro />
@@ -103,47 +131,36 @@ function HeroStrip({ reduced }: { reduced: boolean }) {
   const ref = useRef<HTMLElement>(null);
   return (
     <section ref={ref} className="relative z-10 mx-auto overflow-hidden px-4 pb-14 pt-36 md:px-8 md:pt-44" aria-label="Intro">
-      <NebulaField className="absolute inset-0 -z-0 size-full opacity-80 [mask-image:radial-gradient(90%_80%_at_50%_20%,black_30%,transparent_100%)]" />
       <div className="relative z-10 mx-auto grid max-w-[1440px] items-end gap-10 lg:grid-cols-[1.5fr_1fr]">
         <div>
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-ink/60 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.28em] text-fog">
-            <Zap className="size-3 text-ember" aria-hidden /> The prompt lexicon, weaponized
-          </p>
-          <h1 className="font-display text-[11vw] font-black leading-[0.92] tracking-[-0.045em] text-ivory md:text-[6.4vw]">
-            {reduced ? "One stack in." : <CharReveal text="One stack in." delay={0.2} />}
+          <h1 className="text-balance font-display text-[11vw] font-black leading-[0.92] tracking-[-0.045em] text-ivory md:text-[6.4vw]">
+            {reduced ? "One idea in." : <CharReveal text="One idea in." delay={0.2} />}
             <br />
-            <span className="text-gradient-ember">
-              {reduced ? "An award-tier " : <CharReveal text="An award-tier " delay={0.6} />}
-              <span className="font-serif-d italic tracking-normal">
-                {reduced ? "brief out." : <CharReveal text="brief out." delay={1.15} />}
-              </span>
-            </span>
+            <span className="text-gradient-ember">{reduced ? "A build brief out." : <CharReveal text="A build brief out." delay={0.6} />}</span>
           </h1>
         </div>
         <div className="pb-2">
           <p className="max-w-sm text-[14.5px] leading-relaxed text-fog">
-            Every prompt keyword for world-class websites exists here as its own
-            clickable chip — motion, math, type, color, 3D. Pull chips from any
-            artifact, or browse the full lexicon, and compile for the tool you ship with.
+            Start with one sentence or assemble a stack of creative layers — motion, typography, layout, color, 3D and engineering. Forge a concise prompt or a structured implementation specification for your coding agent.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Magnetic>
-              <Link href="/lexicon" className="press glint inline-flex items-center gap-2 rounded-md bg-ember px-5 py-3 font-mono text-[11.5px] font-bold uppercase tracking-[0.14em] text-ink transition-colors hover:bg-flare">
-                Open the lexicon <ArrowRight className="size-4" />
+              <Link href="/forge" className="press glint inline-flex items-center gap-2 rounded-md bg-ember px-5 py-3 font-mono text-[11.5px] font-bold uppercase tracking-[0.14em] text-ink transition-colors hover:bg-flare">
+                Start with one sentence <ArrowRight className="size-4" />
               </Link>
             </Magnetic>
             <Magnetic strength={0.22}>
-              <Link href="/studio" className="press glass inline-flex items-center gap-2 rounded-md px-5 py-3 font-mono text-[11.5px] uppercase tracking-[0.14em] text-fog transition-colors hover:text-ivory">
-                Deep studio <ArrowUpRight className="size-4" />
+              <Link href="/lexicon" className="press glass inline-flex items-center gap-2 rounded-md px-5 py-3 font-mono text-[11.5px] uppercase tracking-[0.14em] text-fog transition-colors hover:text-ivory">
+                Explore creative layers <ArrowUpRight className="size-4" />
               </Link>
             </Magnetic>
           </div>
           <dl className="mt-10 flex max-w-md items-center gap-5 border-t border-line pt-5">
             {[
-              [LEXICON.length, "keywords"],
-              [ARTIFACTS.length, "artifacts"],
-              [4, "export targets"],
-              [0, "api keys"],
+              [LEXICON.length, "creative layers"],
+              [ARTIFACTS.length, "curated builds"],
+              [4, "agent targets"],
+              [2, "creation modes"],
             ].map(([n, label]) => (
               <div key={label as string}>
                 <dt className="sr-only">{label}</dt>
@@ -165,9 +182,7 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
   const stack = artifactStack(a);
   const moduleId = artifactPrimaryModule(a);
   const allIn = stack.length > 0 && stack.every((id) => has(id));
-  const [loved, setLoved] = useState(false);
-
-  return (
+return (
     <Tilt className="h-full">
     <motion.article
       onMouseMove={(e) => {
@@ -179,25 +194,20 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: motionTokens.duration.slow * 0.8, delay: (index % 3) * motionTokens.stagger.normal, ease: [...motionTokens.easing.outExpo] }}
-      className="card-sheen group relative h-full overflow-hidden rounded-xl border border-line bg-carbon/60 transition-all duration-300 hover:border-ember/40 hover:shadow-[0_32px_90px_-28px_rgba(139,124,246,0.45)]"
+      className="group relative h-full overflow-hidden rounded-xl border border-line bg-carbon/60 transition-[border-color,box-shadow] duration-300 hover:border-ember/40 hover:shadow-[0_18px_44px_-28px_rgba(0,0,0,0.8)]"
     >
       {/* live preview window */}
       <div className="relative aspect-[16/10] overflow-hidden border-b border-line bg-ink">
         {moduleId && getModule(moduleId) ? (
           <PreviewFrame module={getModule(moduleId)!} params={defaultParams(getModule(moduleId)!)} mode="card" className="absolute inset-0" />
         ) : (
-          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(80%_120%_at_30%_20%,rgba(139,124,246,0.16),transparent_60%),radial-gradient(70%_100%_at_80%_90%,rgba(251,113,133,0.1),transparent_60%)]" />
         )}
         <div className="mask-fade-y pointer-events-none absolute inset-x-0 bottom-0 h-16 from-transparent to-transparent" />
         <span className={clsx("absolute left-3 top-3 rounded-full border px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.18em] backdrop-blur-md",
           a.tone === "Dark" ? "border-white/15 bg-black/40 text-ivory" : "border-black/15 bg-white/50 text-ink")}>
           {a.tone}
         </span>
-        <button onClick={() => setLoved((v) => !v)} aria-pressed={loved} aria-label={loved ? "Remove from favourites" : "Save to favourites"}
-          className={clsx("press absolute right-3 top-3 grid size-8 place-items-center rounded-full border backdrop-blur-md transition-colors",
-            loved ? "border-ember/60 bg-ember/20 text-ember" : "border-white/15 bg-black/40 text-fog hover:text-ivory")}>
-          <Heart className={clsx("size-3.5", loved && "fill-current")} />
-        </button>
+        <span className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/40 px-2.5 py-1 font-mono text-[9px] text-ivory">Live preview</span>
       </div>
 
       {/* meta row */}
@@ -208,7 +218,7 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
               {a.name}
             </h3>
             <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-smoke">
-              {a.industry} · <span className="tabular">{a.votes + (loved ? 1 : 0)}</span> votes · {stack.length} chips
+              {a.industry} · {stack.length} creative layers
             </p>
           </div>
           <Link href={`/artifact/${a.id}`} aria-label={`Open ${a.name}`}
@@ -254,7 +264,7 @@ function Outro() {
     <div className="mt-24 rounded-2xl border border-line bg-carbon/40 p-8 text-center md:p-14">
       <Flame className="mx-auto size-8 text-ember" aria-hidden />
       <h2 className="mx-auto mt-5 max-w-2xl font-display text-4xl font-black leading-tight tracking-tight text-ivory md:text-5xl">
-        Don&apos;t start from an artifact. Start from <span className="text-gradient-ember">the vocabulary</span>.
+        Start with the vocabulary. Build something <span className="text-gradient-ember">distinctly yours</span>.
       </h2>
       <p className="mx-auto mt-4 max-w-md text-[14px] leading-relaxed text-fog">
         {LEXICON.length} keywords across {11} families — browse the wall, stack what speaks,
@@ -273,23 +283,23 @@ function Outro() {
 
 function HowItWorks() {
   const steps = [
-    { n: "01", title: "Pick keywords", body: "Every award-tier technique exists here as its own chip — motion, math, type, colour, 3D. Click to stack.", href: "/lexicon", cta: "Open the lexicon" },
-    { n: "02", title: "Or steal a whole site", body: "Each artifact below is a finished, named build. Open it, watch it live, take its entire stack.", href: "#gallery", cta: "Browse artifacts" },
-    { n: "03", title: "Export for your builder", body: "One click compiles your stack for v0, Cursor, Claude or a raw spec. Paste it where you build.", href: "/studio", cta: "Deep studio" },
+    { n: "01", title: "Start with a sentence", body: "Describe the website you need. Get a concise prompt you can paste straight into your coding agent.", href: "/forge", cta: "Create a quick prompt" },
+    { n: "02", title: "Choose creative layers", body: "Pick individual ingredients or add a complete category: motion, typography, backgrounds, 3D and more.", href: "/lexicon", cta: "Explore the library" },
+    { n: "03", title: "Forge the mega prompt", body: "Your brief and selected layers become one structured build specification with implementation contracts and quality gates.", href: "/forge", cta: "Open the prompt builder" },
   ];
   return (
     <section className="relative z-10 mx-auto max-w-[1440px] px-4 py-20 md:px-8" aria-label="How it works">
-      <Eyebrow>How PromptForge works</Eyebrow>
+      <h2 className="mb-8 text-balance font-display text-3xl font-semibold tracking-tight text-ivory md:text-4xl">Three steps. One coherent build brief.</h2>
       <div className="grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-3">
         {steps.map((s) => (
-          <a key={s.n} href={s.href} className="group bg-coal p-6 transition-colors duration-300 hover:bg-carbon">
+          <Link key={s.n} href={s.href} className="group bg-coal p-6 transition-colors duration-300 hover:bg-carbon">
             <p className="font-mono text-[10px] tracking-[0.3em] text-ember">{s.n}</p>
             <h3 className="mt-3 font-display text-xl font-bold tracking-tight text-ivory">{s.title}</h3>
             <p className="mt-2 text-[13px] leading-relaxed text-fog">{s.body}</p>
             <p className="mt-4 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-smoke transition-colors group-hover:text-ember">
               {s.cta} →
             </p>
-          </a>
+          </Link>
         ))}
       </div>
     </section>

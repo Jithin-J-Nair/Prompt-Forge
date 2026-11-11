@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Flame, ArrowUpRight, Menu, X } from "lucide-react";
 import clsx from "clsx";
 import { Magnetic, ScrollProgress } from "@/components/motion";
@@ -17,8 +17,8 @@ import { motionTokens, springs } from "@/lib/motion/tokens";
 /* ------------------------------------------------------------------ */
 
 const NAV_LINKS = [
-  { href: "/", label: "Gallery" },
-  { href: "/lexicon", label: "Lexicon" },
+  { href: "/", label: "Discover" },
+  { href: "/lexicon", label: "Layers" },
   { href: "/studio", label: "Studio" },
   { href: "/motion-lab", label: "Labs" },
   { href: "/library", label: "Library" },
@@ -37,6 +37,9 @@ export function Nav() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 24);
@@ -45,17 +48,38 @@ export function Nav() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  // Escape closes the mobile menu; scroll is locked while it is open.
+  // Lock scroll, move focus into the dialog, trap Tab and restore focus on close.
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
+    const previousOverflow = document.body.style.overflow;
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.style.overflow = "hidden";
+    const focusable = () => Array.from(
+      menuRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])') ?? [],
+    );
+    focusable()[0]?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKey);
+      previouslyFocused?.focus();
     };
   }, [open]);
 
@@ -63,9 +87,10 @@ export function Nav() {
     <>
       <ScrollProgress />
       <header className="fixed inset-x-0 top-0 z-40">
+        <Link href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ember focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-ink">Skip to content</Link>
         <div
           className={clsx(
-            "mx-auto flex items-center justify-between px-4 transition-all md:px-6",
+            "mx-auto flex items-center justify-between px-4 transition-[padding] md:px-6",
             scrolled ? "max-w-[960px] py-3" : "max-w-[1280px] py-5",
           )}
           style={{
@@ -81,7 +106,7 @@ export function Nav() {
               aria-label="PromptForge home"
             >
               <span className="grid size-7 place-items-center rounded-full bg-ember text-ink transition-transform duration-300 group-hover:rotate-12">
-                <Flame className="size-4" strokeWidth={2.2} />
+                <Flame className="size-4" strokeWidth={2.2} aria-hidden />
               </span>
               <span className="font-display text-[13px] font-bold uppercase tracking-[0.18em]">
                 Prompt<span className="text-ember">Forge</span>
@@ -110,7 +135,7 @@ export function Nav() {
                     <motion.span
                       layoutId="pf-nav-pill"
                       className="absolute inset-0 rounded-full border border-ember/40 bg-ember/15"
-                      transition={springs.snappy}
+                      transition={reduceMotion ? { duration: 0 } : springs.snappy}
                       aria-hidden
                     />
                   )}
@@ -119,22 +144,24 @@ export function Nav() {
               );
             })}
             <Link
-              href="/lexicon"
+              href="/forge"
               className="press glint ml-1.5 inline-flex items-center gap-1.5 rounded-full bg-ivory px-4 py-2 font-mono text-[10.5px] font-bold uppercase tracking-[0.16em] text-ink transition-colors duration-200 hover:bg-ember"
             >
-              Start stacking
-              <ArrowUpRight className="size-3" />
+              Forge a prompt
+              <ArrowUpRight className="size-3" aria-hidden />
             </Link>
           </nav>
 
           {/* mobile toggle */}
           <button
+            ref={toggleRef}
             className="glass press grid size-10 place-items-center rounded-full text-ivory md:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
+            aria-controls="pf-mobile-menu"
           >
-            {open ? <X className="size-4" /> : <Menu className="size-4" />}
+            {open ? <X className="size-4" aria-hidden /> : <Menu className="size-4" aria-hidden />}
           </button>
         </div>
       </header>
@@ -144,12 +171,15 @@ export function Nav() {
         {open && (
           <motion.div
             key="pf-mobile-menu"
-            className="fixed inset-0 z-30 flex flex-col justify-end bg-ink/90 pb-10 backdrop-blur-2xl md:hidden"
+            id="pf-mobile-menu"
+            ref={menuRef}
+            className="fixed inset-0 z-30 flex flex-col justify-end bg-ink pb-10 md:hidden"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { duration: motionTokens.duration.fast } }}
-            exit={{ opacity: 0, transition: { duration: 0.15 } }}
+            animate={{ opacity: 1, transition: { duration: reduceMotion ? 0 : motionTokens.duration.fast } }}
+            exit={{ opacity: 0, transition: { duration: reduceMotion ? 0 : 0.15 } }}
             role="dialog"
             aria-modal="true"
+            aria-label="Mobile navigation"
           >
             <nav aria-label="Mobile" className="flex flex-col gap-1 px-6">
               {NAV_LINKS.map((l, i) => (
@@ -180,6 +210,10 @@ export function Nav() {
                 </motion.div>
               ))}
             </nav>
+            <Link href="/forge" onClick={() => setOpen(false)}
+              className="press mx-6 mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-ember px-5 py-4 text-sm font-semibold text-ink">
+              Create a prompt <ArrowUpRight className="size-4" aria-hidden />
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>
@@ -192,16 +226,8 @@ export function Nav() {
 export function Atmosphere() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      {/* base vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,transparent_40%,rgba(0,0,0,0.55)_100%)]" />
-      {/* ember orbs */}
-      <div className="absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-ember/[0.07] blur-[120px]" />
-      <div className="absolute top-[60%] -left-40 h-[480px] w-[480px] rounded-full bg-blood/[0.05] blur-[110px]" />
-      <div className="absolute top-[30%] -right-40 h-[420px] w-[420px] rounded-full bg-flare/[0.05] blur-[110px]" />
-      {/* blueprint grid */}
-      <div className="absolute inset-0 bg-blueprint mask-fade-y opacity-70" />
-      {/* film grain */}
-      <div className="absolute inset-0 bg-noise opacity-[0.05] mix-blend-overlay" />
+      <div className="absolute inset-0 bg-blueprint mask-fade-y opacity-35" />
+      <div className="absolute inset-0 bg-noise opacity-[0.035] mix-blend-overlay" />
     </div>
   );
 }
@@ -219,10 +245,10 @@ export function Marquee({
 }) {
   const row = [...items, ...items];
   return (
-    <div className={clsx("mask-fade-x relative overflow-hidden border-y border-line py-4", className)}>
+    <div className={clsx("group mask-fade-x relative overflow-hidden border-y border-line py-4", className)}>
       <div
         className={clsx(
-          "flex w-max items-center gap-8 whitespace-nowrap",
+          "flex w-max items-center gap-8 whitespace-nowrap group-hover:[animation-play-state:paused]",
           slow ? "animate-marquee-slow" : "animate-marquee",
         )}
       >
@@ -269,11 +295,10 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-fog">
-              The website prompt enhancement engine. One lazy sentence in — a
-              2,000-word, production-grade build spec out.
+              One sentence or a stack of creative layers in — a clear, implementation-aware prompt out.
             </p>
             <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-smoke">
-              Forged locally · No dark patterns · Zero emojis
+              Deterministic core · No model API required
             </p>
           </div>
           <div>
@@ -288,10 +313,10 @@ export function Footer() {
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-smoke">Output</p>
             <ul className="mt-4 space-y-3 text-[15px] text-fog">
-              <li>Brand identity systems</li>
-              <li>Design tokens & grids</li>
-              <li>Page-by-page UX blueprints</li>
-              <li>Backend schemas & endpoints</li>
+              <li>Creative direction systems</li>
+              <li>Layout, type & color layers</li>
+              <li>Motion, 3D & interaction specs</li>
+              <li>Build sequence & quality gates</li>
             </ul>
           </div>
         </div>
@@ -304,10 +329,10 @@ export function Footer() {
         </p>
 
         <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-line pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-smoke md:flex-row md:items-center">
-          <span>© 2026 PromptForge Industries</span>
+          <span>© 2026 PromptForge</span>
           <span className="flex items-center gap-2">
             <span className="inline-block size-1.5 animate-pulse-soft rounded-full bg-ember" aria-hidden />
-            Furnace nominal · Engine v1.0
+            Quick prompts · Creative mega specs
           </span>
           <span>Set in Space Grotesk & JetBrains Mono</span>
         </div>

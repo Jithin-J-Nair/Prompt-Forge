@@ -13,7 +13,7 @@ export default function StudioPage() {
     <>
       <Atmosphere />
       <Nav />
-      <main className="relative z-10">
+      <main id="main-content" className="relative z-10">
         <StudioApp />
       </main>
     </>

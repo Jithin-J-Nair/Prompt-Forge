@@ -13,7 +13,7 @@ export default function MathLabPage() {
     <>
       <Atmosphere />
       <Nav />
-      <main className="relative z-10">
+      <main id="main-content" className="relative z-10">
         <MathLab />
       </main>
       <Footer />

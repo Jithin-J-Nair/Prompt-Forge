@@ -10,13 +10,11 @@ import "./globals.css";
  */
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://promptforge.app"),
   title: {
-    default: "PromptForge — God-Tier Website Prompt Engine",
+    default: "PromptForge — Creative Prompt Workbench",
     template: "%s · PromptForge",
   },
-  description:
-    "Turn one lazy sentence into a production-ready, developer-grade website build spec. Brand identity, design system, page-by-page UX, components, motion, SEO and backend — forged in seconds.",
+  description: "Turn one idea into a concise prompt or compose creative layers into a detailed website build specification.",
   keywords: [
     "prompt engineering",
     "website prompt generator",
@@ -26,22 +24,22 @@ export const metadata: Metadata = {
     "next.js prompt",
   ],
   openGraph: {
-    title: "PromptForge — God-Tier Website Prompt Engine",
+    title: "PromptForge — Creative Prompt Workbench",
     description:
-      "One lazy sentence in. A 2,000-word, production-ready build spec out.",
+      "Create a concise prompt from one idea or compose a detailed website build specification from curated creative layers.",
     type: "website",
     siteName: "PromptForge",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PromptForge — God-Tier Website Prompt Engine",
+    title: "PromptForge — Creative Prompt Workbench",
     description:
       "One lazy sentence in. A 2,000-word, production-ready build spec out.",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#070708",
+  themeColor: "#0b0d09",
   width: "device-width",
   initialScale: 1,
 };

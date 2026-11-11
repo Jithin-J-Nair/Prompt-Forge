@@ -21,7 +21,7 @@ export default async function ArtifactPage({ params }: { params: Promise<{ id: s
   const artifact = findArtifact(id);
   if (!artifact) notFound();
   return (
-    <main className="relative min-h-screen">
+    <main id="main-content" className="relative min-h-screen">
       <Atmosphere />
       <Nav />
       <div className="relative z-10">

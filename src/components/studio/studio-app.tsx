@@ -26,7 +26,7 @@ interface ComposerSel {
 }
 
 type Action =
-  | { kind: "add"; moduleId: string }
+  | { kind: "add"; moduleId: string; params?: ParamValues }
   | { kind: "remove"; moduleId: string }
   | { kind: "move"; moduleId: string; dir: -1 | 1 }
   | { kind: "setParam"; moduleId: string; key: string; value: string | number | boolean }
@@ -39,8 +39,10 @@ function reducer(state: ComposerSel[], action: Action): ComposerSel[] {
       if (state.some((s) => s.moduleId === action.moduleId)) return state;
       const m = getModule(action.moduleId);
       if (!m) return state;
-      const params: ParamValues = {};
-      for (const p of m.params) params[p.key] = p.default;
+      const params: ParamValues = action.params ? { ...action.params } : {};
+      if (!action.params) {
+        for (const p of m.params) params[p.key] = p.default;
+      }
       return [...state, { moduleId: action.moduleId, params }];
     }
     case "remove":
@@ -339,7 +341,7 @@ export function StudioApp() {
                 module={m}
                 selected={selectedIds.has(m.id)}
                 conflicted={output.conflicts.some((c) => c.aId === m.id || c.bId === m.id)}
-                onAdd={() => dispatch({ kind: "add", moduleId: m.id })}
+                onAdd={(params) => dispatch({ kind: "add", moduleId: m.id, params })}
                 onRemove={() => dispatch({ kind: "remove", moduleId: m.id })}
                 onExpand={() => setInspecting(m.id)}
                 selParams={selectionMap.get(m.id)?.params}
@@ -479,18 +481,25 @@ function ModuleCard({
   conflicted: boolean;
   /** overrides from the composer when selected — drives BOTH preview and compiler */
   selParams?: ParamValues;
-  onAdd: () => void;
+  onAdd: (params?: ParamValues) => void;
   onRemove: () => void;
   onExpand?: () => void;
 }) {
   const effectiveParams = useMemo(() => resolveParams(m, selParams ?? {}), [m, selParams]);
+  const customParams = useMemo(
+    () => Object.fromEntries(m.params.filter((param) => effectiveParams[param.key] !== param.default).map((param) => [param.key, effectiveParams[param.key]])),
+    [m, effectiveParams],
+  );
   const stack = useStack();
   const chipId = `kw:${m.id}`;
   const chipOn = stack.has(chipId);
+  useEffect(() => {
+    if (chipOn && selected) stack.setParams(chipId, customParams);
+  }, [chipOn, selected, chipId, customParams, stack.setParams]);
   return (
     <article
       className={clsx(
-        "group relative flex flex-col rounded-lg border bg-carbon/60 transition-all duration-300 overflow-hidden hover:-translate-y-0.5 glint",
+        "group relative flex flex-col rounded-lg border bg-carbon/60 transition-[border-color,background-color,transform] duration-300 overflow-hidden hover:-translate-y-0.5 glint",
         selected ? "border-ember/60" : conflicted ? "border-blood/50" : "border-line hover:border-line-bright",
       )}
     >
@@ -519,7 +528,7 @@ function ModuleCard({
         </div>
         <div className="flex items-center gap-1.5">
           <button
-            onClick={() => stack.toggle(chipId)}
+            onClick={() => { if (!chipOn) stack.setParams(chipId, customParams); stack.toggle(chipId); }}
             aria-pressed={chipOn}
             title="Toggle this technique in your lexicon stack tray"
             className={clsx(
@@ -536,7 +545,7 @@ function ModuleCard({
             </button>
           )}
           <button
-            onClick={selected ? onRemove : onAdd}
+            onClick={selected ? onRemove : () => onAdd(stack.paramsById[chipId] ?? customParams)}
             aria-pressed={selected}
             className={clsx(
               "flex items-center gap-1.5 rounded px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wider transition-colors",
@@ -1005,7 +1014,7 @@ function ParamEditor({
             onClick={() => onChange(!value)}
             className={clsx("relative h-5 w-9 rounded-full transition-colors", value ? "bg-ember" : "bg-steel")}
           >
-            <span className={clsx("absolute top-0.5 size-4 rounded-full bg-ivory transition-all", value ? "left-[18px]" : "left-0.5")} />
+            <span className={clsx("absolute left-0.5 top-0.5 size-4 rounded-full bg-ivory transition-transform duration-200", value && "translate-x-4")} />
           </button>
         </label>
       );

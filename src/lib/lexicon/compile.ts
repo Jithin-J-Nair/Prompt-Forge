@@ -95,25 +95,25 @@ export function compileStack(ids: string[], target: ExportTarget, project = "the
 }
 
 /* ------------------------- stack ↔ URL encoding ------------------------- */
-/*  ids are stable strings; encode as an index-compressed base36 list.   */
+/*  Version 2 encodes stable keyword IDs; legacy base36 links still decode. */
 
 const ID_INDEX: string[] = [...LEXICON_MAP.keys()];
-const ID_TO_POS = new Map(ID_INDEX.map((id, i) => [id, i]));
-
 export function encodeStack(ids: string[]): string {
-  return ids
-    .map((id) => ID_TO_POS.get(id))
-    .filter((p): p is number => p !== undefined)
-    .map((p) => p.toString(36))
-    .join(".");
+  const stableIds = [...new Set(ids)].filter((id) => LEXICON_MAP.has(id));
+  return `v2.${stableIds.map((id) => encodeURIComponent(id)).join(".")}`;
 }
 
 export function decodeStack(s: string | null | undefined): string[] {
   if (!s) return [];
-  return s
-    .split(".")
-    .map((tok) => ID_INDEX[parseInt(tok, 36)])
-    .filter((id): id is string => !!id);
+  if (s.startsWith("v2.")) {
+    try {
+      return [...new Set(s.slice(3).split(".").filter(Boolean).map((id) => decodeURIComponent(id)))].filter((id) => LEXICON_MAP.has(id));
+    } catch {
+      return [];
+    }
+  }
+  // Backward compatibility for links created by the original index-compressed format.
+  return s.split(".").map((token) => ID_INDEX[parseInt(token, 36)]).filter((id): id is string => Boolean(id));
 }
 
 /* ------------------------- artifact helpers ------------------------- */

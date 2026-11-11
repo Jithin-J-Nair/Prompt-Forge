@@ -9,10 +9,11 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, Copy, Heart, Layers, Plus } from "lucide-react";
+import { ArrowLeft, Check, Copy, Layers, Plus } from "lucide-react";
 import clsx from "clsx";
 import { ARTIFACTS, LEXICON_MAP, type Artifact } from "@/lib/lexicon";
-import { artifactPrimaryModule, artifactStack, compileStack, EXPORT_TARGETS, type ExportTarget } from "@/lib/lexicon/compile";
+import { artifactPrimaryModule, artifactStack, EXPORT_TARGETS, type ExportTarget } from "@/lib/lexicon/compile";
+import { buildMegaPrompt } from "@/lib/lexicon/mega-compiler";
 import { getModule } from "@/lib/studio";
 import { defaultParams } from "@/lib/studio/params";
 import { PreviewFrame } from "@/components/preview/preview-frame";
@@ -21,15 +22,21 @@ import { Tilt } from "@/components/motion";
 import { motionTokens, springs } from "@/lib/motion/tokens";
 
 export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
-  const { addAll, has, toggle, setOpen } = useStack();
-  const [loved, setLoved] = useState(false);
-  const [target, setTarget] = useState<ExportTarget>("raw");
+  const { addAll, has, toggle, setOpen, paramsById } = useStack();
+const [target, setTarget] = useState<ExportTarget>("raw");
   const [copied, setCopied] = useState(false);
 
   const stack = useMemo(() => artifactStack(artifact), [artifact]);
   const primaryId = artifactPrimaryModule(artifact);
   const mod = primaryId ? getModule(primaryId) : undefined;
-  const output = compileStack(stack, target, artifact.name);
+  const output = useMemo(() => buildMegaPrompt({
+    brief: artifact.blurb,
+    projectName: artifact.name,
+    keywordIds: stack,
+    paramsByKeywordId: paramsById,
+    target,
+    depth: "extreme",
+  }).prompt, [artifact.blurb, artifact.name, stack, paramsById, target]);
   const allIn = stack.length > 0 && stack.every((id) => has(id));
 
   return (
@@ -50,7 +57,7 @@ export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
           {mod ? (
             <PreviewFrame module={mod} params={defaultParams(mod)} mode="detail" className="absolute inset-0" />
           ) : (
-            <div aria-hidden className="absolute inset-0 bg-[radial-gradient(80%_120%_at_30%_20%,rgba(139,124,246,0.2),transparent_60%),radial-gradient(70%_100%_at_80%_90%,rgba(103,232,249,0.12),transparent_60%)]" />
+            <div aria-hidden className="absolute inset-0 bg-[radial-gradient(80%_120%_at_30%_20%,rgba(215,247,106,0.12),transparent_60%),radial-gradient(70%_100%_at_80%_90%,rgba(239,244,222,0.06),transparent_60%)]" />
           )}
           <span className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/40 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-ivory backdrop-blur-md">
             Live preview
@@ -73,15 +80,8 @@ export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
           <p className="mt-4 text-[14.5px] leading-relaxed text-fog">{artifact.blurb}</p>
 
           <div className="mt-5 flex items-center gap-3">
-            <button onClick={() => setLoved((v) => !v)} aria-pressed={loved}
-              className={clsx("press inline-flex items-center gap-2 rounded-full border px-4 py-2 font-mono text-[11px] transition-colors",
-                loved ? "border-ember/60 bg-ember/15 text-ember" : "border-line text-fog hover:text-ivory")}>
-              <Heart className={clsx("size-3.5", loved && "fill-current")} />
-              <span className="tabular">{artifact.votes + (loved ? 1 : 0)}</span> likes
-            </button>
-            <span className="tabular font-mono text-[10px] uppercase tracking-[0.2em] text-smoke">
-              {stack.length} keywords
-            </span>
+            <span className="rounded-full border border-line px-4 py-2 text-xs text-fog">Curated build</span>
+            <span className="tabular text-xs text-smoke">{stack.length} creative layers</span>
           </div>
 
           {/* the decomposed chips */}
@@ -142,13 +142,13 @@ export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-smoke">More from the forge</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {ARTIFACTS.filter((x) => x.id !== artifact.id)
-            .sort((a, b) => (a.industry === artifact.industry ? -1 : 0) - (b.industry === artifact.industry ? -1 : 0) || b.votes - a.votes)
+            .sort((a, b) => (a.industry === artifact.industry ? -1 : 0) - (b.industry === artifact.industry ? -1 : 0) || +new Date(b.added) - +new Date(a.added))
             .slice(0, 4)
             .map((x) => (
               <Link key={x.id} href={`/artifact/${x.id}`}
                 className="press group rounded-lg border border-line bg-carbon/60 p-4 transition-colors hover:border-ember/40">
                 <p className="font-display text-[15px] font-bold tracking-tight text-ivory transition-colors group-hover:text-flare">{x.name}</p>
-                <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-smoke">{x.industry} · <span className="tabular">{x.votes}</span></p>
+                <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-smoke">{x.industry} · {x.stack.length} layers</p>
                 <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-fog">{x.blurb}</p>
               </Link>
             ))}
