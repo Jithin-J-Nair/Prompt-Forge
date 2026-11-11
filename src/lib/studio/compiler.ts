@@ -13,6 +13,8 @@ export interface SelectionInput {
   params?: ParamValues;
 }
 
+export type CompileDepth = "standard" | "detailed" | "extreme";
+
 export interface CompileInput {
   projectName?: string;
   brief?: string;
@@ -20,6 +22,13 @@ export interface CompileInput {
   audience?: string;
   /** free-text stack target — defaults to the repo's stack */
   stackNote?: string;
+  /**
+   * Output depth. standard = lean prompt fragments only; detailed = adds
+   * implementation + a11y/responsive/fallback lines (default, current behaviour);
+   * extreme = additionally renders module.extreme (technical precision: visual/motion/
+   * graphics/architecture/quality contracts) and an architecture ordering note.
+   */
+  depth?: CompileDepth;
 }
 
 export interface ResolvedSelection {
@@ -183,6 +192,28 @@ function paramSummaryLines(module: PromptModule, params: ParamValues): string[] 
   return module.params.map((p) => `${p.label}: ${fmtValue(p, params[p.key] ?? p.default)}`);
 }
 
+/* ---------------- extreme-depth rendering ---------------- */
+
+const EXTREME_LABELS: [keyof NonNullable<PromptModule["extreme"]>, string][] = [
+  ["visual", "Visual precision"],
+  ["motion", "Motion contract"],
+  ["graphics", "Graphics contract"],
+  ["architecture", "Component architecture"],
+  ["quality", "Quality & acceptance"],
+];
+
+function extremeLines(mod: PromptModule, params: ParamValues): string[] {
+  const lines: string[] = [];
+  const ex = mod.extreme;
+  if (!ex) return lines;
+  for (const [key, label] of EXTREME_LABELS) {
+    const txt = ex[key];
+    if (!txt) continue;
+    lines.push(`${label} — ${interpolate(txt, mod, params)}`);
+  }
+  return lines;
+}
+
 /* ---------------- step 5 · section assembly ---------------- */
 
 const SECTION_ORDER: { cat: CategoryId; title: string }[] = [
@@ -200,6 +231,7 @@ const SECTION_ORDER: { cat: CategoryId; title: string }[] = [
 ];
 
 export function compile(input: CompileInput): CompileOutput {
+  const depth: CompileDepth = input.depth ?? "detailed";
   const { resolved, unknownIds } = resolveSelections(input.selections ?? []);
   const conflicts = detectConflicts(resolved);
   const suggestions = computeSuggestions(resolved);
@@ -245,18 +277,23 @@ export function compile(input: CompileInput): CompileOutput {
         const pLines = paramSummaryLines(r.module, r.params);
         if (pLines.length) meta.push(`params — ${pLines.join(" · ")}`);
         if (conflictIds.has(r.module.id)) meta.push("⚠ part of a conflict — see conflict report");
-        return {
-          id: r.module.id,
-          heading: r.module.name,
-          body: [
-            renderFragment(r.module, r.params),
-            "",
+        const bodyParts: (string | null)[] = [renderFragment(r.module, r.params), ""];
+        if (depth !== "standard") {
+          bodyParts.push(
             labeledField("Implementation", r.module.implementation, r.module, r.params),
             labeledField("Accessibility", r.module.a11y, r.module, r.params),
             labeledField("Responsive", r.module.responsive, r.module, r.params),
             labeledField("Fallback", r.module.fallback, r.module, r.params),
-            r.module.stack.length ? `Stack: ${r.module.stack.join(", ")}` : null,
-          ]
+          );
+        }
+        if (depth === "extreme") {
+          bodyParts.push(...extremeLines(r.module, r.params));
+        }
+        bodyParts.push(r.module.stack.length ? `Stack: ${r.module.stack.join(", ")}` : null);
+        return {
+          id: r.module.id,
+          heading: r.module.name,
+          body: bodyParts
             .filter((x): x is string => Boolean(x))
             .join("\n"),
           meta,

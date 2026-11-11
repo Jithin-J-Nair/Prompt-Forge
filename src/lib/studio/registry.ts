@@ -11,6 +11,7 @@ import { WEBGL_MODULES } from "./modules/webgl";
 import { BACKGROUND_MODULES } from "./modules/backgrounds";
 import { INTERACTION_MODULES } from "./modules/interaction";
 import { ENGINEERING_MODULES } from "./modules/engineering";
+import { resolvePreview } from "./previews";
 
 /* ------------------------------------------------------------------ */
 /*  Module registry — the single source of truth for the knowledge      */
@@ -119,6 +120,12 @@ export function validateRegistry(): RegistryIssue[] {
     for (const s of m.suggests ?? [])
       if (!MODULE_MAP.has(s))
         issues.push({ level: "error", module: m.id, message: `suggestion '${s}' does not exist` });
+  }
+
+  // 100% live-preview coverage: every module must resolve a preview
+  for (const m of MODULES) {
+    if (!resolvePreview(m))
+      issues.push({ level: "error", module: m.id, message: "no live preview resolves for this module" });
   }
   return issues;
 }

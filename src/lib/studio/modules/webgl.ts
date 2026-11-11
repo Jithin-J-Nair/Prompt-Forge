@@ -27,6 +27,13 @@ export const WEBGL_MODULES = [
     difficulty: "intermediate", perf: "medium", dimension: "3d", interactivity: ["animated", "pointer"],
     fallback: "Static poster (rendered still) + reduced-motion freeze; WebGL-gated with a DOM-only fallback layout.",
     suggests: ["engineering/webgl-fallback", "engineering/gpu-budget"],
+    extreme: {
+      visual: "One hero object on a stage: floating icosahedron or torus-knot with a studio 2-light rig (warm key {keyI} from top-right, ember rim {rimI} from back-left), floor shadow contact, ACES tonemapping, sRGB output, scene fog from z≈6..16 against ground #0a0a0d.",
+      motion: "Object idles on slow orbit (0.2 rad/s); camera rig lerps between hero and detail compositions on scroll progress (spring-smoothed, stiffness ≈ 40, damping ≈ 14). Reduced-motion parks the object and freezes the camera — a composed still, no loop.",
+      graphics: "WebGL2 via three.js: MeshStandardMaterial/Physical with metalness/roughness honestly mapped to the material family; renderer devicePixelRatio cap {dpr}, antialias on, fog on; geometries compiled during idle (gl.compile) so the first frame isn't a jank frame.",
+      architecture: "HeroScene component owns renderer + rAF loop, mounted only while in view; Suspense boundary isolates asset loading; R3F declarative content under <Canvas> when applicable. One zustand store feeds transient params to uniforms (no setState in the frame loop).",
+      quality: "Budget: 60 fps desktop dGPU, ≥ 45 fps integrated GPU at 0.75 pixelRatio; dispose geometry/material/renderer on unmount; device-context-loss recovery re-creates the renderer once, then parks to DOM fallback on second loss.",
+    },
   }),
   M({
     id: "webgl/r3f",

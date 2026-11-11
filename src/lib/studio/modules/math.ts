@@ -49,6 +49,13 @@ export const MATH_MODULES = [
     tags: ["fourier", "epicycles", "dft", "series"],
     difficulty: "intermediate", perf: "light", dimension: "2d", interactivity: ["animated"],
     demo: "fourier",
+    extreme: {
+      visual: "Canvas in the hero block, devicePixelRatio-aware, letterboxed to the panel. Each epicycle drawn as a hairline circle (rgba(242,237,230,0.18)) with a radius arm to its current tip; harmonic arms in amber (#ffb85c) at 60% opacity; the accumulated trace a 2 px stroke in ember (#ff5c1c) with additive glow behind. Axes hairlines only — no grid noise.",
+      motion: "Tip never jumps: vectors simulated at 60 fps with fixed-dt integration; cycle speed param scales θ̇ linearly ({speed}× ≈ {speed}s per 2π). Pausing freezes θ — trace persists. On reduced-motion: render one full cycle at {harmonics} harmonics as a single static frame, no animation loop.",
+      graphics: "2D canvas, additive 'lighter' composite for the trace, DPR ≤ 2 cap, vector count equals {harmonics} + target-wave polyline ≤ 2 048 points (ring buffer, decimated when exceeded). Path DFT precomputed once per wave at {harmonics} terms; zero per-frame allocs in the hot loop.",
+      architecture: "FourierTrail component: useFourierSeries(wave, harmonics) returns complex coefficients ordered by |Cₙ|; per-frame rAF advances phase, accumulates Σ Re/Im Cₙ·e^(i·fₙ·t), pushes tip to a ring buffer, paints. Params via zustand-style ref so slider edits re-render without replaying phase.",
+      quality: "Works Canvas2D-only (float32 math); graceful FPS drop handled by dt clamp (≤ 40 ms). Snapshot test: for 5 harmonics at t=π/4 the predicted tip is within 1e-3 of analytic Fourier evaluation. Runs under prefers-reduced-motion with a still frame. No audio, no network.",
+    },
   }),
   M({
     id: "math/bezier-curves",

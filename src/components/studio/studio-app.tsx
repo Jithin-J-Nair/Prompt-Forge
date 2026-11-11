@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import clsx from "clsx";
 import {
-  ArrowDown, ArrowUp, Check, ChevronRight, Copy, Download, FlaskConical, Layers,
+  ArrowDown, ArrowUp, Check, ChevronRight, Copy, Download, Layers,
   Loader2, Plus, RotateCcw, Save, Search, Sparkles, Trash2, X,
 } from "lucide-react";
+import { PreviewFrame } from "@/components/preview/preview-frame";
 import {
   CATEGORIES, MODULE_MAP, MODULES, compile, searchModules, getModule,
   PRESETS,
@@ -451,22 +452,26 @@ function Explorer({
 /* ------------------------------ Module card ------------------------------ */
 
 function ModuleCard({
-  module: m, selected, conflicted, onAdd, onRemove,
+  module: m, selected, conflicted, onAdd, onRemove, onExpand,
 }: {
   module: PromptModule;
   selected: boolean;
   conflicted: boolean;
   onAdd: () => void;
   onRemove: () => void;
+  onExpand?: () => void;
 }) {
   return (
     <article
       className={clsx(
-        "group relative flex flex-col rounded-lg border bg-carbon/60 p-4 transition-colors",
+        "group relative flex flex-col rounded-lg border bg-carbon/60 transition-colors overflow-hidden",
         selected ? "border-ember/60" : conflicted ? "border-blood/50" : "border-line hover:border-line-bright",
       )}
     >
-      <div className="flex items-start justify-between gap-2">
+      {/* live preview — real renderer, param-driven */}
+      <PreviewFrame module={m} params={{}} mode="card" className="aspect-[16/10] border-b border-line" />
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex items-start justify-between gap-2">
         <h3 className="font-display text-[14px] font-bold leading-snug tracking-tight">{m.name}</h3>
         <span className={clsx("mt-0.5 shrink-0 font-mono text-[9px] uppercase tracking-wider", PERF_TINT[m.perf])}>
           {m.perf}
@@ -484,33 +489,33 @@ function ModuleCard({
       <div className="mt-auto flex items-center justify-between gap-2 pt-4">
         <div className="flex items-center gap-2 font-mono text-[9.5px] text-smoke">
           {m.params.length > 0 && <span>{m.params.length} params</span>}
-          {m.demo && (
-            <a
-              href={m.category === "motion" || m.category === "color" || m.category === "interaction" || m.category === "typography" ? "/motion-lab" : "/math-lab"}
-              className="flex items-center gap-1 text-ember/80 hover:text-ember"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <FlaskConical className="size-3" /> live demo
-            </a>
-          )}
           <span className="uppercase">{m.dimension}</span>
         </div>
-        <button
-          onClick={selected ? onRemove : onAdd}
-          aria-pressed={selected}
-          className={clsx(
-            "flex items-center gap-1.5 rounded px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wider transition-colors",
-            selected ? "bg-ember/15 text-ember hover:bg-blood/15 hover:text-blood" : "border border-line text-fog hover:border-ember/60 hover:text-ember",
+        <div className="flex items-center gap-1.5">
+          {onExpand && (
+            <button onClick={onExpand} aria-label={`Open ${m.name} detail`}
+              className="rounded border border-line px-2 py-1.5 font-mono text-[10px] uppercase tracking-wider text-smoke transition-colors hover:border-ember/60 hover:text-ember">
+              view
+            </button>
           )}
-        >
-          {selected ? <><Check className="size-3" /> added</> : <><Plus className="size-3" /> add</>}
-        </button>
+          <button
+            onClick={selected ? onRemove : onAdd}
+            aria-pressed={selected}
+            className={clsx(
+              "flex items-center gap-1.5 rounded px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wider transition-colors",
+              selected ? "bg-ember/15 text-ember hover:bg-blood/15 hover:text-blood" : "border border-line text-fog hover:border-ember/60 hover:text-ember",
+            )}
+          >
+            {selected ? <><Check className="size-3" /> added</> : <><Plus className="size-3" /> add</>}
+          </button>
+        </div>
       </div>
       {conflicted && !selected && (
-        <span className="absolute -top-2 right-3 rounded-full bg-blood/20 px-2 py-0.5 font-mono text-[9px] text-blood">
+        <span className="absolute left-3 top-[calc(100%-2rem)] rounded-full bg-blood/20 px-2 py-0.5 font-mono text-[9px] text-blood">
           conflicts with selection
         </span>
       )}
+      </div>
     </article>
   );
 }

@@ -61,6 +61,43 @@ export interface ConflictEdge {
   reason: string;
 }
 
+export type PreviewRendererKind = "dom" | "svg" | "canvas2d" | "webgl" | "three";
+
+/**
+ * Live-preview contract. Every module must have one; the registry test suite
+ * asserts resolvable component keys and param coverage (100% coverage).
+ * componentKey resolves through the preview component registry
+ * (src/components/preview/preview-registry.tsx); paramMap maps module param
+ * keys to preview prop names — the SAME state feeds preview + compiler.
+ */
+export interface PreviewDefinition {
+  kind: PreviewRendererKind;
+  /** registry key, e.g. "type/oversized", "canvas/flow-field", "gl/domain-warp" */
+  componentKey: string;
+  /** moduleParamKey -> preview prop name (identity mapping when omitted) */
+  paramMap?: Record<string, string>;
+  /** deterministic seed for reproducible procedural previews */
+  seed?: number;
+  /** honest note when the preview is an illustrative approximation */
+  approximationNote?: string;
+  /** what to show under prefers-reduced-motion (defaults used if omitted) */
+  reducedMotionFallback?: "still" | "simplified";
+}
+
+/** Expert-grade structured expansion used by the compiler's EXTREME depth. */
+export interface ExtremeSpec {
+  /** exact visual outcome: composition, geometry, color, light, texture */
+  visual?: string;
+  /** motion contract: trigger, states, durations, easings, physics, loops */
+  motion?: string;
+  /** rendering contract: tech, shader architecture, uniforms, camera, post */
+  graphics?: string;
+  /** component architecture: structure, state model, lifecycle, data flow */
+  architecture?: string;
+  /** acceptance hooks: tests, budgets, browser matrix */
+  quality?: string;
+}
+
 export interface PromptModule {
   /** stable, namespaced: e.g. "motion/scroll-reveal" — never reuse ids */
   id: string;
@@ -99,6 +136,15 @@ export interface PromptModule {
   suggests?: string[];
   /** id of a functional demo in the labs, when one exists */
   demo?: string;
+  /**
+   * Explicit live preview override. When omitted, the registry resolves one
+   * from the preview map (then subcategory default) — resolution via
+   * getPreview() is mandatory-coverage (registry validation fails otherwise).
+   * The same resolved param values drive both preview and compiled prompt.
+   */
+  preview?: PreviewDefinition;
+  /** extra expert detail consumed by compiler depth:"extreme" */
+  extreme?: ExtremeSpec;
   /** content version — bump when the fragment changes materially */
   version: number;
 }

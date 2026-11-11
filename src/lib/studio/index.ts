@@ -4,3 +4,4 @@ export * from "./registry";
 export * from "./search";
 export * from "./compiler";
 export * from "./presets";
+export * from "./previews";
