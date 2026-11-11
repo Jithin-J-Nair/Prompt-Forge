@@ -89,10 +89,10 @@ export function CharStaggerDemo() {
     <DemoTile title="Character Stagger Reveal" moduleId="typography/character-animation"
       note="Each glyph rises from behind its line's overflow mask with a power-stagger — click to replay.">
       <button className="flex size-full cursor-pointer items-center justify-center bg-ink" onClick={() => setKey((k) => k + 1)} aria-label="Replay character stagger">
-        <span className="sr-only">{word}</span>
-        <span aria-hidden className="flex" key={key}>
+        <span className="sr-only" key="sr-label">{word}</span>
+        <span aria-hidden="true" className="flex" key={`replay-${key}`}>
           {word.split("").map((c, i) => (
-            <span key={`${key}-${i}`} className="inline-block overflow-hidden">
+            <span key={`glyph-${i}`} className="inline-block overflow-hidden">
               <span
                 className="inline-block font-display text-4xl font-black text-ivory md:text-5xl"
                 style={{

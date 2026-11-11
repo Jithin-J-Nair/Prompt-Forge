@@ -140,7 +140,7 @@ export function DmCharStagger(p: PreviewProps) {
   }, [p.animate]);
   void key;
   return (
-    <div key={key} className="absolute inset-0 flex items-center justify-center gap-[0.5ch] bg-ink overflow-hidden">
+    <div key={`ct-${key}`} className="absolute inset-0 flex items-center justify-center gap-[0.5ch] bg-ink overflow-hidden">
       {word.split("").map((c, i) => (
         <span key={`${i}`}
           className="font-display text-[22px] font-black text-ivory"
