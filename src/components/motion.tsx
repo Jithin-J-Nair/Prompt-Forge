@@ -139,3 +139,100 @@ export function CountUp({ to, suffix = "", className }: { to: number; suffix?: s
     </span>
   );
 }
+
+/* --------------- STAGGER (ECC motion-patterns: list entrances) --------------- */
+/* Rules encoded: 50–100ms sibling interval via motionTokens.stagger,            */
+/* viewport once (never re-fire on scroll-out), reduced-motion = opacity only.   */
+
+import { motionTokens, springs } from "@/lib/motion/tokens";
+
+export function Stagger({
+  children,
+  className,
+  interval = motionTokens.stagger.normal,
+  baseDelay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  interval?: number;
+  baseDelay?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-60px" }}
+      variants={{
+        hidden: {},
+        show: { transition: { staggerChildren: interval, delayChildren: baseDelay } },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function StaggerChild({
+  children,
+  className,
+  y = motionTokens.distance.md,
+}: {
+  children: ReactNode;
+  className?: string;
+  y?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      variants={{
+        hidden: { opacity: 0, y },
+        show: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: motionTokens.duration.slow * 0.75,
+            ease: [...motionTokens.easing.outExpo] as [number, number, number, number],
+          },
+        },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ------ CHAR REVEAL (kinetic type: each glyph springs in on its own) ------ */
+/* Exit is defined alongside enter per the AnimatePresence contract;          */
+/* reduced motion collapses the spring to a 0.2s opacity fade via the gate.   */
+
+export function CharReveal({
+  text,
+  delay = 0,
+  className,
+}: {
+  text: string;
+  delay?: number;
+  className?: string;
+}) {
+  const chars = Array.from(text);
+  return (
+    <span className={className} aria-label={text} role="text">
+      {chars.map((c, i) => (
+        <motion.span
+          key={`cr-${i}-${c}`}
+          aria-hidden
+          className="inline-block will-change-transform"
+          initial={{ opacity: 0, y: "0.42em", skewY: 5, filter: "blur(6px)" }}
+          animate={{ opacity: 1, y: 0, skewY: 0, filter: "blur(0px)" }}
+          transition={{
+            ...springs.gentle,
+            delay: delay + i * 0.024,
+          }}
+        >
+          {c === " " ? " " : c}
+        </motion.span>
+      ))}
+    </span>
+  );
+}

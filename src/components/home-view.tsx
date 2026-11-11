@@ -12,6 +12,7 @@ import {
   type CompileOutput, type PromptModule,
 } from "@/lib/studio";
 import { REGISTRY_STATS } from "@/lib/studio/registry";
+import { CharReveal } from "@/components/motion";
 import { PreviewFrame } from "@/components/preview/preview-frame";
 import { makeNoise2D, mulberry32, useReducedMotion } from "@/components/labs/lab-shell";
 
@@ -46,15 +47,19 @@ function HeroSection() {
   return (
     <section className="relative grid min-h-[92dvh] place-items-center overflow-hidden" aria-label="Hero">
       <HeroField still={reduced} />
+      {!reduced && (
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 z-[5] size-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{ background: "radial-gradient(closest-side, rgba(255,92,28,0.32), rgba(255,184,92,0.12) 45%, transparent 70%)", animation: "ember-bloom 1.8s cubic-bezier(0.22,1,0.36,1) 0.1s both" }} />
+      )}
       <div className="pointer-events-none relative z-10 mx-auto max-w-5xl px-4 text-center md:px-8">
         <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-ink/60 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.28em] text-fog backdrop-blur-sm">
           <Zap className="size-3 text-ember" aria-hidden="true" /> The website-spec forge
         </p>
         <h1 className="font-display text-[13vw] font-black leading-[0.94] tracking-[-0.04em] text-ivory sm:text-[10vw] lg:text-[7.6vw]">
-          {RevealChars({ text: "Type one lazy sentence." })}
+          <CharReveal text="Type one lazy sentence." delay={0.25} />
           <br />
           <span className="bg-gradient-to-r from-ember via-flare to-blood bg-clip-text text-transparent">
-            {RevealChars({ text: "Forge a blueprint.", delay: 0.35 })}
+            <CharReveal text="Forge a blueprint." delay={0.72} />
           </span>
         </h1>
         <p className="mx-auto mt-8 max-w-xl text-[15px] leading-relaxed text-fog">
@@ -65,38 +70,23 @@ function HeroSection() {
         </p>
         <div className="pointer-events-auto mt-10 flex flex-wrap items-center justify-center gap-4">
           <Link href="/studio"
-            className="group flex items-center gap-2 rounded-md bg-ember px-6 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.16em] text-ink transition-transform duration-300 hover:scale-[1.02] hover:bg-flare active:scale-[0.99]">
+            className="press group flex items-center gap-2 rounded-md bg-ember px-6 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.16em] text-ink transition-transform duration-300 hover:scale-[1.02] hover:bg-flare glint">
             Enter the Studio <ChevronRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
           <Link href="/forge"
-            className="rounded-md border border-line bg-ink/50 px-6 py-3.5 font-mono text-[12px] uppercase tracking-[0.16em] text-fog backdrop-blur-sm transition-colors hover:border-line-bright hover:text-ivory">
+            className="press glass rounded-md px-6 py-3.5 font-mono text-[12px] uppercase tracking-[0.16em] text-fog transition-colors duration-300 hover:border-line-bright hover:text-ivory">
             Try the classic forge
           </Link>
         </div>
       </div>
-      <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center">
-        <ArrowDown className="size-4 animate-bounce text-smoke" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-8 flex flex-col items-center gap-3">
+        <span className="font-mono text-[9px] uppercase tracking-[0.42em] text-smoke">Scroll</span>
+        <span aria-hidden className="block h-10 w-px overflow-hidden bg-white/10">
+          <span className="block h-1/2 w-px bg-ember" style={{ animation: "pf-scroll-cue 1.8s cubic-bezier(0.76,0,0.24,1) infinite" }} />
+        </span>
+        <style>{`@keyframes pf-scroll-cue{0%{transform:translateY(-100%)}55%,100%{transform:translateY(200%)}}`}</style>
       </div>
     </section>
-  );
-}
-
-/* reveal-on-mount letter stagger — pure CSS, no JS frame loop */
-function RevealChars({ text, delay = 0 }: { text: string; delay?: number }) {
-  return (
-    <span className="inline-block" aria-label={text} role="text">
-      {text.split("").map((c, i) => (
-        <span key={`${i}-${c}`} aria-hidden="true"
-          className="inline-block"
-          style={{
-            animation: `pf-hero-letter 0.9s cubic-bezier(0.22,1,0.36,1) both`,
-            animationDelay: `${delay + i * 0.022}s`,
-          }}>
-          {c === " " ? "\u00A0" : c}
-        </span>
-      ))}
-      <style>{`@keyframes pf-hero-letter{from{opacity:0;transform:translateY(0.4em) skewY(4deg)}to{opacity:1;transform:none}}`}</style>
-    </span>
   );
 }
 

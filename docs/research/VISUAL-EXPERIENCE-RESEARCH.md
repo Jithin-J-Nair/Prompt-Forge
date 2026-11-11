@@ -62,3 +62,13 @@ Grotesk Variable display (weight axis 300–700), Instrument Serif italic for ed
 JetBrains Mono for technical furniture. Layout: editorial numbering, hairline rules, asymmetric
 feature tiles; motion is fast-physical (springs ≤ 600ms) with ONE ambient live canvas per page max.
 Previews are the identity: every module card IS a tiny rendered artifact of what it compiles.
+
+## Round 3 — ECC skill distillation (2026-11-11)
+
+Skills audited from affaan-m/ECC: `frontend-design-direction`, `motion-foundations`, `motion-patterns`, `make-interfaces-feel-better`, `taste`, `liquid-glass-design`.
+
+**Adopted contracts:**
+- **Motion tokens are law** — `src/lib/motion/tokens.ts` owns every duration/easing/distance/scale + 5 named springs; components import, never invent. Staggers 50–100ms. Exits shorter than entrances (150ms). Transform+opacity only.
+- **Direction: forge-industrial editorial** — one warm light (ember) in a black void; grain + blueprint grid; mono instrument labels; serif italics for accent. No purple-gradient slop, no decorative blobs, no card-in-card.
+- **Design-craft pass** — `-moz-osx-font-smoothing`, ember `:focus-visible` ring, `text-wrap: balance/pretty`, `.tabular` numerics, `.press` tactile scale(0.96), `.glass` floating chrome, concentric radii tokens, `.glint` ember sheen, image edge outlines.
+- **Taste grammar applied to the hero** — one ember "divine flash" bloom at load, spring-staggered glyph reveal (blur→sharp, skew→0), calm scroll-cue line; one accent color in the frame.

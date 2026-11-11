@@ -486,7 +486,7 @@ function ModuleCard({
   return (
     <article
       className={clsx(
-        "group relative flex flex-col rounded-lg border bg-carbon/60 transition-colors overflow-hidden",
+        "group relative flex flex-col rounded-lg border bg-carbon/60 transition-all duration-300 overflow-hidden hover:-translate-y-0.5 glint",
         selected ? "border-ember/60" : conflicted ? "border-blood/50" : "border-line hover:border-line-bright",
       )}
     >

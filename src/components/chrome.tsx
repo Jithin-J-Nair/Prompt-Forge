@@ -43,7 +43,7 @@ export function Nav() {
       className={clsx(
         "fixed inset-x-0 top-0 z-40 transition-all duration-300",
         scrolled
-          ? "border-b border-line bg-ink/75 backdrop-blur-md"
+          ? "border-b border-line glass"
           : "border-b border-transparent bg-transparent",
       )}
     >
@@ -77,7 +77,7 @@ export function Nav() {
           })}
           <Link
             href="/forge"
-            className="ml-3 inline-flex items-center gap-1.5 rounded-full bg-ivory px-4 py-2 font-mono text-[11px] font-medium tracking-[0.14em] text-ink uppercase transition-all duration-200 hover:bg-ember hover:text-ink"
+            className="press ml-3 inline-flex items-center gap-1.5 rounded-full bg-ivory px-4 py-2 font-mono text-[11px] font-medium tracking-[0.14em] text-ink uppercase transition-all duration-200 hover:bg-ember hover:text-ink glint"
           >
             Forge a prompt
             <ArrowUpRight className="size-3.5" />
