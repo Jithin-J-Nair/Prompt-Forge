@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import {
-  ArrowDown, ArrowUpRight, ChevronRight, Monitor, MousePointer2, Plus, Smartphone, Tablet,
+  ArrowDown, ArrowUpRight, Check, ChevronRight, Copy, Download, Layers, Maximize2,
+  Monitor, MousePointer2, Plus, SlidersHorizontal, Smartphone, Tablet, Zap,
 } from "lucide-react";
 import {
   PRESETS, compile, getModule, searchModules,
@@ -47,7 +48,7 @@ function HeroSection() {
       <HeroField still={reduced} />
       <div className="pointer-events-none relative z-10 mx-auto max-w-5xl px-4 text-center md:px-8">
         <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-ink/60 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.28em] text-fog backdrop-blur-sm">
-          <span className="size-1.5 animate-pulse rounded-full bg-ember" /> The website-spec forge
+          <Zap className="size-3 text-ember" aria-hidden="true" /> The website-spec forge
         </p>
         <h1 className="font-display text-[13vw] font-black leading-[0.94] tracking-[-0.04em] text-ivory sm:text-[10vw] lg:text-[7.6vw]">
           {RevealChars({ text: "Type one lazy sentence." })}
@@ -306,7 +307,14 @@ function PreviewsSection() {
               <PreviewFrame module={active} params={params} mode="detail" className="aspect-[16/9]" />
             )}
             {active && active.params.length > 0 && (
-              <div className="grid gap-3 border-t border-line bg-panel/70 p-4 sm:grid-cols-3">
+              <div className="relative border-t border-line bg-panel/70">
+                <span className="absolute right-4 top-4 flex items-center gap-1.5 font-mono text-[8.5px] uppercase tracking-[0.2em] text-smoke">
+                  <SlidersHorizontal className="size-3" /> live params — same object the compiler reads
+                </span>
+              </div>
+            )}
+            {active && active.params.length > 0 && (
+              <div className="grid gap-3 border-t border-line bg-panel/70 p-4 pt-7 sm:grid-cols-3">
                 {active.params.slice(0, 3).map((d) => (
                   <label key={d.key} className="flex flex-col gap-1.5">
                     <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-smoke">{d.label}</span>
@@ -441,6 +449,7 @@ function CompositionSection() {
   const defaults = ["websites/creative-portfolio", "direction/neo-brutalism", "layout/bento-grid", "typography/oversized"];
   const [selected, setSelected] = useState<string[]>(defaults.slice(0, 2));
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [expanded, setExpanded] = useState(false);
   const toggle = (id: string) => {
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < 4 ? [...s, id] : s));
   };
@@ -461,9 +470,9 @@ function CompositionSection() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-[13rem_1fr]">
+        <div className={clsx("mt-12 grid gap-6", expanded ? "lg:grid-cols-[1fr]" : "lg:grid-cols-[13rem_1fr]")}>
           {/* tray */}
-          <div className="space-y-2 self-start lg:sticky lg:top-24">
+          <div className={clsx("space-y-2 self-start lg:sticky lg:top-24", expanded && "hidden")}>
             {defaults.map((id) => {
               const m = getModule(id)!;
               const on = selected.includes(id);
@@ -509,6 +518,14 @@ function CompositionSection() {
                     <Icon className="size-3.5" />
                   </button>
                 ))}
+                <button
+                  onClick={() => setExpanded((e) => !e)}
+                  aria-pressed={expanded}
+                  aria-label={expanded ? "Restore tray" : "Expand stage"}
+                  className={clsx("rounded-md p-1.5 transition-colors", expanded ? "bg-ember/15 text-ember" : "text-smoke hover:text-fog")}
+                >
+                  <Maximize2 className="size-3.5" />
+                </button>
               </div>
             </div>
             <div className="relative overflow-hidden rounded-b-lg border-x border-b border-line bg-ink">
@@ -546,6 +563,7 @@ function CompositionSection() {
 function CompilerPeekSection() {
   const [presetId, setPresetId] = useState(PRESETS[0]?.id ?? "");
   const [depth, setDepth] = useState<"standard" | "detailed" | "extreme">("detailed");
+  const [copied, setCopied] = useState(false);
   const output: CompileOutput = useMemo(() => {
     const p = PRESETS.find((x) => x.id === presetId);
     if (!p) return null as unknown as CompileOutput;
@@ -553,6 +571,23 @@ function CompilerPeekSection() {
   }, [presetId, depth]);
   const lines = useMemo(() => (output?.markdown ?? "").split("\n"), [output]);
   const words = output?.stats.words ?? 0;
+  const downloadSpec = () => {
+    const blob = new Blob([output?.markdown ?? ""], { type: "text/markdown" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "promptforge-spec.md";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  const copySpec = async () => {
+    try {
+      await navigator.clipboard.writeText(output?.markdown ?? "");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard blocked by permissions policy — the text stays selectable in the pane */
+    }
+  };
   return (
     <section aria-label="Live compiler" className="mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-36">
       <div className="grid items-start gap-12 lg:grid-cols-[1fr_1.35fr]">
@@ -604,6 +639,25 @@ function CompilerPeekSection() {
             <span className="size-2.5 rounded-full bg-signal/70" />
             <span className="ml-2 font-mono text-[10px] text-smoke">compiled.spec — live</span>
             <span className="ml-auto font-mono text-[10px] text-flare">{words.toLocaleString()} words</span>
+            <button
+              onClick={copySpec}
+              aria-label={copied ? "Compiled spec copied" : "Copy compiled spec"}
+              className={clsx(
+                "flex items-center gap-1.5 rounded border px-2 py-1 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors",
+                copied ? "border-signal/60 text-signal" : "border-line text-fog hover:border-ember/60 hover:text-ember",
+              )}
+            >
+              {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+              {copied ? "copied" : "copy"}
+            </button>
+            <button
+              onClick={downloadSpec}
+              aria-label="Download compiled spec as markdown file"
+              className="flex items-center gap-1.5 rounded border border-line px-2 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-fog transition-colors hover:border-ember/60 hover:text-ember"
+            >
+              <Download className="size-3" />
+              .md
+            </button>
           </div>
           <div className="max-h-[30rem] overflow-y-auto p-6 font-mono text-[11px] leading-[1.85] [scrollbar-width:thin]" aria-live="polite">
             {lines.slice(0, 160).map((l, i) => (
@@ -638,7 +692,9 @@ function PresetsSection() {
       <div className="mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-36">
         <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-ember">07 / curated presets</p>
+            <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-ember">
+              <Layers className="size-3" aria-hidden="true" /> 07 / curated presets
+            </p>
             <h2 className="mt-4 font-display text-3xl font-black tracking-tight md:text-5xl">
               Start from a <span className="font-serif italic text-flare">judge-grade baseline.</span>
             </h2>
