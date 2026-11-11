@@ -11,6 +11,9 @@ import { motion } from "framer-motion";
 import { Check, Plus, Search } from "lucide-react";
 import clsx from "clsx";
 import { FAMILIES, LEXICON, familyCount, searchLexicon, type Energy, type Keyword } from "@/lib/lexicon";
+import { getModule } from "@/lib/studio";
+import { defaultParams } from "@/lib/studio/params";
+import { PreviewFrame } from "@/components/preview/preview-frame";
 import { useStack } from "@/components/lexicon/stack";
 import { Stagger, StaggerChild } from "@/components/motion";
 import { motionTokens } from "@/lib/motion/tokens";
@@ -25,9 +28,10 @@ const ENERGY_DOT: Record<Energy, string> = {
   calm: "bg-fog", kinetic: "bg-flare", extreme: "bg-blood",
 };
 
-function ChipCard({ k, index }: { k: Keyword; index: number }) {
+function ChipCard({ k, live }: { k: Keyword; live: boolean }) {
   const { has, toggle } = useStack();
   const on = has(k.id);
+  const mod = live && k.module ? getModule(k.module) : undefined;
   return (
     <StaggerChild className="h-full">
       <button
@@ -40,6 +44,11 @@ function ChipCard({ k, index }: { k: Keyword; index: number }) {
             : "border-line bg-carbon/60 hover:-translate-y-0.5 hover:border-line-bright",
         )}
       >
+        {mod && (
+          <span className="mb-3 block h-20 overflow-hidden rounded-md border border-line bg-ink">
+            <PreviewFrame module={mod} params={defaultParams(mod)} mode="card" className="size-full" />
+          </span>
+        )}
         <span className="flex items-start justify-between gap-2">
           <span className={clsx("font-display text-[14.5px] font-bold leading-snug transition-colors", on ? "text-ember" : "text-ivory")}>
             {k.name}
@@ -68,6 +77,7 @@ export function LexiconWall() {
   const [query, setQuery] = useState("");
   const [fam, setFam] = useState<string | null>(null);
   const [energy, setEnergy] = useState<Energy | null>(null);
+  const [live, setLive] = useState(false);
 
   const results = useMemo(() => searchLexicon(query, fam ?? undefined, energy ?? undefined), [query, fam, energy]);
 
@@ -133,7 +143,16 @@ export function LexiconWall() {
               {e.label}
             </button>
           ))}
-          <span className="tabular ml-3 font-mono text-[9.5px] uppercase tracking-[0.2em] text-smoke">
+          <button
+            onClick={() => setLive((v) => !v)}
+            aria-pressed={live}
+            className={clsx("press ml-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[9.5px] uppercase tracking-[0.18em] transition-colors",
+              live ? "border-flare/50 bg-flare/10 text-flare" : "border-line text-smoke hover:text-fog")}
+          >
+            <span className={clsx("size-1.5 rounded-full", live ? "bg-flare animate-pulse-soft" : "bg-smoke")} aria-hidden />
+            {live ? "Live previews on" : "Live previews"}
+          </button>
+          <span className="tabular font-mono text-[9.5px] uppercase tracking-[0.2em] text-smoke">
             {results.length} shown
           </span>
         </div>
@@ -143,8 +162,8 @@ export function LexiconWall() {
       {results.length ? (
         <Stagger key={`${query}|${fam}|${energy}`} interval={motionTokens.stagger.tight}
           className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {results.map((k, i) => (
-            <ChipCard key={k.id} k={k} index={i} />
+          {results.map((k) => (
+            <ChipCard key={k.id} k={k} live={live} />
           ))}
         </Stagger>
       ) : (
