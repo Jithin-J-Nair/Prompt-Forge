@@ -11,7 +11,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, Copy, Heart, Layers, Plus } from "lucide-react";
 import clsx from "clsx";
-import { LEXICON_MAP, type Artifact } from "@/lib/lexicon";
+import { ARTIFACTS, LEXICON_MAP, type Artifact } from "@/lib/lexicon";
 import { artifactPrimaryModule, artifactStack, compileStack, EXPORT_TARGETS, type ExportTarget } from "@/lib/lexicon/compile";
 import { getModule } from "@/lib/studio";
 import { defaultParams } from "@/lib/studio/params";
@@ -136,6 +136,24 @@ export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
           </div>
         </motion.aside>
       </div>
+
+      {/* related builds — keep touring */}
+      <section className="mt-20" aria-label="Related artifacts">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-smoke">More from the forge</p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {ARTIFACTS.filter((x) => x.id !== artifact.id)
+            .sort((a, b) => (a.industry === artifact.industry ? -1 : 0) - (b.industry === artifact.industry ? -1 : 0) || b.votes - a.votes)
+            .slice(0, 4)
+            .map((x) => (
+              <Link key={x.id} href={`/artifact/${x.id}`}
+                className="press group rounded-lg border border-line bg-carbon/60 p-4 transition-colors hover:border-ember/40">
+                <p className="font-display text-[15px] font-bold tracking-tight text-ivory transition-colors group-hover:text-flare">{x.name}</p>
+                <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-smoke">{x.industry} · <span className="tabular">{x.votes}</span></p>
+                <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-fog">{x.blurb}</p>
+              </Link>
+            ))}
+        </div>
+      </section>
     </div>
   );
 }
