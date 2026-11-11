@@ -30,3 +30,23 @@ export const prompts = pgTable(
     index("prompts_industry_idx").on(table.industryId),
   ],
 );
+
+/**
+ * Studio compositions — saved module selections from the Visual Prompt
+ * Engineering Studio. Non-destructive addition alongside `prompts`.
+ */
+export const compositions = pgTable(
+  "compositions",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 160 }).notNull(),
+    brief: text("brief").notNull().default(""),
+    selections: jsonb("selections").notNull(),
+    compiled: text("compiled").notNull(),
+    moduleCount: integer("module_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index("compositions_created_at_idx").on(table.createdAt)],
+);

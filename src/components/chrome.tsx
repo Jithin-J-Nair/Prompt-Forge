@@ -9,10 +9,11 @@ import clsx from "clsx";
 /* ------------------------------ NAV ------------------------------ */
 
 const NAV_LINKS = [
+  { href: "/studio", label: "Studio" },
+  { href: "/motion-lab", label: "Motion Lab" },
+  { href: "/math-lab", label: "Math Lab" },
   { href: "/forge", label: "The Forge" },
   { href: "/library", label: "Library" },
-  { href: "/#anatomy", label: "Anatomy" },
-  { href: "/#how", label: "Protocol" },
 ];
 
 export function Nav() {
