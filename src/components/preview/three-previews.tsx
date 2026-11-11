@@ -34,20 +34,24 @@ function useThree(
     }
     const dpr = Math.min(1.75, window.devicePixelRatio || 1);
     renderer.setPixelRatio(dpr);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0a0d);
+    scene.fog = new THREE.Fog(0x0a0a0d, 6, 16);
+    const ctx: ThreeCtx = { renderer, scene, camera: new THREE.PerspectiveCamera(50, 1, 0.1, 60) };
     const rect = () => {
       const r = host.getBoundingClientRect();
       renderer.setSize(Math.max(2, r.width), Math.max(2, r.height), false);
       renderer.domElement.style.width = "100%";
       renderer.domElement.style.height = "100%";
       renderer.domElement.style.display = "block";
+      // keep the projection matrix honest with the host's aspect — without
+      // this, detail-mode 3D views squash when the drawer resizes
+      ctx.camera.aspect = Math.max(0.2, r.width / Math.max(1, r.height));
+      ctx.camera.updateProjectionMatrix();
       return r;
     };
     rect();
     host.appendChild(renderer.domElement);
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0a0d);
-    scene.fog = new THREE.Fog(0x0a0a0d, 6, 16);
-    const ctx: ThreeCtx = { renderer, scene, camera: new THREE.PerspectiveCamera(50, 1, 0.1, 60) };
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     const frame = initRef.current(ctx);
@@ -68,7 +72,7 @@ function useThree(
       return () => {
         ro.disconnect();
         disposeCtx(ctx);
-        host.removeChild(renderer.domElement);
+        if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
       };
     }
     raf = requestAnimationFrame(loop);
@@ -76,7 +80,7 @@ function useThree(
       cancelAnimationFrame(raf);
       ro.disconnect();
       disposeCtx(ctx);
-      host.removeChild(renderer.domElement);
+      if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opts.animate, opts.still, ref, ...(opts.deps ?? [])]);

@@ -274,26 +274,21 @@ export function DmCursor(p: PreviewProps) {
 }
 
 function SimOrbiter({ children }: { children: (pos: { x: number; y: number }) => React.ReactNode }) {
-  const [rc, setRc] = useState<{ x: number; y: number }>({ x: 40, y: 40 });
+  const [t, setT] = useState(0);
   useEffect(() => {
     let raf = 0;
-    const el = document.querySelector("") as never;
-    void el;
-    const start = performance.now();
-    const root = document.getElementById("pf-sim-root");
-    void root;
+    const s0 = performance.now();
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
-      const t = (now - start) / 1000;
-      setRc({ x: t, y: t });
+      setT((now - s0) / 1000);
     };
-    // box driven from global time; scaled against the parent dimen's by CSS
-    loop(performance.now());
+    raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
   }, []);
+  // fixed px orbit inside the tile chrome (svg-free simulated cursor path)
   return (
     <div className="absolute inset-0">
-      {children({ x: 28 + (Math.sin(rc.x * 1.4) * 0.5 + 0.5) * 140, y: 16 + (Math.cos(rc.x * 1.9) * 0.5 + 0.5) * 60 })}
+      {children({ x: 28 + (Math.sin(t * 1.4) * 0.5 + 0.5) * 140, y: 16 + (Math.cos(t * 1.9) * 0.5 + 0.5) * 60 })}
     </div>
   );
 }

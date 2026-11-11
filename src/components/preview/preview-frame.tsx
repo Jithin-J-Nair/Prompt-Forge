@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { Maximize2, Pause, Play } from "lucide-react";
 import type { ParamValues, PreviewDefinition, PromptModule } from "@/lib/studio";
@@ -34,26 +34,40 @@ export function PreviewFrame({
   const def: PreviewDefinition | null = resolvePreview(module);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const [near, setNear] = useState(mode === "detail");
+  const [visible, setVisible] = useState(mode === "detail");
   const [hover, setHover] = useState(false);
   const [forced, setForced] = useState<boolean | null>(null);
   const reduced = useReducedMotion();
+
+  // stable params identity: plain-object params from parents recreate every
+  // render; renderers teardown/rebuild on identity change, so memoize by value
+  const paramsKey = JSON.stringify(params);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- memoize by serialized value, not identity
+  const stableParams = useMemo(() => params, [paramsKey]);
 
   useEffect(() => {
     if (mode === "detail") return;
     const el = hostRef.current;
     if (!el) return;
-    const io = new IntersectionObserver(
+    const nearIo = new IntersectionObserver(
       (entries) => entries[0]?.isIntersecting && setNear(true),
       { rootMargin: "240px" },
     );
-    io.observe(el);
-    return () => io.disconnect();
+    // hard viewport gate: stop ALL animation (incl. light renderers) once
+    // the tile scrolls out — the page can host dozens of live previews
+    const visIo = new IntersectionObserver(
+      (entries) => setVisible(Boolean(entries[0]?.isIntersecting)),
+      { rootMargin: "24px" },
+    );
+    nearIo.observe(el);
+    visIo.observe(el);
+    return () => { nearIo.disconnect(); visIo.disconnect(); };
   }, [mode]);
 
   const explicit = forced !== null ? forced : true;
   const animateNow = mode === "detail"
     ? explicit
-    : near && explicit && (module.perf === "light" || hover);
+    : near && visible && explicit && (module.perf === "light" || hover);
 
   return (
     <div
@@ -65,8 +79,8 @@ export function PreviewFrame({
       {def && near ? (
         <PreviewByKey
           def={def}
-          params={params}
-          animate={animateNow && !false}
+          params={stableParams}
+          animate={animateNow}
           still={reduced}
         />
       ) : (
@@ -131,7 +145,9 @@ function PreviewByKey({
   const Cmp = entry;
   return (
     <div className="absolute inset-0" aria-hidden="true">
-      <Cmp params={params} animate={animate} still={still} />
+      <Suspense fallback={<div className="absolute inset-0 animate-pulse bg-wall/30" />}>
+        <Cmp params={params} animate={animate} still={still} />
+      </Suspense>
     </div>
   );
 }

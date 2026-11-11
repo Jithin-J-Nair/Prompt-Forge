@@ -439,7 +439,8 @@ function LabsSection() {
 
 function LabTilePreview({ kind }: { kind: string }) {
   const id = kind === "/motion-lab" ? "typography/character-animation" : "math/voronoi";
-  const m = getModule(id)!;
+  const m = getModule(id);
+  if (!m) return <div className="grid size-full place-items-center font-mono text-[9px] text-smoke">module offline</div>;
   return <PreviewFrame module={m} params={{}} mode="detail" className="size-full" />;
 }
 

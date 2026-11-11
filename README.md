@@ -40,7 +40,11 @@ On top of the original spec engine, PromptForge now ships a full **visual prompt
 environment**:
 
 - **`/studio` — the Studio.** A three-panel workspace: a hierarchical category explorer (11
-  categories, typed subcategories), a searchable browser of **279 substantial technique modules**
+  categories, typed subcategories), a searchable browser of **279 substantial technique modules**,
+  each with a **real live preview** (DOM/SVG/Canvas2D/WebGL2 GLSL/Three.js renderers — 186 distinct
+  registry keys), an esc-closeable inspector drawer with the full fragment + extreme contracts,
+  and a composer depth dial (standard / detailed / extreme) driving the same params object that
+  feeds both preview and exported JSON.
   (websites, art direction, layout, typography, color/materials, motion across 9 subcategories,
   mathematical/generative systems, WebGL/shaders, backgrounds, interaction, engineering), and a
   live composer with typed parameter editors, reordering, conflict banners that explain and

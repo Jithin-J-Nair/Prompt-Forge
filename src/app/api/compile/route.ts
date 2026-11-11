@@ -27,6 +27,8 @@ export async function POST(req: Request) {
     brief: typeof body.brief === "string" ? body.brief.slice(0, 2_000) : undefined,
     audience: typeof body.audience === "string" ? body.audience.slice(0, 240) : undefined,
     stackNote: typeof body.stackNote === "string" ? body.stackNote.slice(0, 500) : undefined,
+    depth:
+      body.depth === "standard" || body.depth === "extreme" ? body.depth : undefined,
     selections: selections
       .filter((s) => s && typeof s.id === "string")
       .map((s) => ({

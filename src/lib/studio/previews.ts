@@ -387,7 +387,8 @@ export const PREVIEW_MAP: Record<string, PreviewDefinition> = {
 };
 
 /** Resolve the effective preview for a module (override → subcategory default). */
-export function resolvePreview(module: PromptModule): PreviewDefinition | null {
+export function resolvePreview(module: PromptModule | undefined | null): PreviewDefinition | null {
+  if (!module) return null;
   if (module.preview) return module.preview;
   const direct = PREVIEW_MAP[module.id];
   if (direct) return direct;

@@ -9,7 +9,7 @@ import {
 import { PreviewFrame } from "@/components/preview/preview-frame";
 import {
   CATEGORIES, MODULE_MAP, MODULES, compile, searchModules, getModule,
-  PRESETS,
+  PRESETS, resolveParams,
   type CategoryId, type CompileOutput, type ParamDef, type ParamValues, type PromptModule,
   type SelectionInput,
 } from "@/lib/studio";
@@ -99,6 +99,7 @@ export function StudioApp() {
   );
 
   const selectedIds = useMemo(() => new Set(selections.map((s) => s.moduleId)), [selections]);
+  const selectionMap = useMemo(() => new Map(selections.map((s) => [s.moduleId, s] as const)), [selections]);
 
   const results = useMemo(() => {
     const list = searchModules(query, {
@@ -339,6 +340,7 @@ export function StudioApp() {
                 onAdd={() => dispatch({ kind: "add", moduleId: m.id })}
                 onRemove={() => dispatch({ kind: "remove", moduleId: m.id })}
                 onExpand={() => setInspecting(m.id)}
+                selParams={selectionMap.get(m.id)?.params}
               />
             ))}
           </div>
@@ -468,15 +470,18 @@ function Explorer({
 /* ------------------------------ Module card ------------------------------ */
 
 function ModuleCard({
-  module: m, selected, conflicted, onAdd, onRemove, onExpand,
+  module: m, selected, conflicted, selParams, onAdd, onRemove, onExpand,
 }: {
   module: PromptModule;
   selected: boolean;
   conflicted: boolean;
+  /** overrides from the composer when selected — drives BOTH preview and compiler */
+  selParams?: ParamValues;
   onAdd: () => void;
   onRemove: () => void;
   onExpand?: () => void;
 }) {
+  const effectiveParams = useMemo(() => resolveParams(m, selParams ?? {}), [m, selParams]);
   return (
     <article
       className={clsx(
@@ -485,7 +490,7 @@ function ModuleCard({
       )}
     >
       {/* live preview — real renderer, param-driven */}
-      <PreviewFrame module={m} params={{}} mode="card" className="aspect-[16/10] border-b border-line" />
+      <PreviewFrame module={m} params={effectiveParams} mode="card" className="aspect-[16/10] border-b border-line" />
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-start justify-between gap-2">
         <h3 className="font-display text-[14px] font-bold leading-snug tracking-tight">{m.name}</h3>
@@ -618,11 +623,11 @@ function Inspector({
             <X className="size-4" />
           </button>
         </div>
-        <PreviewFrame module={mod} params={{}} mode="detail" className="aspect-[16/10] border-b border-line" />
+        <PreviewFrame module={mod} params={resolveParams(mod, {})} mode="detail" className="aspect-[16/10] border-b border-line" />
         <div className="space-y-5 p-5 text-[13px] leading-relaxed text-fog">
           <p>{mod.description}</p>
           <div className="rounded border border-line bg-panel/60 p-3 font-mono text-[10.5px] leading-relaxed text-fog whitespace-pre-wrap">
-            <span className="text-smoke">// prompt fragment</span>
+            <span className="text-smoke">{"// prompt fragment"}</span>
             {"\n"}{mod.prompt}
           </div>
           <div>

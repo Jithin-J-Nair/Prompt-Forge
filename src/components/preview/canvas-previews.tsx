@@ -645,16 +645,20 @@ export function CvSubdivision(p: PreviewProps) {
   return <Cv props={p} draw={(ctx, w, h, t) => {
     ctx.fillStyle = INK; ctx.fillRect(0, 0, w, h);
     const maxD = 4;
-    const j = () => (Math.random() - 0.5) * 3;
+    // deterministic per-midpoint offset: hash(edge endpoints) — stable across frames
+    const j = (x1: number, y1: number, x2: number, y2: number) => {
+      const hsh = Math.sin(x1 * 12.9898 + y1 * 78.233 + x2 * 4.1414 + y2 * 27.171) * 43758.5453;
+      return ((hsh - Math.floor(hsh)) - 0.5) * 6;
+    };
     const drawTri = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number, d: number) => {
       if (d === 0 || Math.hypot(bx - ax, by - ay) < 14) {
         ctx.strokeStyle = "rgba(255,140,70,0.55)";
         ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.lineTo(cx, cy); ctx.closePath(); ctx.stroke();
         return;
       }
-      const mx1 = (ax + bx) / 2 + j(), my1 = (ay + by) / 2 + j();
-      const mx2 = (bx + cx) / 2 + j(), my2 = (by + cy) / 2 + j();
-      const mx3 = (cx + ax) / 2 + j(), my3 = (cy + ay) / 2 + j();
+      const mx1 = (ax + bx) / 2 + j(ax, ay, bx, by), my1 = (ay + by) / 2 + j(ay, by, ax, bx);
+      const mx2 = (bx + cx) / 2 + j(bx, by, cx, cy), my2 = (by + cy) / 2 + j(by, cy, bx, cx);
+      const mx3 = (cx + ax) / 2 + j(cx, cy, ax, ay), my3 = (cy + ay) / 2 + j(ay, cy, cx, ax);
       drawTri(ax, ay, mx1, my1, mx3, my3, d - 1);
       drawTri(mx1, my1, bx, by, mx2, my2, d - 1);
       drawTri(mx3, my3, mx2, my2, cx, cy, d - 1);

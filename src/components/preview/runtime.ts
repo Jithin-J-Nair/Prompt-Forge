@@ -109,7 +109,8 @@ export function usePreviewWebGL(
     }
     let raf = 0;
     let lost = false;
-    canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); lost = true; });
+    const onLost = (e: Event) => { e.preventDefault(); lost = true; };
+    canvas.addEventListener("webglcontextlost", onLost);
 
     const compile = (type: number, src: string) => {
       const sh = gl.createShader(type)!;
@@ -176,11 +177,12 @@ export function usePreviewWebGL(
     };
     if (opts.still || !opts.animate) {
       renderFrame(1.4);
-      return () => { ro.disconnect(); gl.deleteProgram(prog); gl.deleteShader(vs); gl.deleteShader(fs); };
+      return () => { canvas.removeEventListener("webglcontextlost", onLost); ro.disconnect(); gl.deleteProgram(prog); gl.deleteShader(vs); gl.deleteShader(fs); };
     }
     raf = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(raf);
+      canvas.removeEventListener("webglcontextlost", onLost);
       ro.disconnect();
       gl.deleteProgram(prog);
       gl.deleteShader(vs);

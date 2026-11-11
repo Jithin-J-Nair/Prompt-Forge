@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentType } from "react";
+import { lazy, type ComponentType } from "react";
 import type { PreviewProps } from "./runtime";
 import {
   CvAudioBars, CvAurora, CvBezier, CvBlob, CvBloom, CvBoids, CvCells, CvCollision, CvConstellation,
@@ -28,9 +28,17 @@ import { SVG_SET } from "./svg-previews";
 import {
   GlAberration, GlCaustics, GlDistortion, GlFluid, GlFog, GlPostfx, GlRaymarch, GlWarp,
 } from "./webgl-previews";
-import {
-  ThDisplace, ThDof, ThFresnel, ThInstancing, ThOrbit, ThParticles3D, ThScene, ThTorusPBR, ThTransmission,
-} from "./three-previews";
+// three.js (~1MB uncompressed) must NOT ship in the eager page chunk —
+// lazy-load every three preview behind Suspense (fallback shimmer in PreviewByKey)
+const ThScene = lazy(() => import("./three-previews").then((m) => ({ default: m.ThScene })));
+const ThOrbit = lazy(() => import("./three-previews").then((m) => ({ default: m.ThOrbit })));
+const ThDisplace = lazy(() => import("./three-previews").then((m) => ({ default: m.ThDisplace })));
+const ThFresnel = lazy(() => import("./three-previews").then((m) => ({ default: m.ThFresnel })));
+const ThTorusPBR = lazy(() => import("./three-previews").then((m) => ({ default: m.ThTorusPBR })));
+const ThTransmission = lazy(() => import("./three-previews").then((m) => ({ default: m.ThTransmission })));
+const ThParticles3D = lazy(() => import("./three-previews").then((m) => ({ default: m.ThParticles3D })));
+const ThInstancing = lazy(() => import("./three-previews").then((m) => ({ default: m.ThInstancing })));
+const ThDof = lazy(() => import("./three-previews").then((m) => ({ default: m.ThDof })));
 
 type C = ComponentType<PreviewProps>;
 

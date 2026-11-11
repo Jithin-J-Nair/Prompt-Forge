@@ -211,3 +211,20 @@ body {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* Global reduced-motion contract: JS-gated renderers honour the flag;
+   this kills the remaining CSS-driven loops (marquee, character staggers,
+   pulses) and smooth-scroll for users who request reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -108,6 +108,16 @@ function resolveParam(def: ParamDef, raw: ParamValueLike): string | number | boo
 }
 type ParamValueLike = string | number | boolean | undefined;
 
+/** defaults+validated overrides for ONE module — the single resolver used by
+ *  compiler, preview surfaces, API compile, and tests. */
+export function resolveParams(module: PromptModule, overrides: ParamValues): ParamValues {
+  const params: ParamValues = {};
+  for (const def of module.params) {
+    params[def.key] = resolveParam(def, overrides?.[def.key] as ParamValueLike);
+  }
+  return params;
+}
+
 export function resolveSelections(input: SelectionInput[]): {
   resolved: ResolvedSelection[];
   unknownIds: string[];
@@ -124,11 +134,7 @@ export function resolveSelections(input: SelectionInput[]): {
       unknownIds.push(id);
       continue;
     }
-    const params: ParamValues = {};
-    for (const def of mod.params) {
-      params[def.key] = resolveParam(def, sel.params?.[def.key]);
-    }
-    resolved.push({ module: mod, params });
+    resolved.push({ module: mod, params: resolveParams(mod, sel.params ?? {}) });
   }
   return { resolved, unknownIds };
 }
