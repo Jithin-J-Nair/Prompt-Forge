@@ -1,5 +1,7 @@
 "use client";
 
+import { LabSwitch } from "@/components/labs/lab-switch";
+
 import {
   AuroraDemo, BlobDemo, CharStaggerDemo, CountUpDemo, CursorDemo, CursorPreviewDemo,
   DisplacementDemo, DitherDemo, DragInertiaDemo, FloatDemo, GradientSweepDemo, GrainDemo,
@@ -69,6 +71,7 @@ export function MotionLab() {
           Every mechanism,{" "}
           <span className="font-serif italic text-flare">actually running</span>.
         </h1>
+        <div className="mt-6"><LabSwitch /></div>
         <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-fog">
           No screenshots, no Lottie props — each tile is the live technique: IO-driven reveals,
           spring integration, verlet rope, dither matrices. The scroll demos carry their own

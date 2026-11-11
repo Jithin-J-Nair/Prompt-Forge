@@ -1,5 +1,7 @@
 "use client";
 
+import { LabSwitch } from "@/components/labs/lab-switch";
+
 import {
   BoidsDemo, ConstellationCursorDemo, FlowFieldDemo, ForceGraphDemo, FourierDemo,
   FractalTreeDemo, JuliaDemo, LissajousDemo, LorenzDemo, MetaballsDemo,
@@ -69,6 +71,7 @@ export function MathLab() {
           Real equations,{" "}
           <span className="font-serif italic text-flare">live</span> on canvas.
         </h1>
+        <div className="mt-6"><LabSwitch /></div>
         <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-fog">
           Every tile below runs the genuine algorithm — Runge–Kutta integrators, marching-squares
           isolines, fBM octave stacks, Gray–Scott feed/kill pairs — not a video stand-in. Sliders

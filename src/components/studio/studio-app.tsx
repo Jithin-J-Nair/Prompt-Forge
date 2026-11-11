@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { PreviewFrame } from "@/components/preview/preview-frame";
 import { resolveParams } from "@/lib/studio/params";
+import { useStack } from "@/components/lexicon/stack";
 import {
   CATEGORIES, MODULE_MAP, MODULES, compile, searchModules, getModule,
   PRESETS,
@@ -210,9 +211,9 @@ export function StudioApp() {
             select is kept — never silently dropped.
           </p>
         </div>
-        <div className="font-mono text-[11px] text-smoke">
-          <span className="text-ember">{selections.length}</span> modules selected ·{" "}
-          <span className="text-ember">{output.stats.words}</span> words compiled
+        <div className="glass flex items-center gap-5 rounded-full px-5 py-3 font-mono text-[11px] uppercase tracking-[0.14em] text-smoke">
+          <span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-ember" /><span className="tabular text-ember">{selections.length}</span> selected</span>
+          <span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-flare" /><span className="tabular text-flare">{output.stats.words}</span> words</span>
         </div>
       </header>
 
@@ -227,7 +228,7 @@ export function StudioApp() {
               key={p.id}
               onClick={() => applyPreset(p.id)}
               title={p.description}
-              className="group shrink-0 rounded-full border border-line px-4 py-1.5 text-[12px] text-fog transition-colors hover:border-ember/60 hover:text-ivory"
+              className="press group shrink-0 rounded-full border border-line px-4 py-1.5 text-[12px] text-fog transition-colors hover:border-ember/60 hover:text-ivory"
             >
               <span
                 className="mr-2 inline-block size-2 rounded-full align-middle"
@@ -252,7 +253,7 @@ export function StudioApp() {
             onClick={() => setTab(t)}
             className={clsx(
               "flex-1 rounded px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em]",
-              tab === t ? "bg-ember text-ink" : "text-fog",
+              tab === t ? "bg-ember text-ink" : "text-fog hover:text-ivory",
             )}
           >
             {t === "compose" ? `Compose (${selections.length})` : t}
@@ -483,6 +484,9 @@ function ModuleCard({
   onExpand?: () => void;
 }) {
   const effectiveParams = useMemo(() => resolveParams(m, selParams ?? {}), [m, selParams]);
+  const stack = useStack();
+  const chipId = `kw:${m.id}`;
+  const chipOn = stack.has(chipId);
   return (
     <article
       className={clsx(
@@ -514,6 +518,17 @@ function ModuleCard({
           <span className="uppercase">{m.dimension}</span>
         </div>
         <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => stack.toggle(chipId)}
+            aria-pressed={chipOn}
+            title="Toggle this technique in your lexicon stack tray"
+            className={clsx(
+              "press rounded border px-2 py-1.5 font-mono text-[10px] uppercase tracking-wider transition-colors",
+              chipOn ? "border-flare/60 bg-flare/10 text-flare" : "border-line text-smoke hover:border-flare/50 hover:text-flare",
+            )}
+          >
+            {chipOn ? "stacked" : "+ stack"}
+          </button>
           {onExpand && (
             <button onClick={onExpand} aria-label={`Open ${m.name} detail`}
               className="rounded border border-line px-2 py-1.5 font-mono text-[10px] uppercase tracking-wider text-smoke transition-colors hover:border-ember/60 hover:text-ember">
