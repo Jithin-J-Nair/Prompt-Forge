@@ -236,3 +236,87 @@ export function CharReveal({
     </span>
   );
 }
+
+/* ------ MAGNETIC (pointer-tracking, spring-settled — useSpring per ECC) ------ */
+
+import { useMotionValue, useSpring } from "framer-motion";
+
+export function Magnetic({
+  children,
+  strength = 0.32,
+  className,
+}: {
+  children: ReactNode;
+  strength?: number;
+  className?: string;
+}) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 190, damping: 16, mass: 0.35 });
+  const sy = useSpring(y, { stiffness: 190, damping: 16, mass: 0.35 });
+  const ref = useRef<HTMLDivElement>(null);
+  const reduced = useRef(false);
+  useEffect(() => {
+    reduced.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }, []);
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      style={{ x: sx, y: sy, display: "inline-block" }}
+      onPointerMove={(e) => {
+        if (reduced.current || e.pointerType === "touch") return;
+        const r = ref.current?.getBoundingClientRect();
+        if (!r) return;
+        x.set((e.clientX - (r.left + r.width / 2)) * strength);
+        y.set((e.clientY - (r.top + r.height / 2)) * strength);
+      }}
+      onPointerLeave={() => {
+        x.set(0);
+        y.set(0);
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ------ SCROLL PROGRESS (useScroll + useTransform, transform-only) ------ */
+
+import { useScroll } from "framer-motion";
+
+export function ScrollProgress({ className }: { className?: string }) {
+  const { scrollYProgress } = useScroll();
+  return (
+    <motion.div aria-hidden className={className ?? "fixed inset-x-0 top-0 z-50 h-[2px] origin-left bg-ember"}
+      style={{ scaleX: scrollYProgress }} />
+  );
+}
+
+/* ------ MARQUEE STRIP (infinite, pauses when tab hidden via CSS, edge-masked) ------ */
+
+export function Ticker({
+  items,
+  className,
+  separator = "◦",
+}: {
+  items: string[];
+  className?: string;
+  separator?: string;
+}) {
+  const row = (ariaHidden: boolean) => (
+    <div aria-hidden={ariaHidden} className="flex shrink-0 items-center">
+      {items.map((it, i) => (
+        <span key={`tick-${i}`} className="flex items-center">
+          <span className="whitespace-nowrap px-6 font-mono text-[11px] uppercase tracking-[0.3em] text-fog">{it}</span>
+          <span className="text-ember">{separator}</span>
+        </span>
+      ))}
+    </div>
+  );
+  return (
+    <div className={className ?? "mask-fade-x flex overflow-hidden border-y border-line bg-coal/60 py-3"}>
+      <div className="animate-marquee flex">{row(false)}{row(true)}</div>
+    </div>
+  );
+}

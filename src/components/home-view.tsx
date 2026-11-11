@@ -12,7 +12,8 @@ import {
   type CompileOutput, type PromptModule,
 } from "@/lib/studio";
 import { REGISTRY_STATS } from "@/lib/studio/registry";
-import { CharReveal } from "@/components/motion";
+import { CharReveal, Magnetic } from "@/components/motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { PreviewFrame } from "@/components/preview/preview-frame";
 import { makeNoise2D, mulberry32, useReducedMotion } from "@/components/labs/lab-shell";
 
@@ -44,53 +45,74 @@ export function HomeView() {
 
 function HeroSection() {
   const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  // scroll-linked parallax: type drifts up and fades as the field stays put
+  const typeY = useTransform(scrollYProgress, [0, 0.22], [0, -90]);
+  const typeOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   return (
-    <section className="relative grid min-h-[92dvh] place-items-center overflow-hidden" aria-label="Hero">
+    <section className="relative flex min-h-[100dvh] flex-col overflow-hidden" aria-label="Hero">
       <HeroField still={reduced} />
       {!reduced && (
-        <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 z-[5] size-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{ background: "radial-gradient(closest-side, rgba(255,92,28,0.32), rgba(255,184,92,0.12) 45%, transparent 70%)", animation: "ember-bloom 1.8s cubic-bezier(0.22,1,0.36,1) 0.1s both" }} />
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-[42%] z-[5] size-[72vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{ background: "radial-gradient(closest-side, rgba(255,92,28,0.3), rgba(255,184,92,0.1) 45%, transparent 70%)", animation: "ember-bloom 1.8s cubic-bezier(0.22,1,0.36,1) 0.1s both" }} />
       )}
-      <div className="pointer-events-none relative z-10 mx-auto max-w-5xl px-4 text-center md:px-8">
-        <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-ink/60 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.28em] text-fog backdrop-blur-sm">
+      {/* corner registration marks — instrument-frame detail */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-6 top-24 z-[6] hidden justify-between font-mono text-[9px] uppercase tracking-[0.35em] text-smoke md:flex">
+        <span>PF-INSTRUMENT / SPEC v1.0</span>
+        <span className="flex items-center gap-2"><span className="size-1.5 animate-pulse-soft rounded-full bg-ember" /> Furnace online</span>
+        <span>279 modules · 21 presets</span>
+      </div>
+
+      <motion.div style={reduced ? undefined : { y: typeY, opacity: typeOpacity }}
+        className="pointer-events-none relative z-10 mx-auto grid w-full max-w-6xl flex-1 place-items-center px-4 text-center md:px-8">
+        <div>
+        <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-line bg-ink/60 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.28em] text-fog backdrop-blur-sm">
           <Zap className="size-3 text-ember" aria-hidden="true" /> The website-spec forge
         </p>
-        <h1 className="font-display text-[13vw] font-black leading-[0.94] tracking-[-0.04em] text-ivory sm:text-[10vw] lg:text-[7.6vw]">
+        <h1 className="font-display text-[13vw] font-black leading-[0.92] tracking-[-0.045em] text-ivory sm:text-[10.5vw] lg:text-[8vw]">
           <CharReveal text="Type one lazy sentence." delay={0.25} />
           <br />
           <span className="bg-gradient-to-r from-ember via-flare to-blood bg-clip-text text-transparent">
             <CharReveal text="Forge a blueprint." delay={0.72} />
           </span>
         </h1>
-        <p className="mx-auto mt-8 max-w-xl text-[15px] leading-relaxed text-fog">
+        <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.35, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto mt-8 max-w-xl text-[15px] leading-relaxed text-fog">
           PromptForge turns a half-formed idea into a production-grade visual spec — color, type,
           layout, motion, 3D and the quality contract — compiled from{" "}
           <span className="text-ivory">{REGISTRY_STATS.modules} precision modules</span> and{" "}
           <span className="text-ivory">{PRESETS.length} curated presets</span>.
-        </p>
-        <div className="pointer-events-auto mt-10 flex flex-wrap items-center justify-center gap-4">
-          <Link href="/studio"
-            className="press group flex items-center gap-2 rounded-md bg-ember px-6 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.16em] text-ink transition-transform duration-300 hover:scale-[1.02] hover:bg-flare glint">
-            Enter the Studio <ChevronRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </Link>
-          <Link href="/forge"
-            className="press glass rounded-md px-6 py-3.5 font-mono text-[12px] uppercase tracking-[0.16em] text-fog transition-colors duration-300 hover:border-line-bright hover:text-ivory">
-            Try the classic forge
-          </Link>
+        </motion.p>
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.6, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="pointer-events-auto mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Magnetic>
+            <Link href="/studio"
+              className="press glint group flex items-center gap-2 rounded-md bg-ember px-6 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.16em] text-ink transition-colors duration-300 hover:bg-flare">
+              Enter the Studio <ChevronRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+          </Magnetic>
+          <Magnetic strength={0.22}>
+            <Link href="/forge"
+              className="press glass rounded-md px-6 py-3.5 font-mono text-[12px] uppercase tracking-[0.16em] text-fog transition-colors duration-300 hover:border-line-bright hover:text-ivory">
+              Try the classic forge
+            </Link>
+          </Magnetic>
+        </motion.div>
         </div>
-      </div>
-      <div className="pointer-events-none absolute inset-x-0 bottom-8 flex flex-col items-center gap-3">
-        <span className="font-mono text-[9px] uppercase tracking-[0.42em] text-smoke">Scroll</span>
-        <span aria-hidden className="block h-10 w-px overflow-hidden bg-white/10">
+      </motion.div>
+
+      <div className="pointer-events-none relative z-10 flex h-28 items-end justify-between px-6 pb-6 md:px-10">
+        <span className="hidden font-mono text-[9px] uppercase tracking-[0.42em] text-smoke md:block">Scroll — the forge floor below</span>
+        <span aria-hidden className="mx-auto block h-10 w-px overflow-hidden bg-white/10 md:mx-0">
           <span className="block h-1/2 w-px bg-ember" style={{ animation: "pf-scroll-cue 1.8s cubic-bezier(0.76,0,0.24,1) infinite" }} />
         </span>
+        <span className="hidden font-mono text-[9px] uppercase tracking-[0.42em] text-smoke md:block">01 / 09</span>
         <style>{`@keyframes pf-scroll-cue{0%{transform:translateY(-100%)}55%,100%{transform:translateY(200%)}}`}</style>
       </div>
     </section>
   );
 }
 
-/* one ambient system for the page: cursor-reactive domain-warped particle field */
 function HeroField({ still }: { still: boolean }) {
   const ref = useRef<HTMLCanvasElement | null>(null);
   useEffect(() => {
