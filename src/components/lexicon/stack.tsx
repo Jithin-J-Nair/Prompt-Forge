@@ -153,10 +153,6 @@ export function StackTray() {
     target,
     depth: "extreme",
   }).prompt : "", [open, ids, paramsById, target]);
-  const output = useMemo(() => buildMegaPrompt({
-    brief: "Create a website experience guided by the selected creative layers.",
-    keywordIds: ids, target, depth: "extreme",
-  }).prompt, [ids, target]);
 
   useEffect(() => {
     if (copied === "none") return;
