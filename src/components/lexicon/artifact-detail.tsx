@@ -9,7 +9,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, Copy, Heart, Layers, Plus } from "lucide-react";
+import { ArrowLeft, Check, Copy, Layers, Plus } from "lucide-react";
 import clsx from "clsx";
 import { ARTIFACTS, LEXICON_MAP, type Artifact } from "@/lib/lexicon";
 import { artifactPrimaryModule, artifactStack, compileStack, EXPORT_TARGETS, type ExportTarget } from "@/lib/lexicon/compile";
@@ -22,7 +22,6 @@ import { motionTokens, springs } from "@/lib/motion/tokens";
 
 export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
   const { addAll, has, toggle, setOpen } = useStack();
-  const [loved, setLoved] = useState(false);
   const [target, setTarget] = useState<ExportTarget>("raw");
   const [copied, setCopied] = useState(false);
 
@@ -73,14 +72,8 @@ export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
           <p className="mt-4 text-[14.5px] leading-relaxed text-fog">{artifact.blurb}</p>
 
           <div className="mt-5 flex items-center gap-3">
-            <button onClick={() => setLoved((v) => !v)} aria-pressed={loved}
-              className={clsx("press inline-flex items-center gap-2 rounded-full border px-4 py-2 font-mono text-[11px] transition-colors",
-                loved ? "border-ember/60 bg-ember/15 text-ember" : "border-line text-fog hover:text-ivory")}>
-              <Heart className={clsx("size-3.5", loved && "fill-current")} />
-              <span className="tabular">{artifact.votes + (loved ? 1 : 0)}</span> likes
-            </button>
-            <span className="tabular font-mono text-[10px] uppercase tracking-[0.2em] text-smoke">
-              {stack.length} keywords
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-smoke">
+              Curated build · {stack.length} keywords · added {artifact.added}
             </span>
           </div>
 
@@ -142,13 +135,13 @@ export function ArtifactDetail({ artifact }: { artifact: Artifact }) {
         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-smoke">More from the forge</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {ARTIFACTS.filter((x) => x.id !== artifact.id)
-            .sort((a, b) => (a.industry === artifact.industry ? -1 : 0) - (b.industry === artifact.industry ? -1 : 0) || b.votes - a.votes)
+            .sort((a, b) => (a.industry === artifact.industry ? -1 : 0) - (b.industry === artifact.industry ? -1 : 0) || (+new Date(b.added) - +new Date(a.added)))
             .slice(0, 4)
             .map((x) => (
               <Link key={x.id} href={`/artifact/${x.id}`}
                 className="press group rounded-lg border border-line bg-carbon/60 p-4 transition-colors hover:border-ember/40">
                 <p className="font-display text-[15px] font-bold tracking-tight text-ivory transition-colors group-hover:text-flare">{x.name}</p>
-                <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-smoke">{x.industry} · <span className="tabular">{x.votes}</span></p>
+                <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-smoke">{x.industry} · <span className="tabular">{x.added}</span></p>
                 <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-fog">{x.blurb}</p>
               </Link>
             ))}

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, ArrowUpRight, Check, Flame, Heart, Layers, Plus, Zap } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Flame, Layers, Plus, Zap } from "lucide-react";
 import clsx from "clsx";
 import { ARTIFACTS, LEXICON, type Artifact } from "@/lib/lexicon";
 import { getModule } from "@/lib/studio";
@@ -25,12 +25,12 @@ import { motionTokens, springs } from "@/lib/motion/tokens";
 /*  decomposes into lexicon chips you pull straight into your Stack.    */
 /* ------------------------------------------------------------------ */
 
-type Tab = "featured" | "popular" | "recent";
+type Tab = "featured" | "recent" | "az";
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "featured", label: "Featured" },
-  { id: "popular", label: "Popular" },
+  { id: "featured", label: "Curated" },
   { id: "recent", label: "Recent" },
+  { id: "az", label: "A–Z" },
 ];
 
 const INDUSTRIES = ["All", ...new Set(ARTIFACTS.map((a) => a.industry))];
@@ -41,9 +41,10 @@ export function HomeView() {
   const [industry, setIndustry] = useState("All");
 
   const shown = useMemo(() => {
-    const sorted = [...ARTIFACTS].sort((a, b) =>
-      tab === "popular" ? b.votes - a.votes : tab === "recent" ? +new Date(b.added) - +new Date(a.added) : b.votes - a.votes,
-    );
+    const sorted =
+      tab === "featured" ? ARTIFACTS : [...ARTIFACTS].sort((a, b) =>
+        tab === "recent" ? +new Date(b.added) - +new Date(a.added) : a.name.localeCompare(b.name),
+      );
     return industry === "All" ? sorted : sorted.filter((a) => a.industry === industry);
   }, [tab, industry]);
 
@@ -52,7 +53,7 @@ export function HomeView() {
       <HeroStrip reduced={reduced} />
       <Ticker
         items={[
-          `${LEXICON.length} clickable keywords`, "12 flagship artifacts", "Motion grammar",
+          `${LEXICON.length} clickable keywords`, "24 curated builds", "Motion grammar",
           "Mathematical graphics", "v0 · Cursor · Claude export", "Deterministic — zero API keys",
         ]}
       />
@@ -165,7 +166,6 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
   const stack = artifactStack(a);
   const moduleId = artifactPrimaryModule(a);
   const allIn = stack.length > 0 && stack.every((id) => has(id));
-  const [loved, setLoved] = useState(false);
 
   return (
     <Tilt className="h-full">
@@ -193,11 +193,6 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
           a.tone === "Dark" ? "border-white/15 bg-black/40 text-ivory" : "border-black/15 bg-white/50 text-ink")}>
           {a.tone}
         </span>
-        <button onClick={() => setLoved((v) => !v)} aria-pressed={loved} aria-label={loved ? "Remove from favourites" : "Save to favourites"}
-          className={clsx("press absolute right-3 top-3 grid size-8 place-items-center rounded-full border backdrop-blur-md transition-colors",
-            loved ? "border-ember/60 bg-ember/20 text-ember" : "border-white/15 bg-black/40 text-fog hover:text-ivory")}>
-          <Heart className={clsx("size-3.5", loved && "fill-current")} />
-        </button>
       </div>
 
       {/* meta row */}
@@ -208,7 +203,7 @@ function ArtifactCard({ a, index }: { a: Artifact; index: number }) {
               {a.name}
             </h3>
             <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-smoke">
-              {a.industry} · <span className="tabular">{a.votes + (loved ? 1 : 0)}</span> votes · {stack.length} chips
+              {a.industry} · {stack.length} chips
             </p>
           </div>
           <Link href={`/artifact/${a.id}`} aria-label={`Open ${a.name}`}
