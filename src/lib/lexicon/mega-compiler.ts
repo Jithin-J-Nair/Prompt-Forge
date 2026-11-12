@@ -106,6 +106,13 @@ export function buildMegaPrompt(options: MegaPromptOptions): MegaPromptResult {
     `## ${family} — curated creative directives`,
     ...keywords.map((keyword) => `### ${keyword.name}\n${keyword.phrase}`),
   ].join("\n\n"));
+  const selectedFamilies = [...new Set(selected.map((keyword) => keyword.fam))];
+  const heavyModules = compiled.resolved.filter((selection) => selection.module.perf === "heavy");
+  const conflictLines = compiled.conflicts.map((conflict) => {
+    const left = compiled.resolved.find((selection) => selection.module.id === conflict.aId)?.module.name ?? conflict.aId;
+    const right = compiled.resolved.find((selection) => selection.module.id === conflict.bId)?.module.name ?? conflict.bId;
+    return `- ${left} / ${right}: ${conflict.reason} Choose one dominant treatment for a given component or viewport; use both only when they have distinct roles, locations or interaction states.`;
+  });
 
   const prompt = [
     "# PROMPTFORGE — MASTER WEBSITE BUILD SPECIFICATION",
@@ -121,6 +128,16 @@ export function buildMegaPrompt(options: MegaPromptOptions): MegaPromptResult {
     TARGET_GUIDANCE[options.target],
     `Requested technical depth: ${options.depth}.`,
     `Selected creative ingredients: ${selected.length} total (${modules.length} typed implementation modules and ${microKeywords.length} curated micro-directives).`,
+    "",
+    "## Creative synthesis — resolve before implementation",
+    `Selected creative families: ${selectedFamilies.length ? selectedFamilies.join(", ") : "None; establish a restrained direction from the brief"}.`,
+    `Selected high-cost modules: ${heavyModules.length ? heavyModules.map((selection) => selection.module.name).join(", ") : "None"}.`,
+    "- Selections are ingredients, not a command to display every effect everywhere. Synthesize them into one hierarchy: one signature visual idea, a supporting design language and restrained utility details.",
+    "- Assign every selected technique a specific page, component, state or interaction role. Do not stack multiple competing hero effects or animate every element at once.",
+    "- When two directives conflict, preserve the stronger fit to the project brief and explain the decision. Use the alternative in a separate section/state only when that distinction is meaningful; never implement contradictory treatments on the same element.",
+    "- Treat heavy WebGL, shader, canvas and scroll systems as a limited performance budget. Prefer one memorable high-cost centerpiece, lazy-load it, and use lighter CSS/SVG/static fallbacks elsewhere.",
+    "- Consolidate repeated or overlapping directives into a single implementation decision while retaining their intended visual outcome. Do not duplicate components, libraries, tokens or animation systems to satisfy synonymous selections.",
+    conflictLines.length ? "### Detected conflicts — resolve explicitly\n" + conflictLines.join("\\n") : "### Detected conflicts\nNone detected by the module registry. Still review the final composition for visual or technical overlap.",
     "",
     "## Creative and implementation contracts",
     "- Read the repository instructions and inspect the actual code before editing. Identify the source of truth for routes, tokens, components, assets and state.",
