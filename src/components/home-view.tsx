@@ -169,6 +169,25 @@ function HeroStrip({ reduced }: { reduced: boolean }) {
               </div>
             ))}
           </dl>
+          <div className="mt-7 overflow-hidden rounded-xl border border-line bg-ink/70 shadow-[0_24px_70px_-42px_rgba(0,0,0,0.9)]">
+            <div className="flex items-center justify-between border-b border-line px-4 py-3">
+              <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-smoke">Prompt specimen / 001</span>
+              <span className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-ember"><span className="size-1.5 rounded-full bg-ember" /> Composed</span>
+            </div>
+            <div className="p-4">
+              <p className="font-serif-d text-[23px] italic leading-tight text-ivory">A digital space with a point of view.</p>
+              <p className="mt-2 max-w-sm text-[11px] leading-relaxed text-fog">One signature interaction. A deliberate type system. A responsive composition built around the content—not a stack of unrelated effects.</p>
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {["Art direction", "Editorial grid", "Kinetic type", "Motion restraint"].map((item) => (
+                  <span key={item} className="rounded-full border border-line-bright bg-carbon/70 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-fog">{item}</span>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between border-t border-line bg-carbon/40 px-4 py-2.5">
+              <span className="font-mono text-[9px] text-smoke">BRIEF → DESIGN SYSTEM → BUILD SPEC</span>
+              <span className="font-mono text-[9px] text-ember">01 / 03</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
