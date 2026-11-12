@@ -36,6 +36,36 @@ describe("PromptForge prompt modes", () => {
     expect(result.microCount).toBe(1);
     expect(result.wordCount).toBeGreaterThan(100);
   });
+  it("adds a synthesis contract so selected layers become one coherent direction", () => {
+    const keyword = LEXICON.find((item) => item.module);
+    expect(keyword).toBeDefined();
+
+    const result = buildMegaPrompt({
+      brief: "A portfolio for a creative studio",
+      keywordIds: [keyword!.id],
+      target: "raw",
+      depth: "detailed",
+    });
+
+    expect(result.prompt).toContain(`Selected creative families: ${keyword!.fam}`);
+    expect(result.prompt).toContain("Selections are ingredients, not a command to display every effect everywhere.");
+    expect(result.prompt).toContain("Assign every selected technique a specific page, component, state or interaction role.");
+    expect(result.prompt).toContain("Detected conflicts");
+  });
+
+  it("still creates a useful mega prompt when no layers are selected", () => {
+    const result = buildMegaPrompt({
+      brief: "A website for an independent bookshop",
+      keywordIds: [],
+      target: "raw",
+      depth: "detailed",
+    });
+
+    expect(result.prompt).toContain("A website for an independent bookshop");
+    expect(result.prompt).toContain("None; establish a restrained direction from the brief");
+    expect(result.selectedCount).toBe(0);
+  });
+
   it("preserves tuned parameter values in the mega prompt", () => {
     const keyword = LEXICON.find((item) => item.module && getModule(item.module)?.params.length);
     expect(keyword?.module).toBeTruthy();
