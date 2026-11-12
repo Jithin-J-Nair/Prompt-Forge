@@ -41,6 +41,16 @@
 - [x] Added GitHub Actions CI for install, lint, typecheck, unit tests and production build.
 - [x] Added this execution record.
 
+## Follow-up implementation pass — 2026-11-12
+
+- Fixed a duplicate StackTray prompt-output declaration that prevented a valid single output binding; the retained compiler call carries the tuned parameter map.
+- Added an editorial fallback composition for curated artifacts without a module-backed preview, replacing the blank preview state.
+- Added a compact prompt specimen to the homepage hero to make the product output tangible without presenting mock social proof or fake usage metrics.
+- Strengthened mega-prompt synthesis rules: selected layers are ingredients, conflicts require explicit resolution, overlapping techniques should be consolidated, and expensive effects receive a deliberate performance budget.
+- Added unit coverage for synthesis guidance and for forging a useful brief with zero selected layers.
+
+Verification remains pending: the GitHub combined-status endpoint currently reports no checks for the latest commit. A local checkout could not be created in this execution environment because GitHub DNS resolution failed. Do not treat the added tests or CI workflow as evidence that lint, typecheck, tests or build have passed.
+
 ## Skills reviewed and applied selectively
 
 The relevant checked-in skill set was read: `design-taste-frontend`, `frontend-design`, `hallmark`, `impeccable`, `ui-ux-pro-max`, `improve-ui`, `web-design-guidelines`, `fixing-motion-performance`, the GSAP performance/React/ScrollTrigger/timeline guidance, and the website-cloning workflow.
