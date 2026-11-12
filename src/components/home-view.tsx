@@ -201,6 +201,28 @@ return (
         {moduleId && getModule(moduleId) ? (
           <PreviewFrame module={getModule(moduleId)!} params={defaultParams(getModule(moduleId)!)} mode="card" className="absolute inset-0" />
         ) : (
+          <div className="absolute inset-0 overflow-hidden bg-[#151a12] p-5">
+            <div className="absolute -right-10 -top-16 size-56 rounded-full border border-ember/15" />
+            <div className="absolute -right-2 -top-8 size-40 rounded-full border border-ember/20" />
+            <div className="absolute bottom-0 left-0 h-1/2 w-full bg-gradient-to-t from-ember/[0.08] to-transparent" />
+            <div className="relative flex h-full flex-col justify-between">
+              <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.22em] text-smoke">
+                <span>Prompt study / {String(index + 1).padStart(2, "0")}</span>
+                <span className="text-ember/80">Direction</span>
+              </div>
+              <div className="max-w-[80%]">
+                <p className="font-serif-d text-4xl italic leading-[0.95] text-ivory md:text-5xl">{a.name}</p>
+                <p className="mt-3 max-w-xs text-[11px] leading-relaxed text-fog">{a.blurb}</p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {stack.slice(0, 3).map((id) => (
+                  <span key={id} className="rounded-full border border-ember/20 bg-ink/40 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-ember/80">
+                    {id.split("/").pop()?.replace(/-/g, " ")}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
         <div className="mask-fade-y pointer-events-none absolute inset-x-0 bottom-0 h-16 from-transparent to-transparent" />
         <span className={clsx("absolute left-3 top-3 rounded-full border px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.18em] backdrop-blur-md",
