@@ -107,7 +107,7 @@ export function buildMegaPrompt(options: MegaPromptOptions): MegaPromptResult {
     ...keywords.map((keyword) => `### ${keyword.name}\n${keyword.phrase}`),
   ].join("\n\n"));
   const selectedFamilies = [...new Set(selected.map((keyword) => keyword.fam))];
-  const heavyModules = compiled.resolved.filter((selection) => selection.module.perf === "heavy");
+  const heavyModules = compiled.resolved.filter((selection) => selection.module.perf !== "light");
   const conflictLines = compiled.conflicts.map((conflict) => {
     const left = compiled.resolved.find((selection) => selection.module.id === conflict.aId)?.module.name ?? conflict.aId;
     const right = compiled.resolved.find((selection) => selection.module.id === conflict.bId)?.module.name ?? conflict.bId;
@@ -137,7 +137,7 @@ export function buildMegaPrompt(options: MegaPromptOptions): MegaPromptResult {
     "- When two directives conflict, preserve the stronger fit to the project brief and explain the decision. Use the alternative in a separate section/state only when that distinction is meaningful; never implement contradictory treatments on the same element.",
     "- Treat heavy WebGL, shader, canvas and scroll systems as a limited performance budget. Prefer one memorable high-cost centerpiece, lazy-load it, and use lighter CSS/SVG/static fallbacks elsewhere.",
     "- Consolidate repeated or overlapping directives into a single implementation decision while retaining their intended visual outcome. Do not duplicate components, libraries, tokens or animation systems to satisfy synonymous selections.",
-    conflictLines.length ? "### Detected conflicts — resolve explicitly\n" + conflictLines.join("\\n") : "### Detected conflicts\nNone detected by the module registry. Still review the final composition for visual or technical overlap.",
+    conflictLines.length ? "### Detected conflicts — resolve explicitly\n" + conflictLines.join("\n") : "### Detected conflicts\nNone detected by the module registry. Still review the final composition for visual or technical overlap.",
     "",
     "## Creative and implementation contracts",
     "- Read the repository instructions and inspect the actual code before editing. Identify the source of truth for routes, tokens, components, assets and state.",
