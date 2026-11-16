@@ -1,0 +1,108 @@
+schema_version: "1.0"
+project_categories:
+  - key: ai-product
+    display_name: AI Product
+  - key: ai-agent
+    display_name: AI Agent
+  - key: rag-platform
+    display_name: RAG Platform
+  - key: saas
+    display_name: SaaS
+  - key: startup-mvp
+    display_name: Startup MVP
+  - key: mobile-app
+    display_name: Mobile App
+  - key: web-application
+    display_name: Web Application
+  - key: awwwards-website
+    display_name: Awwwards Website
+  - key: threejs-experience
+    display_name: Three.js Experience
+  - key: enterprise-platform
+    display_name: Enterprise Platform
+  - key: e-commerce
+    display_name: E-Commerce
+  - key: automation-system
+    display_name: Automation System
+  - key: analytics-platform
+    display_name: Analytics Platform
+  - key: marketplace
+    display_name: Marketplace
+  - key: internal-tool
+    display_name: Internal Tool
+
+skill_tiers:
+  - tier: 1
+    key: core-thinking
+    roles:
+      - Product Strategist
+      - Systems Thinker
+      - UX Architect
+      - Business Analyst
+  - tier: 2
+    key: ai
+    roles:
+      - AI Product Manager
+      - Agent Architect
+      - RAG Architect
+      - Evaluation Engineer
+      - Context Engineer
+      - Knowledge Graph Architect
+      - Prompt Engineer
+      - Model Selection Expert
+  - tier: 3
+    key: web
+    roles:
+      - Frontend Architect
+      - Backend Architect
+      - API Architect
+      - Database Architect
+      - Cloud Architect
+  - tier: 4
+    key: creative
+    roles:
+      - Creative Director
+      - Art Director
+      - Storytelling Expert
+      - Motion Director
+      - Brand Strategist
+  - tier: 5
+    key: webgl
+    roles:
+      - Three.js Architect
+      - R3F Architect
+      - GSAP Architect
+      - Shader Engineer
+      - Technical Artist
+      - Rendering Engineer
+      - Post Processing Engineer
+  - tier: 6
+    key: saas
+    roles:
+      - B2B SaaS Expert
+      - PLG Expert
+      - Retention Expert
+      - Monetization Expert
+      - Growth Designer
+  - tier: 7
+    key: review
+    roles:
+      - Product Reviewer
+      - Architecture Reviewer
+      - UX Reviewer
+      - Performance Reviewer
+      - Security Reviewer
+      - Accessibility Reviewer
+      - Awwwards Reviewer
+
+review_council_roles:
+  - Creative Director
+  - Product Strategist
+  - Systems Architect
+  - Performance Engineer
+  - Security Engineer
+  - UX Architect
+  - Accessibility Reviewer
+  - Awwwards Reviewer
+
+# Role-to-skill mappings and category applicability are policy data to be curated.

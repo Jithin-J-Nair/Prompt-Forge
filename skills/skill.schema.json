@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillforge.invalid/schemas/skill-package-1.0.0.json",
+  "title": "SkillForge Skill Package",
+  "description": "Versioned, composable expertise package. This contract does not grant tool permissions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "identity",
+    "mission",
+    "principles",
+    "mentalModels",
+    "decisionFrameworks",
+    "bestPractices",
+    "antiPatterns",
+    "reviewCriteria",
+    "qualityMetrics",
+    "acceptanceCriteria",
+    "outputContract",
+    "examples",
+    "failureStates"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "name", "tier", "role", "version", "summary", "capabilities", "appliesWhen", "avoidWhen"],
+      "properties": {
+        "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "tier": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "role": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$" },
+        "summary": { "type": "string", "minLength": 1 },
+        "capabilities": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "appliesWhen": { "type": "array", "items": { "type": "string" } },
+        "avoidWhen": { "type": "array", "items": { "type": "string" } },
+        "categoryKeys": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "owner": { "type": "string" }
+      }
+    },
+    "mission": { "$ref": "#/$defs/nonEmptyText" },
+    "principles": { "$ref": "#/$defs/textList" },
+    "mentalModels": { "$ref": "#/$defs/textList" },
+    "decisionFrameworks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "whenToUse", "steps", "outcomes"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "whenToUse": { "type": "string", "minLength": 1 },
+          "steps": { "$ref": "#/$defs/textList" },
+          "outcomes": { "$ref": "#/$defs/textList" }
+        }
+      }
+    },
+    "bestPractices": { "$ref": "#/$defs/textList" },
+    "antiPatterns": { "$ref": "#/$defs/textList" },
+    "reviewCriteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["criterion", "evidence"],
+        "properties": {
+          "criterion": { "type": "string", "minLength": 1 },
+          "evidence": { "type": "string", "minLength": 1 },
+          "severityIfMissed": { "enum": ["critical", "high", "medium", "low"] }
+        }
+      }
+    },
+    "qualityMetrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "measurement", "target"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "measurement": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "acceptanceCriteria": { "$ref": "#/$defs/textList" },
+    "outputContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requiredInputs", "outputs", "format", "constraints"],
+      "properties": {
+        "requiredInputs": { "$ref": "#/$defs/textList" },
+        "outputs": { "$ref": "#/$defs/textList" },
+        "format": { "type": "string", "minLength": 1 },
+        "constraints": { "$ref": "#/$defs/textList" },
+        "stopConditions": { "$ref": "#/$defs/textList" },
+        "dependencies": { "$ref": "#/$defs/textList" },
+        "permissions": {
+          "description": "Declarative informational metadata only; never an authorization grant.",
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "input", "expectedOutput"],
+        "properties": {
+          "title": { "type": "string", "minLength": 1 },
+          "input": { "type": "string", "minLength": 1 },
+          "expectedOutput": { "type": "string", "minLength": 1 },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "failureStates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["condition", "impact", "recovery"],
+        "properties": {
+          "condition": { "type": "string", "minLength": 1 },
+          "impact": { "type": "string", "minLength": 1 },
+          "recovery": { "type": "string", "minLength": 1 },
+          "blocking": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "dependencies": { "$ref": "#/$defs/textList" },
+    "conflicts": { "$ref": "#/$defs/textList" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string" },
+        "licenseOrUsageRights": { "type": "string" },
+        "reviewedBy": { "type": "array", "items": { "type": "string" } },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "contentHash": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyText": { "type": "string", "minLength": 1 },
+    "textList": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}
