@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { CATALOG_VERSION, STARTER_SKILLS } from "../catalog.ts";
 import { composeProjectPreview } from "../composer.ts";
+import { toReviewAssessmentDocument } from "../council.ts";
 import { BLUEPRINT_ARTIFACTS, REVIEW_COUNCIL_ROLES } from "../types.ts";
 import { CONTRACT_PATHS } from "./paths.ts";
 import {
@@ -97,7 +98,7 @@ test("draft package fixture is complete as drafts, non-accepted, and completenes
   assert.equal(draft.accepted, false);
   assert.equal(draft.executionReady, false);
   assert.equal(draft.packageStatus, "draft");
-  assert.equal(draft.reviewStatus, "not_started");
+  assert.equal(draft.reviewStatus, "blocked");
 
   const invalidAccepted = validateContract(
     "packageManifest",
@@ -106,17 +107,58 @@ test("draft package fixture is complete as drafts, non-accepted, and completenes
   assert.equal(invalidAccepted.valid, false);
 });
 
-test("review assessment fixture requires all council roles and stays not_started", () => {
-  const review = readJsonFixture(CONTRACT_PATHS.fixtures.notStartedReview) as {
+test("review assessment fixtures cover not_started and blocked council states", () => {
+  const notStarted = readJsonFixture(CONTRACT_PATHS.fixtures.notStartedReview) as {
     requiredReviewers: string[];
     assessments: unknown[];
     reviewStatus: string;
   };
-  const result = validateContract("reviewAssessment", review);
+  const notStartedResult = validateContract("reviewAssessment", notStarted);
+  assert.equal(notStartedResult.valid, true, notStartedResult.errors.join("; "));
+  assert.deepEqual(notStarted.requiredReviewers, [...REVIEW_COUNCIL_ROLES]);
+  assert.equal(notStarted.assessments.length, 0);
+  assert.equal(notStarted.reviewStatus, "not_started");
+
+  const blocked = readJsonFixture(CONTRACT_PATHS.fixtures.blockedReview) as {
+    reviewStatus: string;
+    assessments: unknown[];
+    unresolvedFindings: unknown[];
+  };
+  const blockedResult = validateContract("reviewAssessment", blocked);
+  assert.equal(blockedResult.valid, true, blockedResult.errors.join("; "));
+  assert.equal(blocked.reviewStatus, "blocked");
+  assert.equal(blocked.assessments.length, 8);
+  assert.ok(blocked.unresolvedFindings.length > 0);
+});
+
+test("live composition council output validates against the review assessment contract", () => {
+  const preview = composeProjectPreview({
+    categoryKey: "ai-product",
+    brief: fixtureBrief,
+  });
+  const document = toReviewAssessmentDocument({
+    schemaVersion: "1.0.0",
+    reviewStatus: preview.reviewStatus,
+    rubricVersion: preview.rubricVersion,
+    requiredReviewers: preview.requiredReviewers,
+    assessments: preview.council.assessments,
+    unresolvedFindings: preview.council.unresolvedFindings,
+    revisionRound: preview.council.revisionRound,
+    overallMean: preview.council.overallMean,
+    gate: {
+      minimumReviewerScore: 80,
+      minimumOverallMean: 80,
+      passed: false,
+      reason: preview.council.gateReason,
+    },
+    revisionPlan: {
+      blocked: true,
+      maxRevisionRounds: preview.council.maxRevisionRounds,
+      nextActions: preview.council.nextActions,
+    },
+  });
+  const result = validateContract("reviewAssessment", document);
   assert.equal(result.valid, true, result.errors.join("; "));
-  assert.deepEqual(review.requiredReviewers, [...REVIEW_COUNCIL_ROLES]);
-  assert.equal(review.assessments.length, 0);
-  assert.equal(review.reviewStatus, "not_started");
 });
 
 test("export manifest fixture stays blocked and never authorizes execution", () => {

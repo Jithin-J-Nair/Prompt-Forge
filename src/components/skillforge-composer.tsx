@@ -21,10 +21,14 @@ function isCompositionPreview(value: unknown): value is CompositionPreview {
     value.accepted === false &&
     value.executionReady === false &&
     typeof value.templateSetVersion === "string" &&
+    typeof value.rubricVersion === "string" &&
     isRecord(value.graph) &&
     Array.isArray(value.graph.nodes) &&
     Array.isArray(value.artifactPreviews) &&
-    Array.isArray(value.missingArtifacts)
+    Array.isArray(value.missingArtifacts) &&
+    isRecord(value.council) &&
+    Array.isArray(value.council.assessments) &&
+    Array.isArray(value.council.unresolvedFindings)
   );
 }
 
@@ -73,9 +77,8 @@ export function SkillForgeComposer() {
         Compose the <span className="text-gradient-ember">expertise</span> first.
       </h1>
       <p className="mt-6 max-w-2xl text-base leading-7 text-fog md:text-lg">
-        Turn an AI Product brief into a deterministic Tier 1 skill graph and a full draft
-        blueprint package. This slice deliberately stops before review, persistence, or agent
-        execution.
+        Turn an AI Product brief into a deterministic Tier 1 skill graph, a full draft blueprint
+        package, and a Review Council gate. Persistence and agent execution stay out of scope.
       </p>
 
       <form
@@ -160,8 +163,8 @@ export function SkillForgeComposer() {
                 Draft preview · not accepted
               </p>
               <p className="mt-2 text-sm text-ivory">
-                {preview.graph.nodes.length} core skills selected ·{" "}
-                {preview.artifactPreviews.length} draft artifacts · review not started
+                {preview.graph.nodes.length} core skills · {preview.artifactPreviews.length} draft
+                artifacts · council {preview.reviewStatus} (mean {preview.council.overallMean}/100)
               </p>
             </div>
             <p className="break-all font-mono text-[10px] text-fog">
@@ -231,19 +234,42 @@ export function SkillForgeComposer() {
           <div className="rounded-xl border border-blood/25 bg-blood/[0.04] p-5 md:p-7">
             <h2 className="flex items-center gap-2 font-display text-xl font-bold text-ivory">
               <ShieldAlert className="size-5 text-flare" aria-hidden />
-              Stage gate: not ready for execution
+              Review Council: blocked · not accepted
             </h2>
-            <p className="mt-2 text-sm leading-6 text-fog">
-              All eleven canonical artifacts are drafted from versioned templates, but unknown
-              Project DNA fields stay unknown. The Review Council has not run, so the package
-              remains unaccepted and non-executable.
-            </p>
+            <p className="mt-2 text-sm leading-6 text-fog">{preview.council.gateReason}</p>
             <p className="mt-4 font-mono text-[10px] tracking-[0.1em] text-fog uppercase">
-              Template set: {preview.templateSetVersion}
+              Template: {preview.templateSetVersion} · Rubric: {preview.rubricVersion}
             </p>
-            <p className="mt-3 font-mono text-[10px] tracking-[0.1em] text-smoke uppercase">
-              Required reviewers: {preview.requiredReviewers.join(" · ")}
-            </p>
+            <ul className="mt-5 grid gap-2 sm:grid-cols-2">
+              {preview.council.assessments.map((assessment) => (
+                <li
+                  key={assessment.reviewer}
+                  className="rounded-md border border-line bg-ink/50 px-3 py-2 text-xs text-ivory"
+                >
+                  <span className="font-semibold">{assessment.reviewer}</span>
+                  <span className="float-right font-mono text-flare">{assessment.score}/100</span>
+                </li>
+              ))}
+            </ul>
+            <h3 className="mt-6 font-mono text-[11px] tracking-[0.12em] text-fog uppercase">
+              Unresolved findings
+            </h3>
+            <ul className="mt-2 space-y-2 text-xs leading-5 text-fog">
+              {preview.council.unresolvedFindings.slice(0, 6).map((finding) => (
+                <li key={`${finding.severity}-${finding.summary}`}>
+                  <span className="font-mono text-flare uppercase">{finding.severity}</span>{" "}
+                  {finding.summary}
+                </li>
+              ))}
+            </ul>
+            <h3 className="mt-6 font-mono text-[11px] tracking-[0.12em] text-fog uppercase">
+              Next actions
+            </h3>
+            <ul className="mt-2 space-y-1 text-xs text-fog">
+              {preview.council.nextActions.map((action) => (
+                <li key={action}>{action}</li>
+              ))}
+            </ul>
           </div>
 
           <section className="space-y-3">

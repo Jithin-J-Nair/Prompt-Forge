@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0.0",
+  "rubricId": "council-defaults-proposed",
+  "version": "1.0.0",
+  "status": "published",
+  "description": "Proposed Review Council defaults from the SkillForge architecture. Deterministic evaluators only in this phase; model/human adapters are out of scope.",
+  "gates": {
+    "minimumReviewerScore": 80,
+    "minimumOverallMean": 80,
+    "minimumDimensionScore": 3,
+    "maxRevisionRounds": 3,
+    "blockOnUnresolvedCriticalOrHigh": true
+  },
+  "reviewers": [
+    {
+      "role": "Creative Director",
+      "focusArtifact": "DESIGN_SYSTEM.md",
+      "dimensions": ["requirementCoverage", "clarity", "distinctiveness"]
+    },
+    {
+      "role": "Product Strategist",
+      "focusArtifact": "PRODUCT_STRATEGY.md",
+      "dimensions": ["requirementCoverage", "evidence", "outcomeFit"]
+    },
+    {
+      "role": "Systems Architect",
+      "focusArtifact": "ARCHITECTURE.md",
+      "dimensions": ["boundaries", "coherence", "operability"]
+    },
+    {
+      "role": "Performance Engineer",
+      "focusArtifact": "ARCHITECTURE.md",
+      "dimensions": ["measurableBudgets", "scalingAssumptions", "riskHandling"]
+    },
+    {
+      "role": "Security Engineer",
+      "focusArtifact": "AGENT_EXECUTION_PACKAGE.md",
+      "dimensions": ["dataBoundaries", "leastPrivilege", "safeHandoff"]
+    },
+    {
+      "role": "UX Architect",
+      "focusArtifact": "USER_FLOWS.md",
+      "dimensions": ["taskCompletion", "errorRecovery", "clarity"]
+    },
+    {
+      "role": "Accessibility Reviewer",
+      "focusArtifact": "DESIGN_SYSTEM.md",
+      "dimensions": ["testableCriteria", "requirementCoverage", "clarity"]
+    },
+    {
+      "role": "Awwwards Reviewer",
+      "focusArtifact": "DESIGN_SYSTEM.md",
+      "dimensions": ["craft", "originality", "interactionQuality"]
+    }
+  ]
+}
