@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import {
   ArrowRight,
   Download,
@@ -52,15 +52,52 @@ type SavedPackage = {
   preview: CompositionPreview;
 };
 
+const EMPTY_SAVED: SavedPackage[] = [];
+
 function loadSaved(): SavedPackage[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
+    if (!raw) return EMPTY_SAVED;
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as SavedPackage[]) : [];
+    return Array.isArray(parsed) ? (parsed as SavedPackage[]) : EMPTY_SAVED;
   } catch {
-    return [];
+    return EMPTY_SAVED;
   }
+}
+
+let savedCacheRaw: string | null | undefined;
+let savedCache: SavedPackage[] = EMPTY_SAVED;
+
+function readSavedSnapshot(): SavedPackage[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw === savedCacheRaw) return savedCache;
+    savedCacheRaw = raw;
+    savedCache = loadSaved();
+    return savedCache;
+  } catch {
+    return EMPTY_SAVED;
+  }
+}
+
+function subscribeSaved(onStoreChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === null || event.key === STORAGE_KEY) onStoreChange();
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener("skillforge-saved", onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener("skillforge-saved", onStoreChange);
+  };
+}
+
+function writeSaved(next: SavedPackage[]) {
+  const raw = JSON.stringify(next);
+  localStorage.setItem(STORAGE_KEY, raw);
+  savedCacheRaw = raw;
+  savedCache = next;
+  window.dispatchEvent(new Event("skillforge-saved"));
 }
 
 export function SkillForgeComposer() {
@@ -69,23 +106,27 @@ export function SkillForgeComposer() {
   const [preview, setPreview] = useState<CompositionPreview | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [saved, setSaved] = useState<SavedPackage[]>(() =>
-    typeof window === "undefined" ? [] : loadSaved(),
-  );
   const [notice, setNotice] = useState("");
+  const resultsRef = useRef<HTMLElement | null>(null);
+  const saved = useSyncExternalStore(subscribeSaved, readSavedSnapshot, () => EMPTY_SAVED);
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function compose() {
+    if (busy) return;
+    const trimmed = brief.trim();
+    if (trimmed.length < 3 || brief.length > 400) {
+      setError("Project intent must be 3–400 characters.");
+      return;
+    }
+
     setError("");
     setNotice("");
-    setPreview(null);
     setBusy(true);
 
     try {
       const response = await fetch("/api/skillforge/compose", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ categoryKey, brief }),
+        body: JSON.stringify({ categoryKey, brief: trimmed }),
       });
       const result: unknown = await response.json();
       if (!response.ok) {
@@ -97,6 +138,14 @@ export function SkillForgeComposer() {
         return;
       }
       setPreview(result);
+      setNotice(
+        result.accepted
+          ? "Package accepted — review the skill graph, DNA, and artifacts below."
+          : "Draft composed — council blocked export until findings are resolved.",
+      );
+      queueMicrotask(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     } catch {
       setError("Could not reach SkillForge. Try again.");
     } finally {
@@ -127,10 +176,11 @@ export function SkillForgeComposer() {
       preview,
     };
     const next = [entry, ...loadSaved()].slice(0, 20);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setSaved(next);
+    writeSaved(next);
     setNotice("Saved in this browser.");
   }
+
+  const canCompose = !busy && brief.trim().length >= 3 && brief.length <= 400;
 
   return (
     <div>
@@ -148,7 +198,11 @@ export function SkillForgeComposer() {
       </p>
 
       <form
-        onSubmit={submit}
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          void compose();
+        }}
         className="mt-10 rounded-2xl border border-line bg-carbon/75 p-5 backdrop-blur md:p-8"
       >
         <div className="flex flex-col gap-6">
@@ -201,8 +255,11 @@ export function SkillForgeComposer() {
               Deterministic compose · no external model call
             </p>
             <button
-              type="submit"
-              disabled={busy || brief.trim().length < 3 || brief.length > 400}
+              type="button"
+              data-testid="skillforge-compose"
+              aria-busy={busy}
+              disabled={!canCompose}
+              onClick={() => void compose()}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-ember px-6 py-3 font-mono text-xs font-semibold tracking-[0.12em] text-ink uppercase transition-colors hover:bg-flare disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy ? (
@@ -229,7 +286,7 @@ export function SkillForgeComposer() {
       )}
 
       {preview && (
-        <section aria-live="polite" className="mt-10 space-y-6">
+        <section ref={resultsRef} aria-live="polite" className="mt-10 space-y-6">
           <div className="flex flex-col justify-between gap-4 rounded-xl border border-flare/30 bg-flare/5 p-5 sm:flex-row sm:items-center">
             <div>
               <p className="font-mono text-xs tracking-[0.14em] text-flare uppercase">
