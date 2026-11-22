@@ -34,7 +34,13 @@ test("licensed adaptations deepen PM/UX/security/context beyond template stubs",
   assert.ok(ux.principles.some((p) => /44|contrast|keyboard|reduced-motion/i.test(p)));
   assert.ok(context.principles.some((p) => /lost-in-the-middle|sub-agent|filesystem|tokens-per-task/i.test(p)));
   assert.ok(security.principles.some((p) => /trust-boundary|needs-validation|live/i.test(p)));
-  assert.match(context.provenance?.source ?? "", /adapted|MIT|Apache|v1\.4\.1/);
+  assert.match(context.provenance?.source ?? "", /adapted|MIT|Apache|v1\.4/);
+  const story = getSkillBySlug("storytelling-expert");
+  assert.ok(story);
+  assert.ok(
+    story.principles.some((p) => /beat|chapter|message|narrative|arc/i.test(p)) ||
+      (story.mentalModels?.some((m) => /beat|story|arc|chapter/i.test(m)) ?? false),
+  );
 });
 
 test("every published skill has a merged depth patch", async () => {

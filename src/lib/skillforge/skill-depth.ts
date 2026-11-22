@@ -1255,7 +1255,7 @@ function autoDeepen(skill: SkillPackage): SkillPackage {
     ],
     provenance: {
       ...skill.provenance,
-      source: skill.provenance?.source ?? "SkillForge published catalog v1.4.1",
+      source: skill.provenance?.source ?? "SkillForge published catalog v1.4.2",
     },
   };
 }
@@ -1277,12 +1277,12 @@ export function deepenSkill(skill: SkillPackage): SkillPackage {
       ...skill.provenance,
       source:
         WEBGL_DISTILLED_DEPTH[skill.identity.slug] != null
-          ? "SkillForge catalog v1.4.1 (distilled from GitHub skill research — not copied)"
+          ? "SkillForge catalog v1.4.2 (distilled from GitHub skill research — not copied)"
           : LICENSED_DEPTH[skill.identity.slug] != null
-            ? "SkillForge catalog v1.4.1 (adapted from MIT/Apache/CC0 skill sources — not pasted)"
+            ? "SkillForge catalog v1.4.2 (adapted from MIT/Apache/CC0 skill sources — not pasted)"
             : DISTILLED_DEPTH[skill.identity.slug] != null
-              ? "SkillForge catalog v1.4.1 (domain distillation)"
-              : "SkillForge published catalog v1.4.1 (depth)",
+              ? "SkillForge catalog v1.4.2 (domain distillation)"
+              : "SkillForge published catalog v1.4.2 (depth)",
     },
   });
 }

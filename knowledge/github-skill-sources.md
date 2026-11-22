@@ -11,11 +11,14 @@ This document records **public GitHub repositories** reviewed during SkillForge 
 | `product-strategist`, `business-analyst`, `b2b-saas-expert`, `product-reviewer` | [phuryn/pm-skills](https://github.com/phuryn/pm-skills) (MIT) | ~28k | Strategy canvas / PM craft → SkillForge fields |
 | `systems-thinker`, `qa-architect` | [obra/superpowers](https://github.com/obra/superpowers) (MIT) | ~324k | Approach gates, verification-before-completion |
 | `ux-architect`, `design-systems-architect`, `ux-reviewer` | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT) | ~153k | UX priority ladder, tokens, a11y-first |
-| `context-engineer`, `agent-architect`, `evaluation-engineer`, `prompt-injection-defender` | [muratcankoylan/Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT) | ~18k | Context envelopes, harness, evals |
+| `context-engineer`, `agent-architect`, `evaluation-engineer`, `prompt-injection-defender` | [muratcankoylan/Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT) | ~18k | Context budgets, multi-agent isolation, harness, evals, injection defense |
 | `security-engineer-skill`, `security-reviewer`, `api-security-specialist`, `privacy-engineer` | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) (MIT) | ~77k | Trust-boundary findings, safe verification |
 | `brand-strategist`, `content-strategist`, `growth-designer`, `monetization-expert`, `retention-expert`, `plg-expert` | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) (MIT) | ~62k | Marketing skill themes adapted |
 | `accessibility-specialist`, `accessibility-reviewer` | [Community-Access/accessibility-agents](https://github.com/Community-Access/accessibility-agents) (MIT) + UX Pro Max a11y priority | ~0.5k / ~153k | POUR + immersive a11y |
-| `frontend-architect` (craft) | anthropics/skills `frontend-design` (**Apache-2.0** per-skill) | — | Repo license field NONE; per-skill LICENSE Apache |
+| `frontend-architect` (craft), `storytelling-expert` | anthropics/skills `frontend-design` (**Apache-2.0** per-skill) | — | Repo license field NONE; per-skill LICENSE Apache — craft principles only, not pasted |
+| Three.js cluster | [CloudAI-X/threejs-skills](https://github.com/CloudAI-X/threejs-skills) (MIT) | ~4.3k | Already in `WEBGL_DISTILLED_DEPTH` — no extra `LICENSED_DEPTH` patches |
+
+**Sources read for v1.4.1 licensed adaptations:** pm-skills (`product-strategy`, `lean-canvas`, `identify-assumptions-new`, `value-proposition`); ui-ux-pro-max (`ui-ux-pro-max`, `design-system`, `design`); marketingskills (`content-strategy`, `churn-prevention`, `pricing`, `onboarding`, `product-marketing`, `cro`, `paywalls`); Agent-Skills-for-Context-Engineering (root `SKILL.md`, `context-fundamentals`, `multi-agent-patterns`); cloudflare `security-audit`; obra/superpowers (`brainstorming`, `systematic-debugging`, `writing-plans`); accessibility-agents (`a11y-core`, `wcag-guide`); anthropics `frontend-design`.
 
 **Corrections vs user table:** WebGL roles use **CloudAI-X/threejs-skills** (MIT ~4.3k), not Jbmanllr (~1★). Context Engineer uses **Agent-Skills-for-Context-Engineering**, not the ~3★ `context-engineering` stub.
 
@@ -72,6 +75,7 @@ The **`awwwards-reviewer`** role additionally aligns with internal craft knowled
 
 ## Research method (summary)
 
-1. Identified high-star agent-skill repos in WebGL, motion, and frontend-design niches.
+1. Identified high-star agent-skill repos in WebGL, motion, frontend-design, PM, marketing, security, a11y, and context-engineering niches.
 2. Extracted **transferable principles** (structure, checklists, anti-patterns) into SkillForge field shapes (`mission`, `decisionFrameworks`, `reviewCriteria`, etc.).
 3. Marked skills without close GitHub analogs as **domain-distilled** in this file for auditability.
+4. Licensed-source upgrades live in `LICENSED_DEPTH` and override thinner `DISTILLED_DEPTH` / base depth for the same slug when merged (WebGL map still wins last for immersive slugs).
