@@ -1,5 +1,11 @@
 import type { ProjectCategoryKey } from "./categories.ts";
 import { isImmersiveCategory } from "./blueprints-content.ts";
+import {
+  formatBeatGrid,
+  formatChapterTable,
+  formatTokenSheet,
+  synthesizeConcept,
+} from "./concept-synth.ts";
 import type { ProjectDnaField, SkillGraphNode } from "./types.ts";
 import { REVIEW_COUNCIL_ROLES } from "./types.ts";
 
@@ -26,12 +32,13 @@ export function renderExperienceDnaBody(
   fields: readonly DnaField[],
   brief: string,
 ): Record<string, string> {
-  const user = fieldValue(fields, "User") ?? "primary visitor";
+  const concept = synthesizeConcept({ brief, categoryKey });
+  const user = fieldValue(fields, "User") ?? concept.audience;
   const vision = fieldValue(fields, "Vision") ?? briefClip(brief);
   const differentiation =
     fieldValue(fields, "Differentiation") ??
     (isImmersiveCategory(categoryKey)
-      ? "Craft-led immersive presence instead of template marketing chrome"
+      ? `Craft-led ${concept.worldNoun} instead of template marketing chrome`
       : "Clear job-to-be-done with distinctive experience cues");
 
   if (isImmersiveCategory(categoryKey)) {
@@ -39,33 +46,31 @@ export function renderExperienceDnaBody(
       "Experience thesis": [
         `- Promise: ${vision}`,
         `- For: ${user}`,
+        `- World: ${concept.worldNoun}`,
+        `- Motifs: ${concept.motifs.slice(0, 5).join(", ")}`,
         `- Why distinctive: ${differentiation}`,
         `- Medium: ${categoryKey === "threejs-experience" ? "WebGL-first experience host + quiet DOM shell" : "Awwwards-class scroll theater with authored motion"}`,
+        `- Concept fingerprint: \`${concept.fingerprint}\``,
         `- Brief signal: ${briefClip(brief)}`,
       ].join("\n"),
       "Emotional arc": [
-        "- Arrival: awe + brand recognition within ~3 seconds (one composition).",
-        "- Deepening: curiosity through chapter reveals (craft proof, not feature dump).",
-        "- Proof: confidence via work/scene evidence the visitor can feel.",
-        "- Invite: calm resolve — clear CTA without hard sell wallpaper.",
+        `- Arrival: ${concept.emotionalArc.arrival}`,
+        `- Deepening: ${concept.emotionalArc.deepen}`,
+        `- Proof: ${concept.emotionalArc.proof}`,
+        `- Invite: ${concept.emotionalArc.invite}`,
       ].join("\n"),
       "Sensory register": [
-        "- Sight: atmospheric base, one decisive accent, purposeful display type.",
-        "- Motion: 2–5 signature beats; silence between beats is intentional.",
-        "- Sound: optional; never required for comprehension; captions if used.",
-        "- Touch: pointer/focus feedback on CTAs and focal hotspots only.",
+        `- Sight: ${concept.sensory.sight}`,
+        `- Motion: ${concept.sensory.motion}`,
+        `- Sound: ${concept.sensory.sound}`,
+        `- Touch: ${concept.sensory.touch}`,
       ].join("\n"),
       "Visitor jobs": [
-        `1) ${user} understands what this brand/world stands for.`,
-        "2) Experiences craft proof without reading a paragraph wall.",
-        "3) Reaches a single primary invite with keyboard-accessible escape routes.",
+        `1) ${user} understands what this ${concept.worldNoun} stands for.`,
+        `2) Experiences craft proof through ${concept.motifs.slice(0, 2).join(" / ")} without a paragraph wall.`,
+        `3) Reaches invite — ${concept.invite} — with keyboard-accessible escape routes.`,
       ].join("\n"),
-      "Anti-experience": [
-        "- Card-grid heroes, floating promo chips, stat strips in first viewport.",
-        "- Constant scroll-triggered noise on every element.",
-        "- SaaS dashboard chrome posing as an immersive brand world.",
-        "- Claiming awards or cloning studio signatures.",
-      ].join("\n"),
+      "Anti-experience": concept.antiPatterns.map((item) => `- ${item}`).join("\n"),
     };
   }
 
@@ -75,6 +80,7 @@ export function renderExperienceDnaBody(
       `- For: ${user}`,
       `- Why distinctive: ${differentiation}`,
       `- Category: ${categoryKey.replace(/-/g, " ")}`,
+      `- Concept fingerprint: \`${concept.fingerprint}\``,
       `- Brief signal: ${briefClip(brief)}`,
     ].join("\n"),
     "Emotional arc": [
@@ -107,48 +113,33 @@ export function renderCreativeDirectionBody(
   fields: readonly DnaField[],
   brief: string,
 ): Record<string, string> {
+  const concept = synthesizeConcept({ brief, categoryKey });
   const differentiation = fieldValue(fields, "Differentiation");
   const immersive = isImmersiveCategory(categoryKey);
 
   return {
     "North star concept": [
-      immersive
-        ? `- One bold idea the whole experience serves (not a collage of trends). Brief: ${briefClip(brief)}`
-        : `- Product concept in one sentence derived from the brief: ${briefClip(brief)}`,
+      `- ${concept.northStar}`,
       differentiation ? `- Differentiation lock: ${differentiation}` : "- Differentiation still hypothesis — label it as such in UI copy.",
       immersive
-        ? "- Creative medium lock: immersive web craft (motion + optional WebGL), not a marketing template."
+        ? `- Creative medium lock: immersive web craft (${concept.worldNoun}), not a marketing template.`
         : `- Creative medium lock: ${categoryKey.replace(/-/g, " ")} product craft.`,
+      `- Concept fingerprint: \`${concept.fingerprint}\``,
     ].join("\n"),
-    "Creative pillars": immersive
-      ? [
-          "1) Presence — first viewport is one composition.",
-          "2) Authored motion — signature beats with owners (GSAP / R3F / shader).",
-          "3) Restraint — silence between beats; chrome stays quiet.",
-          "4) Honesty — inferences labeled; no fake award claims.",
-        ].join("\n")
-      : [
-          "1) Clarity — primary job visible above the fold of the task.",
-          "2) Coherence — tokens, voice, and flows agree.",
-          "3) Trust — states and recovery feel deliberate.",
-          "4) Honesty — unknowns stay labeled in the package.",
-        ].join("\n"),
+    "Creative pillars": concept.pillars.map((p, i) => `${i + 1}) ${p}`).join("\n"),
     "Reference posture": [
-      "- Use references as posture (energy, pacing, craft bar), never as clones.",
-      "- Forbidden: copying identifiable studio layouts/signatures as if original.",
-      "- Prefer inventing from pillars + brief over trend pastiche.",
+      ...concept.referencePrinciples.map((line) => `- ${line}`),
+      concept.referenceLabel
+        ? `- Named reference signal: “${concept.referenceLabel}” (posture only).`
+        : "- No named reference — invent from pillars + brief.",
     ].join("\n"),
     "Decision rules": [
       "- If two ideas compete, keep the one that strengthens the north star.",
+      `- Prefer motif recurrence (${concept.motifs.slice(0, 3).join(", ")}) over trend pastiche.`,
       "- Cut decoration that does not serve thesis, pillars, or visitor jobs.",
       "- Immersive claims require budgets, inventories, and reduced-motion paths.",
     ].join("\n"),
-    "Forbidden patterns": [
-      "- Purple-glow / cream+terracotta AI-default aesthetics unless brief confirms.",
-      "- Inter/Roboto/Arial as the display voice for brand-led work.",
-      "- Hero card grids, floating badges, and stat strips on experience sites.",
-      "- Treating SkillForge compose UI as the product’s user journey.",
-    ].join("\n"),
+    "Forbidden patterns": concept.antiPatterns.map((item) => `- ${item}`).join("\n"),
   };
 }
 
@@ -158,24 +149,25 @@ export function renderArtDirectionBody(
   fields: readonly DnaField[],
   brief: string,
 ): Record<string, string> {
+  const concept = synthesizeConcept({ brief, categoryKey });
   const immersive = isImmersiveCategory(categoryKey);
   const features = fieldValue(fields, "Core Features");
 
   return {
     "Art bible": [
       immersive
-        ? "- Visual plane: edge-to-edge experience canvas; UI chrome is quiet scaffolding."
+        ? `- Visual plane: edge-to-edge ${concept.worldNoun}; UI chrome is quiet scaffolding.`
         : "- Visual plane: task surface first; chrome second.",
-      "- Type pairing: expressive display for brand moments + restrained UI face for chrome.",
-      "- Color: atmospheric base + one decisive accent; document hex/oklch candidates as hypotheses until brand confirms.",
-      features ? `- Feature-driven motifs: ${features}` : "- Motifs derive from brief nouns/verbs — not generic tech icons.",
+      features ? `- Feature-driven motifs: ${features}` : `- Motifs: ${concept.motifs.join(", ")}`,
       `- Brief cue: ${briefClip(brief)}`,
+      `- Concept fingerprint: \`${concept.fingerprint}\``,
     ].join("\n"),
+    "Token sheet": formatTokenSheet(concept.artTokens),
     "Composition law": immersive
       ? [
           "- First viewport: brand, one headline, one support line, one CTA group, one dominant full-bleed visual.",
           "- No inset hero cards, side-panel media, or tiled collage as the hero idea.",
-          "- Chapters read as acts, not stacked marketing bands.",
+          `- Chapters read as acts mapped to: ${concept.chapters.map((c) => c.id).join(" → ")}.`,
         ].join("\n")
       : [
           "- Primary action is visually dominant on each key screen.",
@@ -184,25 +176,23 @@ export function renderArtDirectionBody(
         ].join("\n"),
     "Material & imagery": immersive
       ? [
-          "- Prefer custom scene materials / photography direction over stock collage.",
+          ...concept.artTokens.materials.map((m) => `- Material: ${m}`),
+          `- Lighting: ${concept.artTokens.lighting}`,
+          ...concept.artTokens.imageryPlates.map((p) => `- Plate: ${p}`),
           "- Placeholder media must reserve aspect ratio and reveal with authored motion.",
-          "- Texture/noise only when it supports atmosphere; never as filler.",
         ].join("\n")
       : [
           "- Imagery supports comprehension of the job or brand proof.",
           "- Icons only when they speed recognition; avoid icon wallpaper.",
+          formatTokenSheet(concept.artTokens),
         ].join("\n"),
     "UI chrome rules": [
       "- Navigation is quiet; motion reserved for intentional moments.",
       "- Focus-visible rings required; never color-only status.",
+      `- Accent usage locked to \`${concept.artTokens.accent}\` for focal CTAs/hotspots.`,
       "- Buttons: hover/press/focus states specified in motion language (see DESIGN_SYSTEM).",
     ].join("\n"),
-    "Rejected looks": [
-      "- Default AI purple gradients and glow stacks.",
-      "- Warm cream + terracotta + generic serif ‘premium’ cliché unless brand confirms.",
-      "- Broadsheet hairline newspaper pastiche for product UIs.",
-      "- Dark-mode-by-default without brief confirmation.",
-    ].join("\n"),
+    "Rejected looks": concept.antiPatterns.map((item) => `- ${item}`).join("\n"),
   };
 }
 
@@ -212,40 +202,36 @@ export function renderStorySystemBody(
   fields: readonly DnaField[],
   brief: string,
 ): Record<string, string> {
-  const user = fieldValue(fields, "User") ?? "visitor";
+  const concept = synthesizeConcept({ brief, categoryKey });
+  const user = fieldValue(fields, "User") ?? concept.audience;
   const immersive = isImmersiveCategory(categoryKey);
 
   if (immersive) {
     return {
       "Narrative premise": [
         `- Protagonist: ${user}`,
+        `- World: ${concept.worldNoun}`,
         `- World promise from brief: ${briefClip(brief)}`,
-        "- Conflict: indifference / sameness of the web; resolution: memorable craft presence + clear invite.",
+        `- Verb spine: ${concept.verbs.join(" → ")}`,
+        `- Conflict: sameness of the web vs memorable ${concept.motifs[0] ?? "craft"} presence.`,
+        `- Resolution: ${concept.invite}`,
+        `- Concept fingerprint: \`${concept.fingerprint}\``,
       ].join("\n"),
-      "Beat sheet": [
-        "1) Hook — arrival world establishes brand in one composition.",
-        "2) Turn — first chapter proves craft (scene / work / capability).",
-        "3) Deepen — optional interaction or case chapter with evidence.",
-        "4) Resolve — invite/contact landing with one primary CTA.",
-        "5) Escape — skip-to-content / reduced-motion path always available.",
-      ].join("\n"),
-      "Chapter map": [
-        "| Chapter | Job | Proof | CTA posture |",
-        "|---|---|---|---|",
-        "| Arrival | Orient + feel | Brand world visual | Soft or delayed |",
-        "| Craft proof | Believe | Scene / motion signature | None or tertiary |",
-        "| Evidence | Trust | Work / case chapter | Optional deep link |",
-        "| Invite | Act | Clear next step | Primary CTA |",
-      ].join("\n"),
+      "Beat sheet": concept.chapters
+        .map((c, i) => `${i + 1}) ${c.id} — ${c.job} / proof: ${c.proof}`)
+        .concat(["5) Escape — skip-to-content / reduced-motion path always available."])
+        .join("\n"),
+      "Chapter map": formatChapterTable(concept.chapters),
       "Message hierarchy": [
-        "- L1: Brand / product name (hero-level).",
-        "- L2: One promise line.",
+        `- L1: Brand / product name inside ${concept.worldNoun} (hero-level).`,
+        "- L2: One promise line derived from north star.",
         "- L3: One supporting sentence.",
-        "- L4: Chapter captions — short, timed with motion ownership.",
+        `- L4: Chapter captions timed to beat grid (${concept.motifs.slice(0, 2).join(", ")} language).`,
         "- Never let secondary marketing blocks outrank L1–L3 in the first viewport.",
       ].join("\n"),
       "Voice & tone": [
         "- Confident, specific, sparse — craft speaks louder than adjectives.",
+        `- Prefer concrete nouns from motifs (${concept.motifs.slice(0, 4).join(", ")}) over empty hype.`,
         "- Ban empty hype (‘revolutionary’, ‘next-gen’) without evidence.",
         "- Inferred claims labeled; unknowns not narrated as facts.",
       ].join("\n"),
@@ -257,6 +243,7 @@ export function renderStorySystemBody(
       `- Protagonist: ${user}`,
       `- Job story from brief: ${briefClip(brief)}`,
       "- Conflict: friction/uncertainty in the current workflow; resolution: clearer path to outcome.",
+      `- Concept fingerprint: \`${concept.fingerprint}\``,
     ].join("\n"),
     "Beat sheet": [
       "1) Orient — land on the job and trust cues.",
@@ -281,6 +268,35 @@ export function renderStorySystemBody(
     "Voice & tone": [
       "- Direct and human; match category seriousness.",
       "- No fake certainty on unknown DNA fields.",
+    ].join("\n"),
+  };
+}
+
+/** Motion scorecard + ownership matrix for immersive packages (appended via design system extras). */
+export function renderMotionScorecardBody(
+  categoryKey: ProjectCategoryKey,
+  brief: string,
+): Record<string, string> {
+  const concept = synthesizeConcept({ brief, categoryKey });
+  if (!isImmersiveCategory(categoryKey)) {
+    return {
+      "Motion scorecard": "- Motion only when it clarifies state change; no decorative theater required.",
+    };
+  }
+  return {
+    "Motion scorecard": concept.motionScorecard.map((line) => `- ${line}`).join("\n"),
+    "Beat grid": formatBeatGrid(concept.beatGrid),
+    "Ownership matrix": [
+      "- DOM captions / progress UI → GSAP ScrollTrigger (single progress publisher).",
+      "- Camera / object transforms in canvas → R3F only.",
+      "- Material dissolves / caustics → shader uniforms driven by the same progress signal.",
+      "- CTA micro-interactions → DOM/CSS or GSAP; never R3F for button scale.",
+      "- Fail closed if two owners write the same property in one frame.",
+    ].join("\n"),
+    "ASSET_SPEC": [
+      ...concept.assetSpecs.map(
+        (s) => `- **${s.name}** (${s.kind}): ${s.budget}; ${s.format}; ${s.notes}`,
+      ),
     ].join("\n"),
   };
 }
@@ -325,11 +341,11 @@ export function renderReviewerFrameworksBody(
     ].join("\n"),
     "Craft lenses": immersive
       ? [
-          "- **Creative Director** → CREATIVE_DIRECTION.md: north star, pillars, forbidden patterns.",
-          "- **Awwwards Reviewer** → EXPERIENCE_DNA.md + ART_DIRECTION.md: thesis, composition law, anti-experience.",
-          "- **UX Architect** → STORY_SYSTEM.md + USER_FLOWS.md: beats, chapter map, visitor journey.",
+          "- **Creative Director** → CREATIVE_DIRECTION.md: north star, pillars, forbidden patterns, concept fingerprint uniqueness.",
+          "- **Awwwards Reviewer** → EXPERIENCE_DNA.md + ART_DIRECTION.md: thesis, token sheet (#/oklch), composition law.",
+          "- **UX Architect** → STORY_SYSTEM.md + USER_FLOWS.md: brief-specific chapter map, visitor journey.",
           "- **Accessibility Reviewer** → DESIGN_SYSTEM.md: reduced-motion, focus, contrast.",
-          "- **Performance Engineer** → ARCHITECTURE.md / QUALITY_CHECKLIST.md: budgets only as needed — do not expand architecture theater.",
+          "- **Performance Engineer** → ARCHITECTURE.md scene inventory + shader budget + ASSET_SPEC.",
           "- **Security Engineer** → AGENT_EXECUTION_PACKAGE.md: safe handoff boundaries.",
         ].join("\n")
       : [
@@ -344,11 +360,14 @@ export function renderReviewerFrameworksBody(
       "- Critical/high findings block acceptance until resolved or explicitly deferred.",
       "- Mush/placeholder phrases fail craft density automatically.",
       immersive
-        ? "- Immersive packages must show Experience DNA, Creative Direction, Art Direction, Story System density — not architecture essays alone."
+        ? "- Immersive packages must show brief-specific pillars, token sheet with hex colors, filled scene inventory, beat grid, and motion scorecard — not category policy alone."
         : "- Packages must show coherent strategy + story + design evidence.",
     ].join("\n"),
     "Fail conditions": [
       "- Empty binders with high scores.",
+      "- Creative pillars identical to frozen boilerplate (Presence / Authored motion / Restraint / Honesty only).",
+      "- ART_DIRECTION missing `#` hex or named display face.",
+      "- Scene inventory still listing only generic act names without camera/asset/shader rows.",
       "- First viewport that fails the brand/composition test on immersive work.",
       "- USER_FLOWS describing SkillForge compose loop as the product journey.",
       "- Missing reduced-motion guidance on motion-led packages.",

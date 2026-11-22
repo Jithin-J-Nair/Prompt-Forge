@@ -1,4 +1,11 @@
 import type { ProjectCategoryKey } from "./categories.ts";
+import {
+  formatAssetSpecs,
+  formatSceneInventory,
+  formatShaderBudget,
+  formatTokenSheet,
+  synthesizeConcept,
+} from "./concept-synth.ts";
 import type { ProjectDnaField, SkillGraphNode } from "./types.ts";
 
 type DnaField = {
@@ -26,37 +33,40 @@ export function renderDesignSystemBody(
   brief: string,
 ): Record<string, string> {
   if (isImmersiveCategory(categoryKey)) {
+    const concept = synthesizeConcept({ brief, categoryKey });
     const features = fieldValue(fields, "Core Features") ?? "scroll theater; WebGL scenes; motion language";
     const differentiation =
       fieldValue(fields, "Differentiation") ??
-      "Immersive craft-led experience with authored motion and scene systems";
+      `Immersive craft-led ${concept.worldNoun} with authored motion and scene systems`;
     return {
       "Visual principles": [
-        `- Creative medium: immersive ${categoryKey === "threejs-experience" ? "WebGL-first" : "Awwwards-class"} experience.`,
+        `- Creative medium: immersive ${categoryKey === "threejs-experience" ? "WebGL-first" : "Awwwards-class"} ${concept.worldNoun}.`,
         `- Features driving look: ${features}.`,
         `- Differentiation hypothesis: ${differentiation}.`,
         "- First viewport = one composition: brand mark, one headline, one supporting line, one CTA group, one dominant full-bleed visual plane.",
         "- No hero cards, floating promo chips, stat strips, or inset media tiles.",
-        "- Type: purposeful display face for brand/hero + restrained UI face for chrome (do not default to Inter/Roboto/Arial).",
-        "- Color: atmospheric base + one decisive accent; avoid purple-glow AI defaults and cream+terracotta clichés unless the brief confirms them.",
+        `- Motifs: ${concept.motifs.slice(0, 5).join(", ")}.`,
         "- Space: edge-to-edge experience canvas; UI chrome stays quiet.",
         `- Brief signal: ${brief.slice(0, 160)}`,
+        "",
+        "### Token sheet (implement these)",
+        formatTokenSheet(concept.artTokens),
       ].join("\n"),
       "Interaction principles": [
         "- Scroll is a timeline: chapters advance narrative, not random section stacks.",
         "- Pointer/touch manipulate scene focal points without stealing scroll ownership unpredictably.",
-        "- CTA appears at narrative landing; do not wallpaper CTAs on every chapter.",
+        `- CTA appears at narrative landing (${concept.invite}); do not wallpaper CTAs on every chapter.`,
         "- Keyboard: skip, pause, and reach primary CTA without requiring WebGL precision aiming.",
         "- Reduced motion: replace camera/shader theater with static chapter art + simple fades.",
       ].join("\n"),
       "Motion language": [
-        "- Require 2–5 signature motion moments with duration/easing notes.",
+        "- Require 2–5 signature motion moments with duration/easing notes (see Beat grid).",
         "- Owners: GSAP timelines for DOM/captions; R3F/camera for scene moves; shaders for material dissolves — one owner per property.",
-        "- Example beat grid: Arrival dolly (1.0–1.4s) → chapter dissolve → work proof orbit → invite fade.",
+        `- Motif-locked beats for: ${concept.motifs.slice(0, 3).join(", ")}.`,
         "- Ban constant scroll-triggered noise on every element.",
         "",
         "### Cinematic UI micro-interactions (mandatory for agent cook)",
-        "- **Buttons / CTAs:** hover → scale 1.02–1.04 + accent underline or glow fade (120–180ms, ease-out); press → scale 0.98 (80ms); focus-visible ring required; never rely on color alone.",
+        `- **Buttons / CTAs:** hover → scale 1.02–1.04 + accent \`${concept.artTokens.accent}\` underline/glow fade (120–180ms, ease-out); press → scale 0.98 (80ms); focus-visible ring required; never rely on color alone.`,
         "- **Image / media placeholders:** shimmer or soft pulse while loading; on ready, clip-reveal or opacity+blur-out (400–700ms); reserve aspect-ratio boxes to prevent layout jump.",
         "- **Scroll theater:** chapter enter uses coordinated caption fade + optional parallax (DOM via GSAP ScrollTrigger) and/or camera ease (R3F); one progress signal shared across owners.",
         "- **Link/nav chrome:** quiet; motion only on intentional moments, not on every hover in the header.",
@@ -109,21 +119,27 @@ export function renderDesignSystemBody(
 export function renderArchitectureBody(
   categoryKey: ProjectCategoryKey,
   fields: readonly DnaField[],
+  brief = "",
 ): Record<string, string> {
   const architecture = fieldValue(fields, "Architecture");
   const stack = fieldValue(fields, "Technical Stack");
 
   if (isImmersiveCategory(categoryKey)) {
+    const concept = synthesizeConcept({
+      brief: brief || fieldValue(fields, "Vision") || "immersive experience",
+      categoryKey,
+    });
     return {
       "System boundaries": [
         "- Experience host (WebGL/R3F canvas) vs app shell (DOM navigation, CTA, a11y).",
         "- Scroll/progress store as the shared timeline signal.",
         "- Asset pipeline boundary: authoring → compress → runtime load → dispose.",
+        `- World lock: ${concept.worldNoun} (motifs: ${concept.motifs.slice(0, 4).join(", ")}).`,
         architecture ? `- DNA architecture note: ${architecture}` : "- Architecture inferred from immersive category policy.",
       ].join("\n"),
       Components: [
         "- ExperienceCanvas (single renderer preferred).",
-        "- Scene/chapter modules mapped to narrative acts.",
+        `- Scene/chapter modules: ${concept.chapters.map((c) => c.id).join(", ")}.`,
         "- Shader/material library with uniform contracts.",
         "- Motion orchestrator (GSAP) for DOM + progress publishing.",
         "- Optional CMS/content adapter only if brief requires editable case studies.",
@@ -141,18 +157,9 @@ export function renderArchitectureBody(
         "- Resilience: WebGL fail → static/filmstrip fallback.",
         "- Maintainability: chapter modules + shared lighting/env.",
       ].join("\n"),
-      "Scene inventory": [
-        "- Arrival / brand world",
-        "- Craft or capability proof scene",
-        "- Selected work / case chapter(s)",
-        "- Invite / contact landing",
-        "- Each scene lists: camera behavior, hero assets, shader accents, dispose rules.",
-      ].join("\n"),
-      "Shader & render budget": [
-        "- List effects with cost tiers (low/medium/high).",
-        "- Post stack ordered with low-power drop order.",
-        "- Quality presets: high / medium / low (DPR + passes).",
-      ].join("\n"),
+      "Scene inventory": formatSceneInventory(concept.chapters),
+      "Shader & render budget": formatShaderBudget(concept.shaderBudget),
+      ASSET_SPEC: formatAssetSpecs(concept.assetSpecs),
     };
   }
 
@@ -187,17 +194,24 @@ export function renderArchitectureBody(
 export function renderUserFlowsBody(
   categoryKey: ProjectCategoryKey,
   fields: readonly DnaField[],
+  brief = "",
 ): Record<string, string> {
-  const user = fieldValue(fields, "User") ?? "primary user";
+  const concept = isImmersiveCategory(categoryKey)
+    ? synthesizeConcept({
+        brief: brief || fieldValue(fields, "Vision") || "immersive experience",
+        categoryKey,
+      })
+    : null;
+  const user = fieldValue(fields, "User") ?? concept?.audience ?? "primary user";
   const flows = fieldValue(fields, "User Flows");
 
-  if (isImmersiveCategory(categoryKey)) {
+  if (isImmersiveCategory(categoryKey) && concept) {
     return {
       "Primary tasks": [
-        `1) ${user} lands in the arrival world and understands the brand promise within seconds.`,
-        "2) Scrolls chapters to experience craft proof (scenes/work).",
-        "3) Optionally interacts with a focal scene element.",
-        "4) Reaches invite/contact CTA with clear next step.",
+        `1) ${user} lands in the ${concept.worldNoun} and understands the brand promise within seconds.`,
+        `2) Scrolls chapters (${concept.chapters.map((c) => c.id).join(" → ")}) for craft proof.`,
+        `3) Optionally interacts with a focal ${concept.motifs[0] ?? "scene"} element.`,
+        `4) Reaches invite — ${concept.invite} — with clear next step.`,
         "5) Can skip to content/CTA via keyboard without completing the full theater.",
         flows ? `- DNA flow note: ${flows}` : "",
       ]
