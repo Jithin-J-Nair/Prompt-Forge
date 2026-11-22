@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillforge.invalid/schemas/export-manifest-1.0.0.json",
+  "title": "SkillForge Export Manifest",
+  "description": "Safe instructional handoff contract. Export does not imply execution authority or credentials.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "handoffStatus",
+    "packageAccepted",
+    "executionAuthorized",
+    "artifacts",
+    "prohibitedOperations"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "fixtureId": { "type": "string", "minLength": 1 },
+    "handoffStatus": {
+      "type": "string",
+      "enum": ["blocked", "prepared", "exported", "acknowledged", "failed", "revoked"]
+    },
+    "packageAccepted": { "type": "boolean" },
+    "executionAuthorized": { "type": "boolean", "const": false },
+    "blockedReason": { "type": "string", "minLength": 1 },
+    "packageChecksum": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["logicalKey", "mediaType", "checksum"],
+        "properties": {
+          "logicalKey": { "type": "string", "minLength": 1 },
+          "mediaType": { "type": "string", "minLength": 1 },
+          "checksum": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "prohibitedOperations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "stopConditions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "handoffStatus": { "const": "blocked" } } },
+      "then": {
+        "required": ["blockedReason"],
+        "properties": {
+          "packageAccepted": { "const": false },
+          "artifacts": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "handoffStatus": { "enum": ["prepared", "exported", "acknowledged"] }
+        }
+      },
+      "then": {
+        "properties": {
+          "packageAccepted": { "const": true },
+          "artifacts": { "minItems": 11 },
+          "packageChecksum": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        },
+        "required": ["packageChecksum"]
+      }
+    }
+  ]
+}

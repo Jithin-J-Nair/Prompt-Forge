@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillforge.invalid/schemas/project-dna-1.0.0.json",
+  "title": "SkillForge Project DNA",
+  "description": "Structured project definition with provenance. Unknown and inferred values must remain explicit.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "fields"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "fixtureId": { "type": "string", "minLength": 1 },
+    "categoryKey": { "type": "string", "minLength": 1 },
+    "brief": { "type": "string", "minLength": 1 },
+    "fields": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "items": { "$ref": "#/$defs/field" }
+    }
+  },
+  "$defs": {
+    "fieldName": {
+      "type": "string",
+      "enum": [
+        "Vision",
+        "User",
+        "Problem",
+        "Market",
+        "Differentiation",
+        "Business Model",
+        "Core Features",
+        "User Flows",
+        "Technical Stack",
+        "Architecture",
+        "Success Metrics",
+        "Risk Analysis",
+        "Roadmap"
+      ]
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "status", "value", "source"],
+      "properties": {
+        "name": { "$ref": "#/$defs/fieldName" },
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "inferred", "unknown", "not_applicable"]
+        },
+        "value": { "type": ["string", "null"] },
+        "source": { "type": "string", "minLength": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "unknown" } } },
+          "then": { "properties": { "value": { "type": "null" } } }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": { "enum": ["confirmed", "inferred", "not_applicable"] }
+            }
+          },
+          "then": {
+            "properties": { "value": { "type": "string", "minLength": 1 } }
+          }
+        }
+      ]
+    }
+  }
+}

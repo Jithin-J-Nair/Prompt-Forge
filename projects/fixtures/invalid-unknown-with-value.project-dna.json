@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.0.0",
+  "fixtureId": "invalid-unknown-with-value",
+  "categoryKey": "ai-product",
+  "brief": "Invalid DNA fixture used only for negative schema tests",
+  "fields": [
+    {
+      "name": "Vision",
+      "status": "confirmed",
+      "value": "Invalid DNA fixture used only for negative schema tests",
+      "source": "user_brief"
+    },
+    {
+      "name": "User",
+      "status": "unknown",
+      "value": "Invented enterprise recruiter persona",
+      "source": "fabricated"
+    },
+    {
+      "name": "Problem",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "Market",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "Differentiation",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "Business Model",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "Core Features",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "User Flows",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "Technical Stack",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "Architecture",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "Success Metrics",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "Risk Analysis",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    },
+    {
+      "name": "Roadmap",
+      "status": "unknown",
+      "value": null,
+      "source": "unresolved"
+    }
+  ]
+}

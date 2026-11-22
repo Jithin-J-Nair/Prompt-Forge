@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "fixtureId": "ai-recruiting-platform",
+  "reviewStatus": "not_started",
+  "rubricVersion": "council-defaults-proposed-1.0.0",
+  "requiredReviewers": [
+    "Creative Director",
+    "Product Strategist",
+    "Systems Architect",
+    "Performance Engineer",
+    "Security Engineer",
+    "UX Architect",
+    "Accessibility Reviewer",
+    "Awwwards Reviewer"
+  ],
+  "assessments": [],
+  "unresolvedFindings": [],
+  "revisionRound": 0
+}
