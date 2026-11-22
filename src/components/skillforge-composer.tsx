@@ -184,14 +184,14 @@ export function SkillForgeComposer() {
 
   return (
     <div>
-      <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-ember/30 bg-ember/10 px-4 py-2 font-mono text-[11px] tracking-[0.18em] text-flare uppercase">
+      <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-ember/30 bg-ember/10 px-4 py-2 font-mono text-[11px] tracking-[0.18em] text-flare uppercase">
         <span className="size-1.5 rounded-full bg-ember" aria-hidden />
         SkillForge · ready compose
       </p>
-      <h1 className="max-w-4xl font-display text-5xl leading-[0.98] font-bold tracking-tight text-ivory md:text-7xl">
+      <h1 className="max-w-4xl font-display text-4xl leading-[0.98] font-bold tracking-tight text-ivory md:text-5xl">
         Compose <span className="text-gradient-ember">expertise</span> packages.
       </h1>
-      <p className="mt-6 max-w-2xl text-base leading-7 text-fog md:text-lg">
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-fog md:text-base">
         Pick a category, describe the intent, and SkillForge builds a skill graph, Project DNA,
         eleven blueprints, and a Review Council gate. Accepted packages are exportable instructions —
         never executable permissions.
@@ -203,9 +203,9 @@ export function SkillForgeComposer() {
           event.preventDefault();
           void compose();
         }}
-        className="mt-10 rounded-2xl border border-line bg-carbon/75 p-5 backdrop-blur md:p-8"
+        className="relative z-20 mt-6 rounded-2xl border border-line bg-carbon/75 p-5 backdrop-blur md:p-6"
       >
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <div>
             <label
               htmlFor="skillforge-category"
@@ -237,38 +237,45 @@ export function SkillForgeComposer() {
               id="skillforge-brief"
               value={brief}
               onChange={(event) => setBrief(event.target.value)}
+              onKeyDown={(event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                  event.preventDefault();
+                  void compose();
+                }
+              }}
               minLength={3}
               maxLength={400}
               required
-              rows={4}
+              rows={3}
               placeholder="Build an enterprise AI recruiting platform..."
               className="w-full resize-y rounded-lg border border-line bg-ink px-4 py-3 leading-6 text-ivory outline-none transition-colors placeholder:text-smoke focus:border-ember"
             />
             <div className="mt-2 flex justify-between font-mono text-[10px] text-smoke">
-              <span>3–400 characters</span>
+              <span>3–400 characters · Ctrl+Enter to compose</span>
               <span>{brief.length}/400</span>
             </div>
           </div>
-          <div className="flex flex-col justify-between gap-4 border-t border-line pt-5 sm:flex-row sm:items-center">
+          <div className="relative z-20 space-y-3 border-t border-line pt-4">
             <p className="inline-flex items-center gap-2 text-xs text-fog">
-              <LockKeyhole className="size-3.5 text-flare" aria-hidden />
+              <LockKeyhole className="pointer-events-none size-3.5 text-flare" aria-hidden />
               Deterministic compose · no external model call
             </p>
             <button
-              type="button"
+              type="submit"
               data-testid="skillforge-compose"
               aria-busy={busy}
               disabled={!canCompose}
-              onClick={() => void compose()}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-ember px-6 py-3 font-mono text-xs font-semibold tracking-[0.12em] text-ink uppercase transition-colors hover:bg-flare disabled:cursor-not-allowed disabled:opacity-50"
+              className="relative z-20 flex w-full items-center justify-center gap-2 rounded-xl bg-ember px-6 py-4 font-mono text-xs font-semibold tracking-[0.12em] text-ink uppercase transition-colors hover:bg-flare disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy ? (
                 <>
-                  Composing <LoaderCircle className="size-4 animate-spin" aria-hidden />
+                  Composing{" "}
+                  <LoaderCircle className="pointer-events-none size-4 animate-spin" aria-hidden />
                 </>
               ) : (
                 <>
-                  Compose package <ArrowRight className="size-4" aria-hidden />
+                  Compose package{" "}
+                  <ArrowRight className="pointer-events-none size-4" aria-hidden />
                 </>
               )}
             </button>

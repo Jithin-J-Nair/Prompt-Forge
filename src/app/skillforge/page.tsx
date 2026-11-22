@@ -13,7 +13,7 @@ export default function SkillForgePage() {
     <>
       <Atmosphere />
       <Nav />
-      <main className="relative z-10 min-h-screen px-6 pt-28 pb-20 md:px-10">
+      <main className="relative z-10 min-h-screen px-6 pt-24 pb-20 md:px-10">
         <div className="mx-auto max-w-[1120px]">
           <SkillForgeComposer />
         </div>
