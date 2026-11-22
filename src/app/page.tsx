@@ -3,9 +3,9 @@ import { Nav, Footer, Atmosphere } from "@/components/chrome";
 import { HomeView } from "@/components/home-view";
 
 export const metadata: Metadata = {
-  title: "PromptForge — Turn one lazy sentence into a god-tier website spec",
+  title: "PromptForge — AI expertise OS powered by SkillForge",
   description:
-    "The website prompt enhancement engine. Type “make a website for a gym” — receive a 2,000-word production blueprint: brand identity, design tokens, page-by-page UX, components, motion score, SEO and backend schema.",
+    "Turn one project idea into a reviewed skill graph, Project DNA, eleven blueprints, and an agent handoff pack. Elite specialist thinking for AI agents and human teams.",
 };
 
 export default function HomePage() {

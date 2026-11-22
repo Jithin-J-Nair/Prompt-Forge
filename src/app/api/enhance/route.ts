@@ -25,21 +25,31 @@ export async function POST(req: Request) {
 
     const spec = enhancePrompt(prompt);
 
-    const [row] = await db
-      .insert(prompts)
-      .values({
-        rawPrompt: spec.rawPrompt,
-        title: spec.title,
-        industry: spec.industry,
-        industryId: spec.industryId,
-        brandName: spec.brand.name,
-        spec: spec as unknown as Record<string, unknown>,
-        megaPrompt: spec.megaPrompt,
-        wordCount: spec.stats.words,
-      })
-      .returning({ id: prompts.id, createdAt: prompts.createdAt });
+    try {
+      const [row] = await db
+        .insert(prompts)
+        .values({
+          rawPrompt: spec.rawPrompt,
+          title: spec.title,
+          industry: spec.industry,
+          industryId: spec.industryId,
+          brandName: spec.brand.name,
+          spec: spec as unknown as Record<string, unknown>,
+          megaPrompt: spec.megaPrompt,
+          wordCount: spec.stats.words,
+        })
+        .returning({ id: prompts.id, createdAt: prompts.createdAt });
 
-    return NextResponse.json({ id: row.id, createdAt: row.createdAt, spec });
+      return NextResponse.json({ id: row.id, createdAt: row.createdAt, spec });
+    } catch (persistError) {
+      console.error("enhance persist failed; returning ephemeral spec", persistError);
+      return NextResponse.json({
+        id: null,
+        createdAt: new Date().toISOString(),
+        ephemeral: true,
+        spec,
+      });
+    }
   } catch (err) {
     console.error("enhance failed", err);
     return NextResponse.json(
