@@ -19,9 +19,7 @@
   ],
   "presentArtifacts": [
     "MASTER_SKILL_PACKAGE.md",
-    "PROJECT_DNA.md"
-  ],
-  "missingArtifacts": [
+    "PROJECT_DNA.md",
     "PRODUCT_STRATEGY.md",
     "DESIGN_SYSTEM.md",
     "ARCHITECTURE.md",
@@ -32,12 +30,13 @@
     "QUALITY_CHECKLIST.md",
     "LAUNCH_PLAN.md"
   ],
+  "missingArtifacts": [],
   "reviewStatus": "not_started",
   "graphHash": "e6561ff926cc052bd546c534034f104a941f994d933204d796837f9bd3ba842f",
   "limitations": [
     "Only Tier 1 Core Thinking skills are included in this pilot catalog.",
+    "All eleven canonical artifacts are draft shells; unknown Project DNA fields stay unknown.",
     "The Review Council has not run; this preview is not accepted.",
-    "Nine required blueprint artifacts are not generated.",
     "The preview is not persisted and is not an agent execution handoff."
   ]
 }
