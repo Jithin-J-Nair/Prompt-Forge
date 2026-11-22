@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
   "fixtureId": "ai-recruiting-platform",
-  "catalogVersion": "core-thinking-preview-1.0.0",
+  "catalogVersion": "skillforge-catalog-1.1.0",
   "categoryKey": "ai-product",
   "brief": "Build an enterprise AI recruiting platform",
-  "graphHash": "e6561ff926cc052bd546c534034f104a941f994d933204d796837f9bd3ba842f",
+  "graphHash": "b5115d6ccb27817adee3a34f4552aad870f8d517c0f82f49ddda43e85efefcf0",
   "nodes": [
     {
       "nodeKey": "product-strategist",
@@ -21,6 +21,20 @@
       "rationale": "Frames the user problem before downstream decisions."
     },
     {
+      "nodeKey": "ai-product-manager",
+      "skillVersion": "ai-product-manager@1.0.0",
+      "name": "AI Product Manager",
+      "role": "AI Product Manager",
+      "tier": 2,
+      "priority": "P0",
+      "assignedScope": [
+        "ai-outcome-framing",
+        "model-use-policy",
+        "eval-gates"
+      ],
+      "rationale": "Shapes AI product outcomes, eval gates, and model-use boundaries."
+    },
+    {
       "nodeKey": "systems-thinker",
       "skillVersion": "systems-thinker@1.0.0",
       "name": "Systems Thinker",
@@ -33,6 +47,34 @@
         "risk-framing"
       ],
       "rationale": "Surfaces boundaries and risks before solution design."
+    },
+    {
+      "nodeKey": "agent-architect",
+      "skillVersion": "agent-architect@1.0.0",
+      "name": "Agent Architect",
+      "role": "Agent Architect",
+      "tier": 2,
+      "priority": "P0",
+      "assignedScope": [
+        "agent-roles",
+        "tool-boundaries",
+        "stop-conditions"
+      ],
+      "rationale": "Defines agent responsibilities, tools, and stop conditions."
+    },
+    {
+      "nodeKey": "backend-architect",
+      "skillVersion": "backend-architect@1.0.0",
+      "name": "Backend Architect",
+      "role": "Backend Architect",
+      "tier": 3,
+      "priority": "P1",
+      "assignedScope": [
+        "service-boundaries",
+        "reliability",
+        "domain-modeling"
+      ],
+      "rationale": "Owns services, reliability, and domain boundaries."
     },
     {
       "nodeKey": "business-analyst",
@@ -49,6 +91,34 @@
       "rationale": "Makes business assumptions and success measures explicit."
     },
     {
+      "nodeKey": "evaluation-engineer",
+      "skillVersion": "evaluation-engineer@1.0.0",
+      "name": "Evaluation Engineer",
+      "role": "Evaluation Engineer",
+      "tier": 2,
+      "priority": "P1",
+      "assignedScope": [
+        "eval-design",
+        "regression-harness",
+        "quality-thresholds"
+      ],
+      "rationale": "Defines measurable quality and regression checks."
+    },
+    {
+      "nodeKey": "prompt-engineer",
+      "skillVersion": "prompt-engineer@1.0.0",
+      "name": "Prompt Engineer",
+      "role": "Prompt Engineer",
+      "tier": 2,
+      "priority": "P1",
+      "assignedScope": [
+        "prompt-contracts",
+        "output-schemas",
+        "failure-handling"
+      ],
+      "rationale": "Specifies prompt contracts without granting authority."
+    },
+    {
       "nodeKey": "ux-architect",
       "skillVersion": "ux-architect@1.0.0",
       "name": "UX Architect",
@@ -61,9 +131,38 @@
         "accessibility-needs"
       ],
       "rationale": "Frames user goals and interaction questions before interface work."
+    },
+    {
+      "nodeKey": "frontend-architect",
+      "skillVersion": "frontend-architect@1.0.0",
+      "name": "Frontend Architect",
+      "role": "Frontend Architect",
+      "tier": 3,
+      "priority": "P1",
+      "assignedScope": [
+        "client-architecture",
+        "interaction-integrity",
+        "frontend-performance"
+      ],
+      "rationale": "Owns client architecture and interaction integrity."
     }
   ],
   "edges": [
+    {
+      "from": "ai-product-manager",
+      "to": "evaluation-engineer",
+      "type": "depends_on"
+    },
+    {
+      "from": "ai-product-manager",
+      "to": "prompt-engineer",
+      "type": "depends_on"
+    },
+    {
+      "from": "product-strategist",
+      "to": "ai-product-manager",
+      "type": "depends_on"
+    },
     {
       "from": "product-strategist",
       "to": "business-analyst",
@@ -77,6 +176,21 @@
     {
       "from": "product-strategist",
       "to": "ux-architect",
+      "type": "depends_on"
+    },
+    {
+      "from": "systems-thinker",
+      "to": "agent-architect",
+      "type": "depends_on"
+    },
+    {
+      "from": "systems-thinker",
+      "to": "backend-architect",
+      "type": "depends_on"
+    },
+    {
+      "from": "ux-architect",
+      "to": "frontend-architect",
       "type": "depends_on"
     }
   ]

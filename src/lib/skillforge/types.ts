@@ -1,3 +1,5 @@
+import type { ProjectCategoryKey } from "./categories.ts";
+
 export interface SkillPackage {
   schemaVersion: "1.0.0";
   identity: {
@@ -143,16 +145,17 @@ export interface CouncilFindingPreview {
 }
 
 export interface CompositionPreview {
-  categoryKey: "ai-product";
-  categoryLabel: "AI Product";
+  categoryKey: ProjectCategoryKey;
+  categoryLabel: string;
   brief: string;
-  previewStatus: "draft";
-  persistence: "not_persisted";
-  accepted: false;
+  previewStatus: "draft" | "accepted";
+  persistence: "not_persisted" | "persistable";
+  accepted: boolean;
   executionReady: false;
   graphHash: string;
   templateSetVersion: string;
   rubricVersion: string;
+  catalogVersion: string;
   graph: {
     nodes: SkillGraphNode[];
     edges: SkillGraphEdge[];
@@ -160,9 +163,10 @@ export interface CompositionPreview {
   projectDna: {
     fields: {
       name: ProjectDnaField;
-      status: "confirmed" | "unknown";
+      status: "confirmed" | "inferred" | "unknown" | "not_applicable";
       value: string | null;
-      source: "user_brief" | "unresolved";
+      source: string;
+      confidence?: number;
     }[];
   };
   artifactPreviews: {
@@ -171,11 +175,11 @@ export interface CompositionPreview {
     templateVersion: string;
   }[];
   missingArtifacts: BlueprintArtifactKey[];
-  reviewStatus: "blocked" | "failed";
+  reviewStatus: "blocked" | "failed" | "passed";
   requiredReviewers: (typeof REVIEW_COUNCIL_ROLES)[number][];
   council: {
     overallMean: number;
-    gatePassed: false;
+    gatePassed: boolean;
     gateReason: string;
     assessments: CouncilAssessmentPreview[];
     unresolvedFindings: CouncilFindingPreview[];
@@ -184,4 +188,5 @@ export interface CompositionPreview {
     nextActions: string[];
   };
   limitations: string[];
+  exportMarkdown: string;
 }

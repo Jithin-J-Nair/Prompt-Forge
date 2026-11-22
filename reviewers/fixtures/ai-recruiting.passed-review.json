@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "fixtureId": "ai-recruiting-platform",
+  "reviewStatus": "passed",
+  "rubricVersion": "council-defaults-proposed@1.0.0",
+  "requiredReviewers": [
+    "Creative Director",
+    "Product Strategist",
+    "Systems Architect",
+    "Performance Engineer",
+    "Security Engineer",
+    "UX Architect",
+    "Accessibility Reviewer",
+    "Awwwards Reviewer"
+  ],
+  "assessments": [
+    {
+      "reviewer": "Creative Director",
+      "score": 90,
+      "evidence": "Reviewed `DESIGN_SYSTEM.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "DESIGN_SYSTEM.md"
+    },
+    {
+      "reviewer": "Product Strategist",
+      "score": 90,
+      "evidence": "Reviewed `PRODUCT_STRATEGY.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "PRODUCT_STRATEGY.md"
+    },
+    {
+      "reviewer": "Systems Architect",
+      "score": 90,
+      "evidence": "Reviewed `ARCHITECTURE.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "ARCHITECTURE.md"
+    },
+    {
+      "reviewer": "Performance Engineer",
+      "score": 90,
+      "evidence": "Reviewed `ARCHITECTURE.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "ARCHITECTURE.md"
+    },
+    {
+      "reviewer": "Security Engineer",
+      "score": 96,
+      "evidence": "Reviewed `AGENT_EXECUTION_PACKAGE.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 96/100. Execution remains unauthorized; safe handoff boundary preserved.",
+      "artifactLogicalKey": "AGENT_EXECUTION_PACKAGE.md"
+    },
+    {
+      "reviewer": "UX Architect",
+      "score": 90,
+      "evidence": "Reviewed `USER_FLOWS.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "USER_FLOWS.md"
+    },
+    {
+      "reviewer": "Accessibility Reviewer",
+      "score": 90,
+      "evidence": "Reviewed `DESIGN_SYSTEM.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "DESIGN_SYSTEM.md"
+    },
+    {
+      "reviewer": "Awwwards Reviewer",
+      "score": 90,
+      "evidence": "Reviewed `DESIGN_SYSTEM.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "DESIGN_SYSTEM.md"
+    }
+  ],
+  "unresolvedFindings": [],
+  "revisionRound": 1
+}

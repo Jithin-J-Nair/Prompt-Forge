@@ -3,9 +3,9 @@ import { Atmosphere, Footer, Nav } from "@/components/chrome";
 import { SkillForgeComposer } from "@/components/skillforge-composer";
 
 export const metadata: Metadata = {
-  title: "SkillForge Preview — Compose AI expertise",
+  title: "SkillForge — Compose AI expertise packages",
   description:
-    "Preview a deterministic Tier 1 skill graph and draft Project DNA for an AI Product idea.",
+    "Turn project intent into a reviewed skill graph, Project DNA, and exportable blueprint package.",
 };
 
 export default function SkillForgePage() {

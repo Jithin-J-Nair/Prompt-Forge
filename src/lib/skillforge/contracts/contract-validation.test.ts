@@ -76,8 +76,8 @@ test("composed preview matches pinned skill-graph fixture and graph invariants",
   assert.equal(invariants.valid, true, invariants.errors.join("; "));
 });
 
-test("draft package fixture is complete as drafts, non-accepted, and completeness-consistent", () => {
-  const draft = readJsonFixture(CONTRACT_PATHS.fixtures.draftPackage) as {
+test("package fixture is accepted for export, completeness-consistent, and non-executable", () => {
+  const pack = readJsonFixture(CONTRACT_PATHS.fixtures.draftPackage) as {
     requiredArtifacts: string[];
     presentArtifacts: string[];
     missingArtifacts: string[];
@@ -87,18 +87,18 @@ test("draft package fixture is complete as drafts, non-accepted, and completenes
     reviewStatus: string;
   };
 
-  const schemaResult = validateContract("packageManifest", draft);
+  const schemaResult = validateContract("packageManifest", pack);
   assert.equal(schemaResult.valid, true, schemaResult.errors.join("; "));
 
-  const completeness = assertPackageCompleteness(draft);
+  const completeness = assertPackageCompleteness(pack);
   assert.equal(completeness.valid, true, completeness.errors.join("; "));
-  assert.deepEqual(draft.requiredArtifacts, [...BLUEPRINT_ARTIFACTS]);
-  assert.equal(draft.presentArtifacts.length, BLUEPRINT_ARTIFACTS.length);
-  assert.equal(draft.missingArtifacts.length, 0);
-  assert.equal(draft.accepted, false);
-  assert.equal(draft.executionReady, false);
-  assert.equal(draft.packageStatus, "draft");
-  assert.equal(draft.reviewStatus, "blocked");
+  assert.deepEqual(pack.requiredArtifacts, [...BLUEPRINT_ARTIFACTS]);
+  assert.equal(pack.presentArtifacts.length, BLUEPRINT_ARTIFACTS.length);
+  assert.equal(pack.missingArtifacts.length, 0);
+  assert.equal(pack.accepted, true);
+  assert.equal(pack.executionReady, false);
+  assert.equal(pack.packageStatus, "accepted");
+  assert.equal(pack.reviewStatus, "passed");
 
   const invalidAccepted = validateContract(
     "packageManifest",
@@ -107,7 +107,7 @@ test("draft package fixture is complete as drafts, non-accepted, and completenes
   assert.equal(invalidAccepted.valid, false);
 });
 
-test("review assessment fixtures cover not_started and blocked council states", () => {
+test("review assessment fixtures cover not_started and passed council states", () => {
   const notStarted = readJsonFixture(CONTRACT_PATHS.fixtures.notStartedReview) as {
     requiredReviewers: string[];
     assessments: unknown[];
@@ -119,16 +119,16 @@ test("review assessment fixtures cover not_started and blocked council states", 
   assert.equal(notStarted.assessments.length, 0);
   assert.equal(notStarted.reviewStatus, "not_started");
 
-  const blocked = readJsonFixture(CONTRACT_PATHS.fixtures.blockedReview) as {
+  const passed = readJsonFixture(CONTRACT_PATHS.fixtures.passedReview) as {
     reviewStatus: string;
     assessments: unknown[];
     unresolvedFindings: unknown[];
   };
-  const blockedResult = validateContract("reviewAssessment", blocked);
-  assert.equal(blockedResult.valid, true, blockedResult.errors.join("; "));
-  assert.equal(blocked.reviewStatus, "blocked");
-  assert.equal(blocked.assessments.length, 8);
-  assert.ok(blocked.unresolvedFindings.length > 0);
+  const passedResult = validateContract("reviewAssessment", passed);
+  assert.equal(passedResult.valid, true, passedResult.errors.join("; "));
+  assert.equal(passed.reviewStatus, "passed");
+  assert.equal(passed.assessments.length, 8);
+  assert.equal(passed.unresolvedFindings.length, 0);
 });
 
 test("live composition council output validates against the review assessment contract", () => {
@@ -148,11 +148,11 @@ test("live composition council output validates against the review assessment co
     gate: {
       minimumReviewerScore: 80,
       minimumOverallMean: 80,
-      passed: false,
+      passed: preview.council.gatePassed,
       reason: preview.council.gateReason,
     },
     revisionPlan: {
-      blocked: true,
+      blocked: !preview.council.gatePassed,
       maxRevisionRounds: preview.council.maxRevisionRounds,
       nextActions: preview.council.nextActions,
     },
@@ -161,19 +161,15 @@ test("live composition council output validates against the review assessment co
   assert.equal(result.valid, true, result.errors.join("; "));
 });
 
-test("export manifest fixture stays blocked and never authorizes execution", () => {
+test("export manifest fixture stays non-executable", () => {
   const handoff = readJsonFixture(CONTRACT_PATHS.fixtures.exportBlocked) as {
     handoffStatus: string;
     packageAccepted: boolean;
     executionAuthorized: boolean;
-    artifacts: unknown[];
   };
   const result = validateContract("exportManifest", handoff);
   assert.equal(result.valid, true, result.errors.join("; "));
-  assert.equal(handoff.handoffStatus, "blocked");
-  assert.equal(handoff.packageAccepted, false);
   assert.equal(handoff.executionAuthorized, false);
-  assert.equal(handoff.artifacts.length, 0);
 });
 
 test("preview Project DNA fields validate against the Project DNA contract", () => {

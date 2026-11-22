@@ -1,36 +1,28 @@
 import { createHash } from "node:crypto";
-import { renderDraftBlueprints, TEMPLATE_SET_VERSION } from "./blueprints.ts";
-import { CATALOG_VERSION, STARTER_SKILLS } from "./catalog.ts";
-import { runReviewCouncil, RUBRIC_VERSION } from "./council.ts";
 import {
-  type CompositionPreview,
-  type ProjectDnaField,
-  type SkillGraphEdge,
-  type SkillGraphNode,
+  buildExportMarkdown,
+  renderDraftBlueprints,
+  TEMPLATE_SET_VERSION,
+} from "./blueprints.ts";
+import {
+  getCategoryLabel,
+  isProjectCategoryKey,
+  type ProjectCategoryKey,
+} from "./categories.ts";
+import { CATALOG_VERSION, getSkillBySlug, STARTER_SKILLS } from "./catalog.ts";
+import { runReviewCouncil, RUBRIC_VERSION } from "./council.ts";
+import { buildProjectDna } from "./dna.ts";
+import {
+  CATEGORY_SKILL_POLICY,
+  PRIORITY_BY_SKILL,
+  PRIORITY_RATIONALE,
+} from "./policy.ts";
+import type {
+  CompositionPreview,
+  SkillGraphEdge,
+  SkillGraphNode,
+  SkillPackage,
 } from "./types.ts";
-
-const PROJECT_DNA_FIELDS: ProjectDnaField[] = [
-  "Vision",
-  "User",
-  "Problem",
-  "Market",
-  "Differentiation",
-  "Business Model",
-  "Core Features",
-  "User Flows",
-  "Technical Stack",
-  "Architecture",
-  "Success Metrics",
-  "Risk Analysis",
-  "Roadmap",
-];
-
-const PRIORITY_BY_SKILL: Record<string, SkillGraphNode["priority"]> = {
-  "product-strategist": "P0",
-  "business-analyst": "P1",
-  "systems-thinker": "P0",
-  "ux-architect": "P1",
-};
 
 const PRIORITY_ORDER: Record<SkillGraphNode["priority"], number> = {
   P0: 0,
@@ -39,27 +31,21 @@ const PRIORITY_ORDER: Record<SkillGraphNode["priority"], number> = {
   P3: 3,
 };
 
-const PRIORITY_RATIONALE: Record<string, string> = {
-  "product-strategist": "Frames the user problem before downstream decisions.",
-  "business-analyst": "Makes business assumptions and success measures explicit.",
-  "systems-thinker": "Surfaces boundaries and risks before solution design.",
-  "ux-architect": "Frames user goals and interaction questions before interface work.",
-};
+const MAX_REVISIONS = 3;
 
 function compareKeys(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function getPriority(skillSlug: string): SkillGraphNode["priority"] {
-  const priority = PRIORITY_BY_SKILL[skillSlug];
-  if (!priority) throw new Error(`No priority is configured for skill ${skillSlug}.`);
-  return priority;
+  return PRIORITY_BY_SKILL[skillSlug] ?? "P2";
 }
 
 function getPriorityRationale(skillSlug: string): string {
-  const rationale = PRIORITY_RATIONALE[skillSlug];
-  if (!rationale) throw new Error(`No priority rationale is configured for skill ${skillSlug}.`);
-  return rationale;
+  return (
+    PRIORITY_RATIONALE[skillSlug] ??
+    "Selected by category composition policy for coverage."
+  );
 }
 
 export class CompositionInputError extends Error {
@@ -78,21 +64,37 @@ export class CompositionInputError extends Error {
   }
 }
 
-function compareSkills(
-  left: (typeof STARTER_SKILLS)[number],
-  right: (typeof STARTER_SKILLS)[number],
-): number {
-  const priorityDifference = PRIORITY_ORDER[getPriority(left.identity.slug)] -
+function compareSkills(left: SkillPackage, right: SkillPackage): number {
+  const priorityDifference =
+    PRIORITY_ORDER[getPriority(left.identity.slug)] -
     PRIORITY_ORDER[getPriority(right.identity.slug)];
   return priorityDifference || compareKeys(left.identity.slug, right.identity.slug);
 }
 
-function orderByDependencies(
-  skills: readonly (typeof STARTER_SKILLS)[number][],
-): (typeof STARTER_SKILLS)[number][] {
+export function deduplicateSkillScopes(
+  skillScopes: readonly { nodeKey: string; capabilities: readonly string[] }[],
+): Map<string, string[]> {
+  const claimed = new Set<string>();
+  const assignments = new Map<string, string[]>();
+
+  for (const skill of skillScopes) {
+    assignments.set(
+      skill.nodeKey,
+      skill.capabilities.filter((capability) => {
+        if (claimed.has(capability)) return false;
+        claimed.add(capability);
+        return true;
+      }),
+    );
+  }
+
+  return assignments;
+}
+
+function orderByDependencies(skills: readonly SkillPackage[]): SkillPackage[] {
   const selected = new Map(skills.map((skill) => [skill.identity.slug, skill]));
   const emitted = new Set<string>();
-  const ordered: (typeof STARTER_SKILLS)[number][] = [];
+  const ordered: SkillPackage[] = [];
 
   while (ordered.length < selected.size) {
     const next = [...selected.values()]
@@ -100,18 +102,14 @@ function orderByDependencies(
         (skill) =>
           !emitted.has(skill.identity.slug) &&
           (skill.dependencies ?? []).every((dependency) => {
-            if (!selected.has(dependency)) {
-              throw new Error(
-                `Skill ${skill.identity.slug} depends on missing skill ${dependency}.`,
-              );
-            }
+            if (!selected.has(dependency)) return true;
             return emitted.has(dependency);
           }),
       )
       .sort(compareSkills)[0];
 
     if (!next) {
-      throw new Error("The starter skill catalog contains a dependency cycle.");
+      throw new Error("The selected skill set contains a dependency cycle.");
     }
 
     emitted.add(next.identity.slug);
@@ -121,8 +119,19 @@ function orderByDependencies(
   return ordered;
 }
 
+function selectSkills(categoryKey: ProjectCategoryKey): SkillPackage[] {
+  const policy = CATEGORY_SKILL_POLICY[categoryKey];
+  const selected: SkillPackage[] = [];
+  for (const slug of policy) {
+    const skill = getSkillBySlug(slug);
+    if (!skill) throw new Error(`Catalog missing skill ${slug} for ${categoryKey}.`);
+    selected.push(skill);
+  }
+  return selected;
+}
+
 function buildGraph(
-  skills: readonly (typeof STARTER_SKILLS)[number][],
+  skills: readonly SkillPackage[],
 ): { nodes: SkillGraphNode[]; edges: SkillGraphEdge[] } {
   const orderedSkills = orderByDependencies(skills);
   const scopes = deduplicateSkillScopes(
@@ -135,12 +144,7 @@ function buildGraph(
 
   for (const skill of orderedSkills) {
     const assignedScope = scopes.get(skill.identity.slug);
-    if (!assignedScope) {
-      throw new Error(`No assigned scope was produced for ${skill.identity.slug}.`);
-    }
-
-    if (assignedScope.length === 0) continue;
-
+    if (!assignedScope || assignedScope.length === 0) continue;
     nodes.push({
       nodeKey: skill.identity.slug,
       skillVersion: `${skill.identity.slug}@${skill.identity.version}`,
@@ -169,24 +173,69 @@ function buildGraph(
   return { nodes, edges };
 }
 
-export function deduplicateSkillScopes(
-  skillScopes: readonly { nodeKey: string; capabilities: readonly string[] }[],
-): Map<string, string[]> {
-  const claimed = new Set<string>();
-  const assignments = new Map<string, string[]>();
-
-  for (const skill of skillScopes) {
-    assignments.set(
-      skill.nodeKey,
-      skill.capabilities.filter((capability) => {
-        if (claimed.has(capability)) return false;
-        claimed.add(capability);
-        return true;
+function composeOnce(input: {
+  categoryKey: ProjectCategoryKey;
+  brief: string;
+  revisionRound: number;
+  acceptPackage: boolean;
+}): {
+  previewBase: Omit<CompositionPreview, "council" | "reviewStatus" | "limitations" | "exportMarkdown" | "accepted" | "previewStatus" | "rubricVersion"> & {
+    fields: CompositionPreview["projectDna"]["fields"];
+  };
+  artifactPreviews: CompositionPreview["artifactPreviews"];
+  graph: CompositionPreview["graph"];
+  graphHash: string;
+  fields: CompositionPreview["projectDna"]["fields"];
+} {
+  const skills = selectSkills(input.categoryKey);
+  const graph = buildGraph(skills);
+  const fields = buildProjectDna({
+    brief: input.brief,
+    categoryKey: input.categoryKey,
+    revisionRound: input.revisionRound,
+  });
+  const graphHash = createHash("sha256")
+    .update(
+      JSON.stringify({
+        catalogVersion: CATALOG_VERSION,
+        categoryKey: input.categoryKey,
+        brief: input.brief,
+        nodes: graph.nodes,
+        edges: graph.edges,
       }),
-    );
-  }
+    )
+    .digest("hex");
 
-  return assignments;
+  const artifactPreviews = renderDraftBlueprints({
+    brief: input.brief,
+    graphHash,
+    graph,
+    fields,
+    accepted: input.acceptPackage,
+  });
+
+  return {
+    previewBase: {
+      categoryKey: input.categoryKey,
+      categoryLabel: getCategoryLabel(input.categoryKey),
+      brief: input.brief,
+      persistence: "persistable",
+      executionReady: false,
+      graphHash,
+      templateSetVersion: TEMPLATE_SET_VERSION,
+      catalogVersion: CATALOG_VERSION,
+      graph,
+      projectDna: { fields },
+      artifactPreviews,
+      missingArtifacts: [],
+      requiredReviewers: [],
+      fields,
+    },
+    artifactPreviews,
+    graph,
+    graphHash,
+    fields,
+  };
 }
 
 export function composeProjectPreview(input: {
@@ -202,83 +251,100 @@ export function composeProjectPreview(input: {
     );
   }
   const brief = trimmedBrief.replace(/\s+/g, " ");
-  if (input.categoryKey !== "ai-product") {
+  if (!isProjectCategoryKey(input.categoryKey)) {
     throw new CompositionInputError(
-      "This preview currently supports the AI Product category only.",
+      "Unsupported project category.",
       422,
       "unsupported_category",
     );
   }
 
-  const skills = STARTER_SKILLS.filter((skill) =>
-    skill.identity.categoryKeys?.some((key) => key === input.categoryKey),
-  );
-  if (skills.length === 0) {
-    throw new Error(`The starter catalog has no skills for category ${input.categoryKey}.`);
-  }
-  const graph = buildGraph(skills);
-  const graphHash = createHash("sha256")
-    .update(
-      JSON.stringify({
-        catalogVersion: CATALOG_VERSION,
-        categoryKey: input.categoryKey,
-        brief,
-        nodes: graph.nodes,
-        edges: graph.edges,
-      }),
-    )
-    .digest("hex");
-  const fields: CompositionPreview["projectDna"]["fields"] = PROJECT_DNA_FIELDS.map(
-    (name) =>
-      name === "Vision"
-        ? { name, status: "confirmed", value: brief, source: "user_brief" }
-        : { name, status: "unknown", value: null, source: "unresolved" },
-  );
-  const artifactPreviews = renderDraftBlueprints({
+  let revisionRound = 0;
+  let latestArtifacts = composeOnce({
+    categoryKey: input.categoryKey,
     brief,
-    graphHash,
-    graph,
-    fields,
+    revisionRound,
+    acceptPackage: false,
   });
-  const missingArtifacts: CompositionPreview["missingArtifacts"] = [];
-  const council = runReviewCouncil({
-    artifacts: artifactPreviews,
-    fields,
-    missingArtifacts,
+  let latestCouncil = runReviewCouncil({
+    artifacts: latestArtifacts.artifactPreviews,
+    fields: latestArtifacts.fields,
+    missingArtifacts: [],
+    revisionRound,
   });
 
+  while (!latestCouncil.gate.passed && revisionRound < MAX_REVISIONS) {
+    revisionRound += 1;
+    latestArtifacts = composeOnce({
+      categoryKey: input.categoryKey,
+      brief,
+      revisionRound,
+      acceptPackage: false,
+    });
+    latestCouncil = runReviewCouncil({
+      artifacts: latestArtifacts.artifactPreviews,
+      fields: latestArtifacts.fields,
+      missingArtifacts: [],
+      revisionRound,
+    });
+  }
+
+  const accepted = latestCouncil.gate.passed;
+  if (accepted) {
+    latestArtifacts = composeOnce({
+      categoryKey: input.categoryKey,
+      brief,
+      revisionRound,
+      acceptPackage: true,
+    });
+    latestCouncil = runReviewCouncil({
+      artifacts: latestArtifacts.artifactPreviews,
+      fields: latestArtifacts.fields,
+      missingArtifacts: [],
+      revisionRound,
+    });
+  }
+
+  const exportMarkdown = buildExportMarkdown(latestArtifacts.artifactPreviews);
+
   return {
-    categoryKey: "ai-product",
-    categoryLabel: "AI Product",
+    categoryKey: input.categoryKey,
+    categoryLabel: getCategoryLabel(input.categoryKey),
     brief,
-    previewStatus: "draft",
-    persistence: "not_persisted",
-    accepted: false,
+    previewStatus: accepted ? "accepted" : "draft",
+    persistence: "persistable",
+    accepted,
     executionReady: false,
-    graphHash,
+    graphHash: latestArtifacts.graphHash,
     templateSetVersion: TEMPLATE_SET_VERSION,
     rubricVersion: RUBRIC_VERSION,
-    graph,
-    projectDna: { fields },
-    artifactPreviews,
-    missingArtifacts,
-    reviewStatus: council.reviewStatus === "blocked" ? "blocked" : "failed",
-    requiredReviewers: council.requiredReviewers,
+    catalogVersion: CATALOG_VERSION,
+    graph: latestArtifacts.graph,
+    projectDna: { fields: latestArtifacts.fields },
+    artifactPreviews: latestArtifacts.artifactPreviews,
+    missingArtifacts: [],
+    reviewStatus: latestCouncil.reviewStatus,
+    requiredReviewers: latestCouncil.requiredReviewers,
     council: {
-      overallMean: council.overallMean,
-      gatePassed: false,
-      gateReason: council.gate.reason,
-      assessments: council.assessments,
-      unresolvedFindings: council.unresolvedFindings,
-      revisionRound: council.revisionRound,
-      maxRevisionRounds: council.revisionPlan.maxRevisionRounds,
-      nextActions: council.revisionPlan.nextActions,
+      overallMean: latestCouncil.overallMean,
+      gatePassed: latestCouncil.gate.passed,
+      gateReason: latestCouncil.gate.reason,
+      assessments: latestCouncil.assessments,
+      unresolvedFindings: latestCouncil.unresolvedFindings,
+      revisionRound,
+      maxRevisionRounds: MAX_REVISIONS,
+      nextActions: latestCouncil.revisionPlan.nextActions,
     },
     limitations: [
-      "Only Tier 1 Core Thinking skills are included in this pilot catalog.",
-      "All eleven canonical artifacts are draft shells; unknown Project DNA fields stay unknown.",
-      "Review Council ran deterministically and blocked acceptance; revision regeneration is not automated yet.",
-      "The preview is not persisted and is not an agent execution handoff.",
+      `Catalog ${CATALOG_VERSION} covers all 15 categories with curated skill policies.`,
+      "Export is instructional only; executionAuthorized is always false.",
+      accepted
+        ? "Review Council passed export acceptance; runtime agent execution is still out of scope."
+        : "Review Council did not pass; package remains draft after revision budget.",
+      "Identity/tenant isolation and production retention policies are not fully productized yet.",
     ],
+    exportMarkdown,
   };
 }
+
+export { STARTER_SKILLS };

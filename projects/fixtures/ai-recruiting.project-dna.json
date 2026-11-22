@@ -12,75 +12,87 @@
     },
     {
       "name": "User",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "Enterprise buyers and operators",
+      "source": "brief_heuristic",
+      "confidence": 0.62
     },
     {
       "name": "Problem",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "Recruiting workflows are slow, manual, or inconsistent",
+      "source": "brief_heuristic",
+      "confidence": 0.58
     },
     {
       "name": "Market",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "B2B / enterprise",
+      "source": "brief_heuristic",
+      "confidence": 0.55
     },
     {
       "name": "Differentiation",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "Category-specialized expertise graph for ai-product with evidence-backed review gates",
+      "source": "revision_enrichment",
+      "confidence": 0.6
     },
     {
       "name": "Business Model",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "B2B subscription or seat-based licensing (hypothesis)",
+      "source": "brief_heuristic",
+      "confidence": 0.5
     },
     {
       "name": "Core Features",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "candidate sourcing/screening",
+      "source": "brief_heuristic",
+      "confidence": 0.6
     },
     {
       "name": "User Flows",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "1) Enterprise buyers and operators states intent 2) system composes expertise package 3) Review Council gates acceptance 4) export/handoff for ai product",
+      "source": "category_policy",
+      "confidence": 0.55
     },
     {
       "name": "Technical Stack",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "TypeScript/Next.js application layer; model/provider adapter boundary; evaluation harness; PostgreSQL for transactional state",
+      "source": "category_policy",
+      "confidence": 0.57
     },
     {
       "name": "Architecture",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "Modular monolith with clear domain boundaries for ai product; stack assumptions: TypeScript/Next.js application layer; model/provider adapter boundary; evaluation harness; PostgreSQL for transactional state",
+      "source": "category_policy",
+      "confidence": 0.56
     },
     {
       "name": "Success Metrics",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "Time-to-qualified-candidate; reviewer acceptance rate (targets unknown)",
+      "source": "category_policy",
+      "confidence": 0.54
     },
     {
       "name": "Risk Analysis",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "Unresolved DNA assumptions treated as facts; Unsafe agent execution permissions; Hallucinated recommendations without evidence",
+      "source": "category_policy",
+      "confidence": 0.54
     },
     {
       "name": "Roadmap",
-      "status": "unknown",
-      "value": null,
-      "source": "unresolved"
+      "status": "inferred",
+      "value": "Discovery → validated DNA → accepted package → external-agent handoff",
+      "source": "composition_policy",
+      "confidence": 0.52
     }
   ]
 }
