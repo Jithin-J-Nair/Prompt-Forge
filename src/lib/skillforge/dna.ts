@@ -62,6 +62,7 @@ export function buildProjectDna(input: {
       /\bfor\s+([^.!?]{3,80})/i,
       /\bserving\s+([^.!?]{3,80})/i,
       /\baimed at\s+([^.!?]{3,80})/i,
+      /\bhelping\s+([^.!?]{3,80})/i,
     ]) ??
     (/\benterprise\b/i.test(brief)
       ? "Enterprise buyers and operators"
@@ -69,7 +70,9 @@ export function buildProjectDna(input: {
         ? "End customers"
         : /\bteams|internal\b/i.test(brief)
           ? "Internal teams"
-          : null);
+          : /\brecruit|hiring|talent\b/i.test(brief)
+            ? "Recruiters, hiring managers, and candidates"
+            : getUserFallback(input.categoryKey));
 
   const problem =
     match(brief, [
@@ -115,7 +118,7 @@ export function buildProjectDna(input: {
   const differentiation =
     round >= 1
       ? `Category-specialized expertise graph for ${input.categoryKey} with evidence-backed review gates`
-      : null;
+      : `Specialized ${input.categoryKey.replace(/-/g, " ")} package with Review Council acceptance gates (hypothesis)`;
 
   const fields: DnaFieldRecord[] = [
     {
@@ -124,14 +127,22 @@ export function buildProjectDna(input: {
       value: brief,
       source: "user_brief",
     },
-    user
-      ? inferred("User", user, "brief_heuristic", 0.62)
-      : unknown("User"),
+    inferred(
+      "User",
+      user,
+      /\bfor\s+|\bserving\s+|\baimed at\s+|\bhelping\s+/i.test(brief)
+        ? "brief_heuristic"
+        : "category_fallback",
+      /\bfor\s+|\bserving\s+|\baimed at\s+|\bhelping\s+/i.test(brief) ? 0.72 : 0.55,
+    ),
     inferred("Problem", problem, "brief_heuristic", 0.58),
     inferred("Market", market, "brief_heuristic", 0.55),
-    differentiation
-      ? inferred("Differentiation", differentiation, "revision_enrichment", 0.6)
-      : unknown("Differentiation"),
+    inferred(
+      "Differentiation",
+      differentiation,
+      round >= 1 ? "revision_enrichment" : "category_fallback",
+      round >= 1 ? 0.6 : 0.52,
+    ),
     inferred("Business Model", businessModel, "brief_heuristic", 0.5),
     inferred("Core Features", features, "brief_heuristic", 0.6),
     inferred("User Flows", flows, "category_policy", 0.55),
@@ -154,6 +165,37 @@ function getMarketFallback(category: ProjectCategoryKey): string {
   if (category.includes("saas") || category.includes("ai")) return "Product-led or sales-assisted B2B";
   if (category.includes("commerce") || category.includes("marketplace")) return "Transactional marketplace or retail";
   return "Category market segment not fully specified";
+}
+
+function getUserFallback(category: ProjectCategoryKey): string {
+  switch (category) {
+    case "ai-product":
+    case "ai-agent":
+    case "rag-platform":
+      return "Operators and end users of the AI product";
+    case "saas":
+    case "startup-mvp":
+      return "Paying teams, admins, and end users";
+    case "enterprise-platform":
+    case "internal-tool":
+      return "Internal operators and business stakeholders";
+    case "e-commerce":
+      return "Shoppers and store operators";
+    case "marketplace":
+      return "Supply-side and demand-side participants";
+    case "mobile-app":
+      return "Mobile end users";
+    case "awwwards-website":
+    case "threejs-experience":
+    case "web-application":
+      return "Site visitors and content stakeholders";
+    case "analytics-platform":
+      return "Analysts and decision-makers";
+    case "automation-system":
+      return "Operators who configure and monitor automations";
+    default:
+      return "Primary users of the stated product intent";
+  }
 }
 
 function buildFeatureList(lower: string, category: ProjectCategoryKey): string {

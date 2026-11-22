@@ -358,7 +358,7 @@ export function runReviewCouncil(input: {
       passed,
       reason: passed
         ? "Review Council passed export acceptance gates. Execution remains unauthorized."
-        : "Review Council blocked acceptance: unresolved findings or score thresholds remain.",
+        : buildBlockedReason(unresolvedFindings, overallMean, assessments),
     },
     revisionPlan: {
       blocked: !passed,
@@ -366,6 +366,31 @@ export function runReviewCouncil(input: {
       nextActions,
     },
   };
+}
+
+function buildBlockedReason(
+  findings: readonly CouncilFinding[],
+  overallMean: number,
+  assessments: readonly CouncilAssessment[],
+): string {
+  const actionable = findings.find(
+    (finding) =>
+      finding.severity === "critical" ||
+      finding.severity === "high" ||
+      finding.severity === "medium",
+  );
+  const weakest = [...assessments].sort((a, b) => a.score - b.score)[0];
+  const parts = [
+    "Review Council blocked acceptance.",
+    actionable ? actionable.summary : `Overall mean ${overallMean}/100.`,
+  ];
+  if (weakest && weakest.score < councilRubric.gates.minimumReviewerScore) {
+    parts.push(
+      `Weakest reviewer: ${weakest.reviewer} at ${weakest.score}/100 (need ${councilRubric.gates.minimumReviewerScore}).`,
+    );
+  }
+  parts.push("Add a clearer user/problem in the brief, then compose again.");
+  return parts.join(" ");
 }
 
 export function toReviewAssessmentDocument(
