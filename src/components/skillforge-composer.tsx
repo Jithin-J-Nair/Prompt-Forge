@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import {
   ArrowRight,
   Download,
@@ -52,15 +52,52 @@ type SavedPackage = {
   preview: CompositionPreview;
 };
 
+const EMPTY_SAVED: SavedPackage[] = [];
+
 function loadSaved(): SavedPackage[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
+    if (!raw) return EMPTY_SAVED;
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as SavedPackage[]) : [];
+    return Array.isArray(parsed) ? (parsed as SavedPackage[]) : EMPTY_SAVED;
   } catch {
-    return [];
+    return EMPTY_SAVED;
   }
+}
+
+let savedCacheRaw: string | null | undefined;
+let savedCache: SavedPackage[] = EMPTY_SAVED;
+
+function readSavedSnapshot(): SavedPackage[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw === savedCacheRaw) return savedCache;
+    savedCacheRaw = raw;
+    savedCache = loadSaved();
+    return savedCache;
+  } catch {
+    return EMPTY_SAVED;
+  }
+}
+
+function subscribeSaved(onStoreChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === null || event.key === STORAGE_KEY) onStoreChange();
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener("skillforge-saved", onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener("skillforge-saved", onStoreChange);
+  };
+}
+
+function writeSaved(next: SavedPackage[]) {
+  const raw = JSON.stringify(next);
+  localStorage.setItem(STORAGE_KEY, raw);
+  savedCacheRaw = raw;
+  savedCache = next;
+  window.dispatchEvent(new Event("skillforge-saved"));
 }
 
 export function SkillForgeComposer() {
@@ -69,23 +106,27 @@ export function SkillForgeComposer() {
   const [preview, setPreview] = useState<CompositionPreview | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [saved, setSaved] = useState<SavedPackage[]>(() =>
-    typeof window === "undefined" ? [] : loadSaved(),
-  );
   const [notice, setNotice] = useState("");
+  const resultsRef = useRef<HTMLElement | null>(null);
+  const saved = useSyncExternalStore(subscribeSaved, readSavedSnapshot, () => EMPTY_SAVED);
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function compose() {
+    if (busy) return;
+    const trimmed = brief.trim();
+    if (trimmed.length < 3 || brief.length > 400) {
+      setError("Project intent must be 3–400 characters.");
+      return;
+    }
+
     setError("");
     setNotice("");
-    setPreview(null);
     setBusy(true);
 
     try {
       const response = await fetch("/api/skillforge/compose", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ categoryKey, brief }),
+        body: JSON.stringify({ categoryKey, brief: trimmed }),
       });
       const result: unknown = await response.json();
       if (!response.ok) {
@@ -97,6 +138,14 @@ export function SkillForgeComposer() {
         return;
       }
       setPreview(result);
+      setNotice(
+        result.accepted
+          ? "Package accepted — review the skill graph, DNA, and artifacts below."
+          : "Draft composed — council blocked export until findings are resolved.",
+      );
+      queueMicrotask(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     } catch {
       setError("Could not reach SkillForge. Try again.");
     } finally {
@@ -127,31 +176,36 @@ export function SkillForgeComposer() {
       preview,
     };
     const next = [entry, ...loadSaved()].slice(0, 20);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setSaved(next);
+    writeSaved(next);
     setNotice("Saved in this browser.");
   }
 
+  const canCompose = !busy && brief.trim().length >= 3 && brief.length <= 400;
+
   return (
     <div>
-      <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-ember/30 bg-ember/10 px-4 py-2 font-mono text-[11px] tracking-[0.18em] text-flare uppercase">
+      <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-ember/30 bg-ember/10 px-4 py-2 font-mono text-[11px] tracking-[0.18em] text-flare uppercase">
         <span className="size-1.5 rounded-full bg-ember" aria-hidden />
         SkillForge · ready compose
       </p>
-      <h1 className="max-w-4xl font-display text-5xl leading-[0.98] font-bold tracking-tight text-ivory md:text-7xl">
+      <h1 className="max-w-4xl font-display text-4xl leading-[0.98] font-bold tracking-tight text-ivory md:text-5xl">
         Compose <span className="text-gradient-ember">expertise</span> packages.
       </h1>
-      <p className="mt-6 max-w-2xl text-base leading-7 text-fog md:text-lg">
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-fog md:text-base">
         Pick a category, describe the intent, and SkillForge builds a skill graph, Project DNA,
         eleven blueprints, and a Review Council gate. Accepted packages are exportable instructions —
         never executable permissions.
       </p>
 
       <form
-        onSubmit={submit}
-        className="mt-10 rounded-2xl border border-line bg-carbon/75 p-5 backdrop-blur md:p-8"
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          void compose();
+        }}
+        className="relative z-20 mt-6 rounded-2xl border border-line bg-carbon/75 p-5 backdrop-blur md:p-6"
       >
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <div>
             <label
               htmlFor="skillforge-category"
@@ -183,35 +237,45 @@ export function SkillForgeComposer() {
               id="skillforge-brief"
               value={brief}
               onChange={(event) => setBrief(event.target.value)}
+              onKeyDown={(event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                  event.preventDefault();
+                  void compose();
+                }
+              }}
               minLength={3}
               maxLength={400}
               required
-              rows={4}
+              rows={3}
               placeholder="Build an enterprise AI recruiting platform..."
               className="w-full resize-y rounded-lg border border-line bg-ink px-4 py-3 leading-6 text-ivory outline-none transition-colors placeholder:text-smoke focus:border-ember"
             />
             <div className="mt-2 flex justify-between font-mono text-[10px] text-smoke">
-              <span>3–400 characters</span>
+              <span>3–400 characters · Ctrl+Enter to compose</span>
               <span>{brief.length}/400</span>
             </div>
           </div>
-          <div className="flex flex-col justify-between gap-4 border-t border-line pt-5 sm:flex-row sm:items-center">
+          <div className="relative z-20 space-y-3 border-t border-line pt-4">
             <p className="inline-flex items-center gap-2 text-xs text-fog">
-              <LockKeyhole className="size-3.5 text-flare" aria-hidden />
+              <LockKeyhole className="pointer-events-none size-3.5 text-flare" aria-hidden />
               Deterministic compose · no external model call
             </p>
             <button
               type="submit"
-              disabled={busy || brief.trim().length < 3 || brief.length > 400}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-ember px-6 py-3 font-mono text-xs font-semibold tracking-[0.12em] text-ink uppercase transition-colors hover:bg-flare disabled:cursor-not-allowed disabled:opacity-50"
+              data-testid="skillforge-compose"
+              aria-busy={busy}
+              disabled={!canCompose}
+              className="relative z-20 flex w-full items-center justify-center gap-2 rounded-xl bg-ember px-6 py-4 font-mono text-xs font-semibold tracking-[0.12em] text-ink uppercase transition-colors hover:bg-flare disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy ? (
                 <>
-                  Composing <LoaderCircle className="size-4 animate-spin" aria-hidden />
+                  Composing{" "}
+                  <LoaderCircle className="pointer-events-none size-4 animate-spin" aria-hidden />
                 </>
               ) : (
                 <>
-                  Compose package <ArrowRight className="size-4" aria-hidden />
+                  Compose package{" "}
+                  <ArrowRight className="pointer-events-none size-4" aria-hidden />
                 </>
               )}
             </button>
@@ -229,7 +293,7 @@ export function SkillForgeComposer() {
       )}
 
       {preview && (
-        <section aria-live="polite" className="mt-10 space-y-6">
+        <section ref={resultsRef} aria-live="polite" className="mt-10 space-y-6">
           <div className="flex flex-col justify-between gap-4 rounded-xl border border-flare/30 bg-flare/5 p-5 sm:flex-row sm:items-center">
             <div>
               <p className="font-mono text-xs tracking-[0.14em] text-flare uppercase">
