@@ -24,6 +24,19 @@ test("threejs and gsap skills carry distilled modern craft (not generic stubs)",
   assert.match(three.provenance?.source ?? "", /distilled|v1\.4/);
 });
 
+test("licensed adaptations deepen PM/UX/security/context beyond template stubs", () => {
+  const product = getSkillBySlug("product-strategist");
+  const ux = getSkillBySlug("ux-architect");
+  const context = getSkillBySlug("context-engineer");
+  const security = getSkillBySlug("security-engineer-skill");
+  assert.ok(product && ux && context && security);
+  assert.ok(product.principles.some((p) => /trade-off|North Star|OMTM|defensib/i.test(p)));
+  assert.ok(ux.principles.some((p) => /44|contrast|keyboard|reduced-motion/i.test(p)));
+  assert.ok(context.principles.some((p) => /lost-in-the-middle|sub-agent|filesystem|tokens-per-task/i.test(p)));
+  assert.ok(security.principles.some((p) => /trust-boundary|needs-validation|live/i.test(p)));
+  assert.match(context.provenance?.source ?? "", /adapted|MIT|Apache|v1\.4\.1/);
+});
+
 test("every published skill has a merged depth patch", async () => {
   const { MERGED_SKILL_DEPTH } = await import("./skill-depth.ts");
   for (const skill of PUBLISHED_SKILLS) {

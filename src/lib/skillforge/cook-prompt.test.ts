@@ -8,7 +8,7 @@ import { buildAgentHandoffManifest, buildAgentHandoffMarkdown } from "./handoff.
 import { parseSkillDocument } from "./skill-ingest.ts";
 
 test("catalog bumped for god-level cook surface", () => {
-  assert.equal(CATALOG_VERSION, "skillforge-catalog-1.4.0");
+  assert.equal(CATALOG_VERSION, "skillforge-catalog-1.4.1");
 });
 
 test("COOK prompt is a single pasteable agent build brief", () => {

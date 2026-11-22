@@ -1,4 +1,4 @@
-# Published SkillForge skills (catalog v1.4.0)
+# Published SkillForge skills (catalog v1.4.1)
 
 Runtime source of truth: `src/lib/skillforge/catalog.ts` (+ depth, elite, reviewers).
 

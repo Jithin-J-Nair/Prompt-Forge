@@ -1,6 +1,23 @@
 # GitHub skill sources studied for distillation
 
-This document records **public GitHub repositories** reviewed during SkillForge depth distillation. Content in `DISTILLED_DEPTH` and `SKILL_DEPTH` is **original instructional expertise** composed for agents; it is **not** copied from these repos. Stars are approximate snapshots at research time (November 2026).
+This document records **public GitHub repositories** reviewed during SkillForge depth distillation. Content in `DISTILLED_DEPTH`, `LICENSED_DEPTH`, `WEBGL_DISTILLED_DEPTH`, and `SKILL_DEPTH` is **original instructional expertise** composed for agents; it is **not** copied from these repos. Stars are approximate snapshots at research time (November 2026).
+
+**License decisions for the 57-row user mapping:** see [`license-audit.md`](license-audit.md). **Attribution:** see [`NOTICE-third-party-skills.md`](NOTICE-third-party-skills.md).
+
+## Licensed adaptations (`LICENSED_DEPTH` — catalog v1.4.1)
+
+| SkillForge slug(s) | Source (license) | Stars (approx.) | Notes |
+| --- | --- | ---: | --- |
+| `product-strategist`, `business-analyst`, `b2b-saas-expert`, `product-reviewer` | [phuryn/pm-skills](https://github.com/phuryn/pm-skills) (MIT) | ~28k | Strategy canvas / PM craft → SkillForge fields |
+| `systems-thinker`, `qa-architect` | [obra/superpowers](https://github.com/obra/superpowers) (MIT) | ~324k | Approach gates, verification-before-completion |
+| `ux-architect`, `design-systems-architect`, `ux-reviewer` | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT) | ~153k | UX priority ladder, tokens, a11y-first |
+| `context-engineer`, `agent-architect`, `evaluation-engineer`, `prompt-injection-defender` | [muratcankoylan/Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT) | ~18k | Context envelopes, harness, evals |
+| `security-engineer-skill`, `security-reviewer`, `api-security-specialist`, `privacy-engineer` | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) (MIT) | ~77k | Trust-boundary findings, safe verification |
+| `brand-strategist`, `content-strategist`, `growth-designer`, `monetization-expert`, `retention-expert`, `plg-expert` | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) (MIT) | ~62k | Marketing skill themes adapted |
+| `accessibility-specialist`, `accessibility-reviewer` | [Community-Access/accessibility-agents](https://github.com/Community-Access/accessibility-agents) (MIT) + UX Pro Max a11y priority | ~0.5k / ~153k | POUR + immersive a11y |
+| `frontend-architect` (craft) | anthropics/skills `frontend-design` (**Apache-2.0** per-skill) | — | Repo license field NONE; per-skill LICENSE Apache |
+
+**Corrections vs user table:** WebGL roles use **CloudAI-X/threejs-skills** (MIT ~4.3k), not Jbmanllr (~1★). Context Engineer uses **Agent-Skills-for-Context-Engineering**, not the ~3★ `context-engineering` stub.
 
 ## WebGL / Three.js / rendering cluster
 
