@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
   "fixtureId": "ai-recruiting-platform",
-  "catalogVersion": "skillforge-catalog-1.3.1",
+  "catalogVersion": "skillforge-catalog-1.4.1",
   "categoryKey": "ai-product",
   "brief": "Build an enterprise AI recruiting platform",
-  "graphHash": "1f535dfcf945e6ffa73fdbb4178762b567732caa600163fb676c94032482caf3",
+  "graphHash": "0cdf5f10dab2f19955fa2ba31e637fb55c8fa3c6d9d65dcd001984ddea6214c9",
   "nodes": [
     {
       "nodeKey": "product-strategist",

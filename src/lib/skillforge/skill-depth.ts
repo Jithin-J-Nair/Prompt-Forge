@@ -1,4 +1,7 @@
 import type { SkillPackage } from "./types.ts";
+import { DISTILLED_DEPTH } from "./skill-depth-distilled.ts";
+import { LICENSED_DEPTH } from "./skill-depth-licensed.ts";
+import { WEBGL_DISTILLED_DEPTH } from "./skill-depth-webgl.ts";
 
 type DepthPatch = Partial<
   Pick<
@@ -1139,6 +1142,14 @@ export const SKILL_DEPTH: Record<string, DepthPatch> = {
   },
 };
 
+/** Base depth + domain distillation + licensed adaptations + WebGL (later maps win). */
+export const MERGED_SKILL_DEPTH: Record<string, DepthPatch> = {
+  ...SKILL_DEPTH,
+  ...DISTILLED_DEPTH,
+  ...LICENSED_DEPTH,
+  ...WEBGL_DISTILLED_DEPTH,
+};
+
 function isGeneric(skill: SkillPackage): boolean {
   return skill.principles.includes(GENERIC_PRINCIPLE) || skill.principles.length <= 3;
 }
@@ -1244,13 +1255,13 @@ function autoDeepen(skill: SkillPackage): SkillPackage {
     ],
     provenance: {
       ...skill.provenance,
-      source: skill.provenance?.source ?? "SkillForge published catalog v1.3.0",
+      source: skill.provenance?.source ?? "SkillForge published catalog v1.4.1",
     },
   };
 }
 
 export function deepenSkill(skill: SkillPackage): SkillPackage {
-  const patch = SKILL_DEPTH[skill.identity.slug];
+  const patch = MERGED_SKILL_DEPTH[skill.identity.slug];
   if (!patch) return autoDeepen(skill);
   return autoDeepen({
     ...skill,
@@ -1264,7 +1275,14 @@ export function deepenSkill(skill: SkillPackage): SkillPackage {
     },
     provenance: {
       ...skill.provenance,
-      source: "SkillForge published catalog v1.3.0 (depth)",
+      source:
+        WEBGL_DISTILLED_DEPTH[skill.identity.slug] != null
+          ? "SkillForge catalog v1.4.1 (distilled from GitHub skill research — not copied)"
+          : LICENSED_DEPTH[skill.identity.slug] != null
+            ? "SkillForge catalog v1.4.1 (adapted from MIT/Apache/CC0 skill sources — not pasted)"
+            : DISTILLED_DEPTH[skill.identity.slug] != null
+              ? "SkillForge catalog v1.4.1 (domain distillation)"
+              : "SkillForge published catalog v1.4.1 (depth)",
     },
   });
 }
