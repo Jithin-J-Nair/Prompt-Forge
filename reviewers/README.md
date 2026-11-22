@@ -5,4 +5,5 @@ The mandatory council is Creative Director, Product Strategist, Systems Architec
 Contract validation artifacts:
 
 - [`review-assessment.schema.json`](review-assessment.schema.json) — evidence-backed assessment contract.
-- [`fixtures/`](fixtures/) — not-started council fixture for the AI Product pilot.
+- [`council-rubric-1.0.0.json`](council-rubric-1.0.0.json) — published deterministic council rubric defaults.
+- [`fixtures/`](fixtures/) — not-started and blocked council fixtures for the AI Product pilot.

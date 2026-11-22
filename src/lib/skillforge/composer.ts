@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { renderDraftBlueprints, TEMPLATE_SET_VERSION } from "./blueprints.ts";
 import { CATALOG_VERSION, STARTER_SKILLS } from "./catalog.ts";
+import { runReviewCouncil, RUBRIC_VERSION } from "./council.ts";
 import {
-  REVIEW_COUNCIL_ROLES,
   type CompositionPreview,
   type ProjectDnaField,
   type SkillGraphEdge,
@@ -240,6 +240,12 @@ export function composeProjectPreview(input: {
     graph,
     fields,
   });
+  const missingArtifacts: CompositionPreview["missingArtifacts"] = [];
+  const council = runReviewCouncil({
+    artifacts: artifactPreviews,
+    fields,
+    missingArtifacts,
+  });
 
   return {
     categoryKey: "ai-product",
@@ -251,16 +257,27 @@ export function composeProjectPreview(input: {
     executionReady: false,
     graphHash,
     templateSetVersion: TEMPLATE_SET_VERSION,
+    rubricVersion: RUBRIC_VERSION,
     graph,
     projectDna: { fields },
     artifactPreviews,
-    missingArtifacts: [],
-    reviewStatus: "not_started",
-    requiredReviewers: [...REVIEW_COUNCIL_ROLES],
+    missingArtifacts,
+    reviewStatus: council.reviewStatus === "blocked" ? "blocked" : "failed",
+    requiredReviewers: council.requiredReviewers,
+    council: {
+      overallMean: council.overallMean,
+      gatePassed: false,
+      gateReason: council.gate.reason,
+      assessments: council.assessments,
+      unresolvedFindings: council.unresolvedFindings,
+      revisionRound: council.revisionRound,
+      maxRevisionRounds: council.revisionPlan.maxRevisionRounds,
+      nextActions: council.revisionPlan.nextActions,
+    },
     limitations: [
       "Only Tier 1 Core Thinking skills are included in this pilot catalog.",
       "All eleven canonical artifacts are draft shells; unknown Project DNA fields stay unknown.",
-      "The Review Council has not run; this preview is not accepted.",
+      "Review Council ran deterministically and blocked acceptance; revision regeneration is not automated yet.",
       "The preview is not persisted and is not an agent execution handoff.",
     ],
   };

@@ -7,6 +7,7 @@ import {
   composeProjectPreview,
   deduplicateSkillScopes,
 } from "./composer.ts";
+import { RUBRIC_VERSION } from "./council.ts";
 import { BLUEPRINT_ARTIFACTS, REVIEW_COUNCIL_ROLES } from "./types.ts";
 
 const validInput = {
@@ -21,17 +22,36 @@ test("composes an explicitly incomplete, non-persisted draft package", () => {
   assert.equal(preview.persistence, "not_persisted");
   assert.equal(preview.accepted, false);
   assert.equal(preview.executionReady, false);
-  assert.equal(preview.reviewStatus, "not_started");
+  assert.equal(preview.reviewStatus, "blocked");
   assert.equal(preview.templateSetVersion, TEMPLATE_SET_VERSION);
+  assert.equal(preview.rubricVersion, RUBRIC_VERSION);
   assert.equal(preview.graph.nodes.length, 4);
   assert.equal(preview.artifactPreviews.length, BLUEPRINT_ARTIFACTS.length);
   assert.deepEqual(preview.missingArtifacts, []);
   assert.deepEqual(preview.requiredReviewers, [...REVIEW_COUNCIL_ROLES]);
+  assert.equal(preview.council.gatePassed, false);
+  assert.equal(preview.council.assessments.length, 8);
+  assert.ok(preview.council.unresolvedFindings.length > 0);
   assert.ok(
     preview.artifactPreviews.every(
       (artifact) => artifact.templateVersion === TEMPLATE_SET_VERSION,
     ),
   );
+});
+
+test("review council blocks acceptance while Project DNA unknowns remain", () => {
+  const preview = composeProjectPreview(validInput);
+
+  assert.ok(preview.council.overallMean < 80);
+  assert.ok(
+    preview.council.assessments.every((assessment) => assessment.evidence.length > 0),
+  );
+  assert.ok(
+    preview.council.unresolvedFindings.some((finding) =>
+      finding.summary.includes("Project DNA still unknown"),
+    ),
+  );
+  assert.deepEqual(preview.council.nextActions[0], "Keep package status draft; do not export or execute.");
 });
 
 test("keeps all Project DNA fields and labels unsupported knowledge unknown", () => {

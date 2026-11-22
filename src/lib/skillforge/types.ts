@@ -126,6 +126,22 @@ export interface SkillGraphEdge {
   type: "depends_on";
 }
 
+export interface CouncilAssessmentPreview {
+  reviewer: (typeof REVIEW_COUNCIL_ROLES)[number];
+  score: number;
+  evidence: string;
+  artifactLogicalKey: BlueprintArtifactKey;
+  dimensionScores: { name: string; score: number; notes: string }[];
+}
+
+export interface CouncilFindingPreview {
+  severity: "critical" | "high" | "medium" | "low";
+  summary: string;
+  acceptanceCondition: string;
+  artifactLogicalKey?: BlueprintArtifactKey;
+  reviewer?: (typeof REVIEW_COUNCIL_ROLES)[number];
+}
+
 export interface CompositionPreview {
   categoryKey: "ai-product";
   categoryLabel: "AI Product";
@@ -136,6 +152,7 @@ export interface CompositionPreview {
   executionReady: false;
   graphHash: string;
   templateSetVersion: string;
+  rubricVersion: string;
   graph: {
     nodes: SkillGraphNode[];
     edges: SkillGraphEdge[];
@@ -154,7 +171,17 @@ export interface CompositionPreview {
     templateVersion: string;
   }[];
   missingArtifacts: BlueprintArtifactKey[];
-  reviewStatus: "not_started";
+  reviewStatus: "blocked" | "failed";
   requiredReviewers: (typeof REVIEW_COUNCIL_ROLES)[number][];
+  council: {
+    overallMean: number;
+    gatePassed: false;
+    gateReason: string;
+    assessments: CouncilAssessmentPreview[];
+    unresolvedFindings: CouncilFindingPreview[];
+    revisionRound: number;
+    maxRevisionRounds: number;
+    nextActions: string[];
+  };
   limitations: string[];
 }

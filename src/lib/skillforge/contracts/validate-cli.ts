@@ -49,6 +49,11 @@ const checks: Check[] = [
     value: readJsonFixture(CONTRACT_PATHS.fixtures.notStartedReview),
   },
   {
+    label: "fixture:blocked-review",
+    contract: "reviewAssessment",
+    value: readJsonFixture(CONTRACT_PATHS.fixtures.blockedReview),
+  },
+  {
     label: "fixture:export-blocked",
     contract: "exportManifest",
     value: readJsonFixture(CONTRACT_PATHS.fixtures.exportBlocked),
