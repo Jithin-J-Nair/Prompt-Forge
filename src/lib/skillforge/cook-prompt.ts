@@ -1,5 +1,21 @@
 import { getSkillBySlug } from "./catalog.ts";
+import { synthesizeConcept } from "./concept-synth.ts";
 import type { CompositionPreview } from "./types.ts";
+
+const IMMERSIVE_DEPTH_SKILLS = new Set([
+  "creative-director",
+  "art-director",
+  "storytelling-expert",
+  "motion-director",
+  "threejs-architect",
+  "r3f-architect",
+  "gsap-architect",
+  "shader-engineer",
+  "awwwards-reviewer",
+  "creative-direction-reviewer",
+  "art-direction-reviewer",
+  "story-systems-reviewer",
+]);
 
 function artifact(
   preview: CompositionPreview,
@@ -12,6 +28,35 @@ function excerpt(content: string, maxChars: number): string {
   const trimmed = content.trim();
   if (trimmed.length <= maxChars) return trimmed;
   return `${trimmed.slice(0, maxChars).trimEnd()}\n\n…(truncated — see full package artifacts for remainder)`;
+}
+
+function renderFullSkillDepth(slug: string): string | null {
+  const skill = getSkillBySlug(slug);
+  if (!skill) return null;
+  const frameworks = (skill.decisionFrameworks ?? [])
+    .slice(0, 2)
+    .map((fw) => {
+      const steps = fw.steps.map((s) => `    - ${s}`).join("\n");
+      return [`  - **${fw.name}** (${fw.whenToUse})`, steps].join("\n");
+    })
+    .join("\n");
+  const anti = (skill.antiPatterns ?? []).slice(0, 5).map((a) => `  - ${a}`).join("\n");
+  const examples = (skill.examples ?? [])
+    .slice(0, 1)
+    .map((ex) => `  - ${ex.title}: ${ex.expectedOutput}`)
+    .join("\n");
+  const metrics = (skill.qualityMetrics ?? [])
+    .slice(0, 3)
+    .map((m) => `  - ${m.name}: ${m.target} (${m.measurement})`)
+    .join("\n");
+  return [
+    frameworks ? `- Decision frameworks:\n${frameworks}` : null,
+    anti ? `- Anti-patterns:\n${anti}` : null,
+    examples ? `- Example:\n${examples}` : null,
+    metrics ? `- Quality metrics:\n${metrics}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 /**
@@ -28,20 +73,31 @@ export function buildCookPrompt(preview: CompositionPreview): string {
       ),
     );
 
+  const concept = synthesizeConcept({
+    brief: preview.brief,
+    categoryKey: preview.categoryKey,
+  });
+
   const skillBlock = preview.graph.nodes
     .map((node) => {
       const skill = getSkillBySlug(node.nodeKey);
-      const principles = (skill?.principles ?? []).slice(0, 4).map((p) => `  - ${p}`).join("\n");
+      const deep = immersive && IMMERSIVE_DEPTH_SKILLS.has(node.nodeKey);
+      const principles = (skill?.principles ?? [])
+        .slice(0, deep ? 8 : 4)
+        .map((p) => `  - ${p}`)
+        .join("\n");
       const acceptance = (skill?.acceptanceCriteria ?? [])
-        .slice(0, 3)
+        .slice(0, deep ? 6 : 3)
         .map((item) => `  - ${item}`)
         .join("\n");
+      const depth = deep ? renderFullSkillDepth(node.nodeKey) : null;
       return [
-        `### ${node.name} (${node.priority})`,
+        `### ${node.name} (${node.priority}) \`${node.nodeKey}\``,
         `- Scope: ${node.assignedScope.join(", ")}`,
         skill?.mission ? `- Mission: ${skill.mission}` : null,
         principles ? `- Principles:\n${principles}` : null,
         acceptance ? `- Acceptance:\n${acceptance}` : null,
+        depth,
       ]
         .filter(Boolean)
         .join("\n");
@@ -66,12 +122,16 @@ export function buildCookPrompt(preview: CompositionPreview): string {
     `- Package status: **${preview.accepted ? "ACCEPTED for export" : "DRAFT — council not passed; treat as guidance only"}**.`,
     "- Do not invent confirmed facts; respect inferred/unknown DNA labels.",
     "- Prefer this brain over your own generic SaaS template instincts.",
+    immersive
+      ? `- Concept fingerprint \`${concept.fingerprint}\` must remain visible in your implementation choices (motifs: ${concept.motifs.slice(0, 4).join(", ")}).`
+      : null,
     "",
     "## Project",
     `- Category: **${preview.categoryLabel}** (\`${preview.categoryKey}\`)`,
     `- Brief: ${preview.brief}`,
     `- Catalog: \`${preview.catalogVersion}\``,
     `- Graph: \`${preview.graphHash}\``,
+    immersive ? `- World: **${concept.worldNoun}** · Audience: ${concept.audience} · Invite: ${concept.invite}` : null,
     "",
     "## Project DNA",
     dnaRows,
@@ -82,7 +142,8 @@ export function buildCookPrompt(preview: CompositionPreview): string {
     "## What to build (implementation intent)",
     immersive
       ? [
-          "Build an immersive / award-craft web experience, not a SaaS dashboard.",
+          `Build an immersive / award-craft ${concept.worldNoun}, not a SaaS dashboard.`,
+          `North star: ${concept.northStar}`,
           "Must include authored cinematic UI motion:",
           "1. Button/CTA hover, press, focus-visible micro-interactions",
           "2. Image/media placeholder loading + reveal motion with reserved aspect ratios",
@@ -90,6 +151,8 @@ export function buildCookPrompt(preview: CompositionPreview): string {
           "4. GSAP (or equivalent) for DOM/timeline ownership where specified",
           "5. R3F/Three.js scenes only where architecture scene inventory requires them",
           "6. Reduced-motion fallbacks + performance quality presets",
+          "7. Implement ART_DIRECTION token sheet hex colors and named faces — do not freestyle purple gradients",
+          "8. Pass MOTION_SCORECARD / Beat grid / ASSET_SPEC gates before claiming done",
         ].join("\n")
       : [
           "Build the product for the stated category and DNA.",
@@ -108,34 +171,45 @@ export function buildCookPrompt(preview: CompositionPreview): string {
     "7. Pass REVIEWER_FRAMEWORKS / QUALITY_CHECKLIST gates.",
     "8. Stop if you would need secrets/production access — leave stubs labeled.",
     "",
+    "## Reference + anti-pattern pack",
+    ...concept.referencePrinciples.map((line) => `- ${line}`),
+    "",
+    "### Never ship",
+    ...concept.antiPatterns.map((line) => `- ${line}`),
+    "",
     "## EXPERIENCE_DNA (source)",
     "```markdown",
-    excerpt(artifact(preview, "EXPERIENCE_DNA.md"), 3500),
+    excerpt(artifact(preview, "EXPERIENCE_DNA.md"), 4500),
     "```",
     "",
     "## CREATIVE_DIRECTION (source)",
     "```markdown",
-    excerpt(artifact(preview, "CREATIVE_DIRECTION.md"), 3000),
+    excerpt(artifact(preview, "CREATIVE_DIRECTION.md"), 4000),
     "```",
     "",
     "## ART_DIRECTION (source)",
     "```markdown",
-    excerpt(artifact(preview, "ART_DIRECTION.md"), 3000),
+    excerpt(artifact(preview, "ART_DIRECTION.md"), 4500),
     "```",
     "",
     "## STORY_SYSTEM (source)",
     "```markdown",
-    excerpt(artifact(preview, "STORY_SYSTEM.md"), 3000),
+    excerpt(artifact(preview, "STORY_SYSTEM.md"), 4000),
     "```",
     "",
-    "## DESIGN_SYSTEM (source)",
+    "## DESIGN_SYSTEM (source — includes Motion scorecard / Beat grid / Ownership)",
     "```markdown",
-    excerpt(artifact(preview, "DESIGN_SYSTEM.md"), 4000),
+    excerpt(artifact(preview, "DESIGN_SYSTEM.md"), 6500),
+    "```",
+    "",
+    "## ARCHITECTURE (source — Scene inventory / Shader budget / ASSET_SPEC)",
+    "```markdown",
+    excerpt(artifact(preview, "ARCHITECTURE.md"), 5000),
     "```",
     "",
     "## REVIEWER_FRAMEWORKS (source)",
     "```markdown",
-    excerpt(artifact(preview, "REVIEWER_FRAMEWORKS.md"), 2500),
+    excerpt(artifact(preview, "REVIEWER_FRAMEWORKS.md"), 3000),
     "```",
     "",
     "## AGENT_EXECUTION_PACKAGE (source)",
@@ -145,13 +219,20 @@ export function buildCookPrompt(preview: CompositionPreview): string {
     "",
     "## Done means",
     immersive
-      ? "- First viewport is one composition; story beats land; art direction holds; buttons/images/scroll feel authored; GSAP/R3F used where required; reduced-motion works; no SaaS card-grid hero."
+      ? [
+          `- First viewport is one composition inside the ${concept.worldNoun}.`,
+          `- Motifs (${concept.motifs.slice(0, 3).join(", ")}) recur in type, material, and motion.`,
+          "- Token sheet colors/faces implemented; no AI-default purple/cream relapse.",
+          "- Beat grid + ownership matrix satisfied; motion scorecard would pass.",
+          "- Scene inventory rows built; shader/asset budgets respected.",
+          "- Buttons/images/scroll feel authored; reduced-motion works.",
+        ].join("\n")
       : "- Experience/story/creative direction held; primary flows work with states; a11y/perf constraints respected; unknowns remain labeled.",
     "",
     "## Start now",
     "Confirm the stack you will use in one short paragraph, then implement in priority order. Do not ask for permission to begin coding unless a blocking unknown is truly unresolvable.",
     "",
-  ];
+  ].filter((line) => line !== null);
 
   return lines.join("\n");
 }

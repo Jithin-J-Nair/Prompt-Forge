@@ -29,6 +29,20 @@ const IMMERSIVE_CRAFT_MARKERS = [
   "Art bible",
   "Beat sheet",
   "Craft lenses",
+  "Token sheet",
+  "Motion scorecard",
+  "Beat grid",
+  "Ownership matrix",
+  "ASSET_SPEC",
+  "Concept fingerprint",
+];
+
+/** Frozen boilerplate pillars from the pre-synth era — must not be the only creative law. */
+const BOILERPLATE_PILLAR_MARKERS = [
+  "Presence — first viewport is one composition.",
+  "Authored motion — signature beats with owners (GSAP / R3F / shader).",
+  "Restraint — silence between beats; chrome stays quiet.",
+  "Honesty — inferences labeled; no fake award claims.",
 ];
 
 export const RUBRIC_VERSION = `${councilRubric.rubricId}@${councilRubric.version}`;
@@ -201,6 +215,52 @@ function assessCraftDensity(
       penalties.push({
         delta: -24,
         notes: "USER_FLOWS describes SkillForge compose loop instead of visitor journey.",
+      });
+    }
+
+    const boilerplateHits = BOILERPLATE_PILLAR_MARKERS.filter((marker) => all.includes(marker));
+    const hasFingerprint = /Concept fingerprint/i.test(all);
+    const hasMotifPillar = /Motif lock/i.test(all);
+    if (boilerplateHits.length >= 3 && !hasMotifPillar) {
+      penalties.push({
+        delta: -35,
+        notes: "Creative pillars match frozen category boilerplate — not brief-specific concept synth.",
+      });
+    }
+    if (!hasFingerprint) {
+      penalties.push({
+        delta: -20,
+        notes: "Missing Concept fingerprint — creative artifacts are not brief-locked.",
+      });
+    }
+
+    const artContent = art?.content ?? "";
+    if (!/#[0-9A-Fa-f]{6}/.test(artContent) && !/oklch\(/i.test(artContent)) {
+      penalties.push({
+        delta: -30,
+        notes: "ART_DIRECTION missing hex/oklch token sheet — agents will freestyle AI-default looks.",
+      });
+    }
+    if (!/Display face:/i.test(artContent) && !/display face/i.test(all)) {
+      penalties.push({
+        delta: -18,
+        notes: "ART_DIRECTION / DESIGN_SYSTEM missing named display face.",
+      });
+    }
+    if (
+      architecture &&
+      /Arrival \/ brand world/i.test(architecture.content) &&
+      !/Camera:/i.test(architecture.content)
+    ) {
+      penalties.push({
+        delta: -26,
+        notes: "Scene inventory still generic act names without camera/asset/shader rows.",
+      });
+    }
+    if (!/Motion scorecard/i.test(all) || !/Beat grid/i.test(all)) {
+      penalties.push({
+        delta: -22,
+        notes: "Missing Motion scorecard / Beat grid — authored motion cannot be enforced.",
       });
     }
   }

@@ -89,7 +89,7 @@ export function HomeView() {
           <Reveal>
             <p className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-line bg-carbon/70 px-4 py-2 font-mono text-[11px] tracking-[0.2em] text-fog uppercase backdrop-blur">
               <span className="inline-block size-1.5 animate-pulse-soft rounded-full bg-ember" aria-hidden />
-              SkillForge brain → PromptForge body · catalog v1.4.2
+              SkillForge brain → PromptForge body · catalog v1.5.0 · SOTY craft
             </p>
           </Reveal>
 

@@ -14,6 +14,7 @@ import {
   renderArtDirectionBody,
   renderCreativeDirectionBody,
   renderExperienceDnaBody,
+  renderMotionScorecardBody,
   renderReviewerFrameworksBody,
   renderStorySystemBody,
 } from "./craft-direction.ts";
@@ -196,9 +197,9 @@ function renderCategoryArtifact(
   } else if (template.logicalKey === "DESIGN_SYSTEM.md") {
     sectionBodies = renderDesignSystemBody(categoryKey, fields, brief);
   } else if (template.logicalKey === "ARCHITECTURE.md") {
-    sectionBodies = renderArchitectureBody(categoryKey, fields);
+    sectionBodies = renderArchitectureBody(categoryKey, fields, brief);
   } else if (template.logicalKey === "USER_FLOWS.md") {
-    sectionBodies = renderUserFlowsBody(categoryKey, fields);
+    sectionBodies = renderUserFlowsBody(categoryKey, fields, brief);
   } else if (template.logicalKey === "DATABASE_DESIGN.md") {
     sectionBodies = renderDatabaseBody(categoryKey, fields);
   } else if (template.logicalKey === "LAUNCH_PLAN.md") {
@@ -223,18 +224,39 @@ function renderCategoryArtifact(
     // Extra immersive-only sections not in draft template still append when present.
   }
 
-  // Append immersive-only sections for design/architecture when generated.
-  if (template.logicalKey === "DESIGN_SYSTEM.md" && sectionBodies["Motion language"]) {
-    if (!template.requiredSections.includes("Motion language")) {
-      lines.push(...renderGuidanceSection("Motion language", sectionBodies["Motion language"]));
-    }
-  }
-  if (template.logicalKey === "ARCHITECTURE.md") {
-    for (const extra of ["Scene inventory", "Shader & render budget"] as const) {
+  // Append synth-only sections not always listed in the draft template.
+  if (template.logicalKey === "ART_DIRECTION.md") {
+    for (const extra of ["Token sheet"] as const) {
       if (sectionBodies[extra] && !template.requiredSections.includes(extra)) {
         lines.push(...renderGuidanceSection(extra, sectionBodies[extra]));
       }
     }
+  }
+  if (template.logicalKey === "DESIGN_SYSTEM.md") {
+    if (sectionBodies["Motion language"] && !template.requiredSections.includes("Motion language")) {
+      lines.push(...renderGuidanceSection("Motion language", sectionBodies["Motion language"]));
+    }
+    const motionExtras = renderMotionScorecardBody(categoryKey, brief);
+    for (const [key, body] of Object.entries(motionExtras)) {
+      if (body && !template.requiredSections.includes(key)) {
+        lines.push(...renderGuidanceSection(key, body));
+      }
+    }
+  }
+  if (template.logicalKey === "ARCHITECTURE.md") {
+    for (const extra of ["Scene inventory", "Shader & render budget", "ASSET_SPEC"] as const) {
+      if (sectionBodies[extra] && !template.requiredSections.includes(extra)) {
+        lines.push(...renderGuidanceSection(extra, sectionBodies[extra]));
+      }
+    }
+  }
+
+  // Also emit any remaining sectionBodies keys the template forgot to list.
+  for (const [key, body] of Object.entries(sectionBodies)) {
+    if (!body) continue;
+    if (template.requiredSections.includes(key)) continue;
+    if (lines.includes(`## ${key}`)) continue;
+    lines.push(...renderGuidanceSection(key, body));
   }
 
   return lines.join("\n");

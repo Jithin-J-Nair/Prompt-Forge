@@ -5,7 +5,7 @@ import { CATALOG_VERSION, PUBLISHED_SKILLS, getSkillBySlug } from "./catalog.ts"
 import { composeProjectPreview } from "./composer.ts";
 
 test("catalog v1.4 deepens creative skills beyond generic boilerplate", () => {
-  assert.ok(CATALOG_VERSION.startsWith("skillforge-catalog-1.4"));
+  assert.ok(CATALOG_VERSION.startsWith("skillforge-catalog-1.5"));
   const creative = getSkillBySlug("creative-director");
   assert.ok(creative);
   assert.ok(!creative.principles.includes("Separate confirmed facts from inferences."));
@@ -117,6 +117,11 @@ test("awwwards short brief yields immersive skills, dense craft artifacts, visit
   assert.ok(design.includes("Scroll theater"));
   assert.ok(design.length > 1200);
   assert.ok(architecture.includes("Scene inventory"));
+  assert.ok(/Camera:/i.test(architecture));
+  assert.ok(/ASSET_SPEC/i.test(architecture));
+  assert.ok(/Token sheet|Display face:/i.test(art + design));
+  assert.ok(/Motion scorecard/i.test(design));
+  assert.ok(/Concept fingerprint/i.test(creative));
   assert.ok(/WebGL|Experience-host|ExperienceCanvas/i.test(architecture));
   assert.ok(!/composes expertise package/i.test(flows));
   assert.ok(/lands in the arrival world|arrival world/i.test(flows));

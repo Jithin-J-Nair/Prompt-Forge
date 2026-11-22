@@ -73,20 +73,24 @@ export function buildProjectDna(input: {
 
   const user =
     match(brief, [
-      /\bfor\s+([^.!?]{3,80})/i,
+      // Prefer short role nouns: "for scientists", "for a climate lab"
+      /\bfor\s+(?:a|an|the)\s+([a-z][\w\s-]{2,40}?)(?:\s*[—–:,.]|\s+who\b|\s+to\b|$)/i,
+      /\bfor\s+([a-z][\w-]{2,24}s)\b/i,
       /\bserving\s+([^.!?]{3,80})/i,
       /\baimed at\s+([^.!?]{3,80})/i,
       /\bhelping\s+([^.!?]{3,80})/i,
     ]) ??
-    (/\benterprise\b/i.test(brief)
-      ? "Enterprise buyers and operators"
-      : /\bconsumer|shoppers|customers\b/i.test(brief)
-        ? "End customers"
-        : /\bteams|internal\b/i.test(brief)
-          ? "Internal teams"
-          : /\brecruit|hiring|talent\b/i.test(brief)
-            ? "Recruiters, hiring managers, and candidates"
-            : getUserFallback(input.categoryKey, immersive));
+    (/\bscientists?\b/i.test(brief)
+      ? "Scientists and research visitors"
+      : /\benterprise\b/i.test(brief)
+        ? "Enterprise buyers and operators"
+        : /\bconsumer|shoppers|customers\b/i.test(brief)
+          ? "End customers"
+          : /\bteams|internal\b/i.test(brief)
+            ? "Internal teams"
+            : /\brecruit|hiring|talent\b/i.test(brief)
+              ? "Recruiters, hiring managers, and candidates"
+              : getUserFallback(input.categoryKey, immersive));
 
   const problem =
     match(brief, [

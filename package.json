@@ -7,7 +7,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/lib/skillforge/composer.test.ts src/lib/skillforge/contracts/contract-validation.test.ts src/lib/skillforge/handoff.test.ts src/lib/skillforge/expertise-depth.test.ts src/lib/skillforge/cook-prompt.test.ts src/lib/promptforge/orchestrator-prompt.test.ts",
+    "test": "tsx --test src/lib/skillforge/composer.test.ts src/lib/skillforge/contracts/contract-validation.test.ts src/lib/skillforge/handoff.test.ts src/lib/skillforge/expertise-depth.test.ts src/lib/skillforge/cook-prompt.test.ts src/lib/skillforge/concept-synth.test.ts src/lib/promptforge/orchestrator-prompt.test.ts",
     "validate:contracts": "tsx src/lib/skillforge/contracts/validate-cli.ts",
     "ingest:skills": "tsx src/lib/skillforge/skill-ingest-cli.ts"
   },
