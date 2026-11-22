@@ -1,4 +1,4 @@
-import { STARTER_SKILLS } from "../catalog.ts";
+import { PUBLISHED_SKILLS } from "../catalog.ts";
 import { CONTRACT_PATHS } from "./paths.ts";
 import {
   assertPackageCompleteness,
@@ -15,7 +15,7 @@ interface Check {
 }
 
 const checks: Check[] = [
-  ...STARTER_SKILLS.map((skill) => ({
+  ...PUBLISHED_SKILLS.map((skill) => ({
     label: `skill:${skill.identity.slug}`,
     contract: "skill" as const,
     value: skill,

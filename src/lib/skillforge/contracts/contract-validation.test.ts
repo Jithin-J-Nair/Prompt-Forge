@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { CATALOG_VERSION, STARTER_SKILLS } from "../catalog.ts";
+import { CATALOG_VERSION, PUBLISHED_SKILLS } from "../catalog.ts";
 import { composeProjectPreview } from "../composer.ts";
 import { toReviewAssessmentDocument } from "../council.ts";
 import { BLUEPRINT_ARTIFACTS, REVIEW_COUNCIL_ROLES } from "../types.ts";
@@ -15,7 +15,7 @@ import {
 const fixtureBrief = "Build an enterprise AI recruiting platform";
 
 test("starter catalog skills validate against skills/skill.schema.json", () => {
-  for (const skill of STARTER_SKILLS) {
+  for (const skill of PUBLISHED_SKILLS) {
     const result = validateContract("skill", skill);
     assert.equal(
       result.valid,

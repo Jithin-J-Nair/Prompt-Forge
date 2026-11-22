@@ -9,7 +9,7 @@ import {
   isProjectCategoryKey,
   type ProjectCategoryKey,
 } from "./categories.ts";
-import { CATALOG_VERSION, getSkillBySlug, STARTER_SKILLS } from "./catalog.ts";
+import { CATALOG_VERSION, getSkillBySlug, PUBLISHED_SKILLS } from "./catalog.ts";
 import { runReviewCouncil, RUBRIC_VERSION } from "./council.ts";
 import { buildProjectDna } from "./dna.ts";
 import {
@@ -347,4 +347,4 @@ export function composeProjectPreview(input: {
   };
 }
 
-export { STARTER_SKILLS };
+export { PUBLISHED_SKILLS, PUBLISHED_SKILLS as STARTER_SKILLS };

@@ -34,7 +34,7 @@
   "reviewStatus": "passed",
   "graphHash": "b5115d6ccb27817adee3a34f4552aad870f8d517c0f82f49ddda43e85efefcf0",
   "limitations": [
-    "Catalog skillforge-catalog-1.1.0 covers all 15 categories with curated skill policies.",
+    "Catalog skillforge-catalog-1.2.0 covers all 15 categories with curated skill policies.",
     "Export is instructional only; executionAuthorized is always false.",
     "Review Council passed export acceptance; runtime agent execution is still out of scope.",
     "Identity/tenant isolation and production retention policies are not fully productized yet."

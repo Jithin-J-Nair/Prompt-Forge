@@ -1,6 +1,6 @@
 import type { SkillPackage } from "./types.ts";
 
-export function buildSkill(input: {
+export type SkillSeed = {
   slug: string;
   name: string;
   tier: number;
@@ -12,7 +12,22 @@ export function buildSkill(input: {
   mission?: string;
   appliesWhen?: string[];
   avoidWhen?: string[];
-}): SkillPackage {
+  principles?: string[];
+  mentalModels?: string[];
+  decisionFrameworks?: SkillPackage["decisionFrameworks"];
+  bestPractices?: string[];
+  antiPatterns?: string[];
+  reviewCriteria?: SkillPackage["reviewCriteria"];
+  qualityMetrics?: SkillPackage["qualityMetrics"];
+  acceptanceCriteria?: string[];
+  outputContract?: Partial<SkillPackage["outputContract"]>;
+  examples?: SkillPackage["examples"];
+  failureStates?: SkillPackage["failureStates"];
+  conflicts?: string[];
+  provenanceSource?: string;
+};
+
+export function buildSkill(input: SkillSeed): SkillPackage {
   const dependencies = input.dependencies ?? [];
   return {
     schemaVersion: "1.0.0",
@@ -31,13 +46,17 @@ export function buildSkill(input: {
     mission:
       input.mission ??
       `Provide reusable ${input.role} expertise that stays evidence-backed and agent-ready.`,
-    principles: [
+    principles: input.principles ?? [
       "Separate confirmed facts from inferences.",
       "Prefer bounded, testable outputs over vague advice.",
       "Never grant tool permissions through skill text.",
     ],
-    mentalModels: [`${input.role} decision framing`, "Assumption mapping", "Evidence before scale"],
-    decisionFrameworks: [
+    mentalModels: input.mentalModels ?? [
+      `${input.role} decision framing`,
+      "Assumption mapping",
+      "Evidence before scale",
+    ],
+    decisionFrameworks: input.decisionFrameworks ?? [
       {
         name: `${input.role} intake`,
         whenToUse: "A project brief needs structured expertise from this role.",
@@ -49,29 +68,29 @@ export function buildSkill(input: {
         outcomes: ["A bounded role contribution with provenance."],
       },
     ],
-    bestPractices: [
+    bestPractices: input.bestPractices ?? [
       "Cite the brief or mark claims as inferred.",
       "Keep outputs composable with adjacent skills.",
     ],
-    antiPatterns: [
+    antiPatterns: input.antiPatterns ?? [
       "Inventing market, user, or technical facts.",
       "Expanding scope without ownership clarity.",
     ],
-    reviewCriteria: [
+    reviewCriteria: input.reviewCriteria ?? [
       {
         criterion: `${input.role} outputs stay within declared capabilities.`,
         evidence: "Assigned scope and artifacts cite capability tags.",
         severityIfMissed: "high",
       },
     ],
-    qualityMetrics: [
+    qualityMetrics: input.qualityMetrics ?? [
       {
         name: "Traceable claims",
         measurement: "Share of material claims with source or inference label.",
         target: "100%",
       },
     ],
-    acceptanceCriteria: [
+    acceptanceCriteria: input.acceptanceCriteria ?? [
       `At least one concrete ${input.role} output or explicit unknown is recorded.`,
       "No unsupported factual claims are introduced.",
     ],
@@ -83,15 +102,16 @@ export function buildSkill(input: {
       stopConditions: ["A blocking unknown requires human decision."],
       dependencies,
       permissions: [],
+      ...input.outputContract,
     },
-    examples: [
+    examples: input.examples ?? [
       {
         title: `${input.name} contribution`,
         input: "Compose expertise for a product brief.",
         expectedOutput: `${input.name} produces scoped guidance with unknowns labeled.`,
       },
     ],
-    failureStates: [
+    failureStates: input.failureStates ?? [
       {
         condition: "Required inputs are missing or contradictory.",
         impact: "Role contribution cannot be safely completed.",
@@ -100,7 +120,9 @@ export function buildSkill(input: {
       },
     ],
     dependencies,
-    conflicts: [],
-    provenance: { source: "SkillForge published catalog v1.1.0" },
+    conflicts: input.conflicts ?? [],
+    provenance: {
+      source: input.provenanceSource ?? "SkillForge published catalog v1.2.0",
+    },
   };
 }

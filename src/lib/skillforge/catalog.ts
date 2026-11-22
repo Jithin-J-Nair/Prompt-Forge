@@ -1,7 +1,8 @@
+import { ELITE_SKILLS } from "./catalog-elite.ts";
 import { buildSkill } from "./skill-factory.ts";
 import type { SkillPackage } from "./types.ts";
 
-export const CATALOG_VERSION = "skillforge-catalog-1.1.0";
+export const CATALOG_VERSION = "skillforge-catalog-1.2.0";
 
 const ALL_CATEGORIES = [
   "ai-product",
@@ -423,6 +424,9 @@ export const STARTER_SKILLS: SkillPackage[] = [
   }),
 ];
 
+/** Full published catalog: core starters + elite specialists. */
+export const PUBLISHED_SKILLS: SkillPackage[] = [...STARTER_SKILLS, ...ELITE_SKILLS];
+
 export function getSkillBySlug(slug: string): SkillPackage | undefined {
-  return STARTER_SKILLS.find((skill) => skill.identity.slug === slug);
+  return PUBLISHED_SKILLS.find((skill) => skill.identity.slug === slug);
 }
