@@ -9,7 +9,8 @@ import clsx from "clsx";
 /* ------------------------------ NAV ------------------------------ */
 
 const NAV_LINKS = [
-  { href: "/forge", label: "The Forge" },
+  { href: "/skillforge", label: "SkillForge" },
+  { href: "/forge", label: "Mega prompt" },
   { href: "/library", label: "Library" },
   { href: "/#anatomy", label: "Anatomy" },
   { href: "/#how", label: "Protocol" },
@@ -51,6 +52,7 @@ export function Nav() {
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
           {NAV_LINKS.map((l) => {
             const active =
+              (l.href === "/skillforge" && pathname.startsWith("/skillforge")) ||
               (l.href === "/forge" && pathname === "/forge") ||
               (l.href === "/library" && pathname.startsWith("/library"));
             return (
@@ -67,10 +69,10 @@ export function Nav() {
             );
           })}
           <Link
-            href="/forge"
+            href="/skillforge"
             className="ml-3 inline-flex items-center gap-1.5 rounded-full bg-ivory px-4 py-2 font-mono text-[11px] font-medium tracking-[0.14em] text-ink uppercase transition-all duration-200 hover:bg-ember hover:text-ink"
           >
-            Forge a prompt
+            Compose package
             <ArrowUpRight className="size-3.5" />
           </Link>
         </nav>
@@ -189,29 +191,29 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-fog">
-              The website prompt enhancement engine. One lazy sentence in — a
-              2,000-word, production-grade build spec out.
+              AI-native expertise OS — one project idea becomes a reviewed skill
+              package agents can execute against.
             </p>
             <p className="mt-6 font-mono text-[11px] tracking-[0.14em] text-smoke uppercase">
-              Forged locally · No dark patterns · Zero emojis
+              SkillForge compose · Deterministic · Export-only
             </p>
           </div>
           <div>
             <p className="font-mono text-[11px] tracking-[0.2em] text-smoke uppercase">Engine</p>
             <ul className="mt-4 space-y-3 text-[15px]">
-              <li><Link className="text-fog transition-colors hover:text-ember" href="/forge">The Forge</Link></li>
+              <li><Link className="text-fog transition-colors hover:text-ember" href="/skillforge">SkillForge</Link></li>
+              <li><Link className="text-fog transition-colors hover:text-ember" href="/forge">Mega prompt</Link></li>
               <li><Link className="text-fog transition-colors hover:text-ember" href="/library">Library</Link></li>
-              <li><Link className="text-fog transition-colors hover:text-ember" href="/#anatomy">Anatomy of a mega prompt</Link></li>
               <li><Link className="text-fog transition-colors hover:text-ember" href="/#how">The protocol</Link></li>
             </ul>
           </div>
           <div>
             <p className="font-mono text-[11px] tracking-[0.2em] text-smoke uppercase">Output</p>
             <ul className="mt-4 space-y-3 text-[15px] text-fog">
-              <li>Brand identity systems</li>
-              <li>Design tokens & grids</li>
-              <li>Page-by-page UX blueprints</li>
-              <li>Backend schemas & endpoints</li>
+              <li>Skill graphs & Project DNA</li>
+              <li>Eleven blueprint artifacts</li>
+              <li>Review Council gates</li>
+              <li>Agent execution packages</li>
             </ul>
           </div>
         </div>

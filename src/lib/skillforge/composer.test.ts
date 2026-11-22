@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { listDraftTemplateKeys, TEMPLATE_SET_VERSION } from "./blueprints.ts";
-import { STARTER_SKILLS } from "./catalog.ts";
+import { PUBLISHED_SKILLS } from "./catalog.ts";
 import {
   CompositionInputError,
   composeProjectPreview,
@@ -90,13 +90,13 @@ test("assigns an overlapping capability only to its first deterministic owner", 
 });
 
 test("catalog skills contain all 13 required sections", () => {
-  for (const skill of STARTER_SKILLS) {
+  for (const skill of PUBLISHED_SKILLS) {
     assert.equal(skill.schemaVersion, "1.0.0");
     assert.ok(skill.identity.slug);
     assert.ok(skill.mission);
     assert.ok(skill.outputContract);
   }
-  assert.ok(STARTER_SKILLS.length >= 30);
+  assert.ok(PUBLISHED_SKILLS.length >= 45);
 });
 
 test("supports all configured project categories", () => {
