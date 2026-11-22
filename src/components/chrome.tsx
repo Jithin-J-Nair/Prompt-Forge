@@ -10,7 +10,8 @@ import clsx from "clsx";
 
 const NAV_LINKS = [
   { href: "/skillforge", label: "SkillForge" },
-  { href: "/forge", label: "Mega prompt" },
+  { href: "/promptforge", label: "PromptForge" },
+  { href: "/forge", label: "Legacy forge" },
   { href: "/library", label: "Library" },
   { href: "/#anatomy", label: "Anatomy" },
   { href: "/#how", label: "Protocol" },
@@ -53,6 +54,7 @@ export function Nav() {
           {NAV_LINKS.map((l) => {
             const active =
               (l.href === "/skillforge" && pathname.startsWith("/skillforge")) ||
+              (l.href === "/promptforge" && pathname.startsWith("/promptforge")) ||
               (l.href === "/forge" && pathname === "/forge") ||
               (l.href === "/library" && pathname.startsWith("/library"));
             return (
