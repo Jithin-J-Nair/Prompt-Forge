@@ -4,7 +4,7 @@
   "handoffStatus": "blocked",
   "packageAccepted": false,
   "executionAuthorized": false,
-  "blockedReason": "Package remains draft: Review Council has not run and nine required artifacts are missing.",
+  "blockedReason": "Package remains draft: Review Council has not run, so export stays blocked even though draft artifacts exist.",
   "artifacts": [],
   "prohibitedOperations": [
     "Execute generated instructions against production systems",

@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
+import { renderDraftBlueprints, TEMPLATE_SET_VERSION } from "./blueprints.ts";
 import { CATALOG_VERSION, STARTER_SKILLS } from "./catalog.ts";
 import {
-  BLUEPRINT_ARTIFACTS,
   REVIEW_COUNCIL_ROLES,
   type CompositionPreview,
   type ProjectDnaField,
@@ -189,81 +189,6 @@ export function deduplicateSkillScopes(
   return assignments;
 }
 
-function renderMasterSkillPackage(
-  brief: string,
-  graph: CompositionPreview["graph"],
-  graphHash: string,
-): string {
-  const nodeLines = graph.nodes
-    .map(
-      (node, index) =>
-        `${index + 1}. **${node.name}** (\`${node.skillVersion}\`, ${node.priority})\n` +
-        `   - Scope: ${node.assignedScope.join(", ")}\n` +
-        `   - Rationale: ${node.rationale}`,
-    )
-    .join("\n");
-  const edgeLines = graph.edges.length
-    ? graph.edges.map((edge) => `- \`${edge.from}\` → \`${edge.to}\` (${edge.type})`).join("\n")
-    : "- No dependency edges.";
-
-  return [
-    "# MASTER_SKILL_PACKAGE.md",
-    "",
-    "> DRAFT PREVIEW — not reviewed, accepted, or executable.",
-    "",
-    "## Project intent",
-    "",
-    ...brief.split(/\r?\n/).map((line) => `> ${escapeMarkdownText(line)}`),
-    "",
-    "## Selected core expertise",
-    "",
-    nodeLines,
-    "",
-    "## Dependency graph",
-    "",
-    edgeLines,
-    "",
-    "## Provenance",
-    "",
-    `- Catalog: \`${CATALOG_VERSION}\``,
-    `- Graph SHA-256: \`${graphHash}\``,
-    "- Scope: Tier 1 Core Thinking pilot only.",
-    "- Review Council: not run.",
-    "- This preview omits the remaining blueprint artifacts and cannot be handed to an execution agent.",
-    "",
-  ].join("\n");
-}
-
-function renderProjectDna(
-  fields: CompositionPreview["projectDna"]["fields"],
-): string {
-  const rows = fields
-    .map((field) => {
-      const value = escapeMarkdownText(field.value ?? "Unknown")
-        .replace(/\|/g, "\\|")
-        .replace(/\r?\n/g, "<br>");
-      return `| ${field.name} | ${field.status} | ${value} |`;
-    })
-    .join("\n");
-
-  return [
-    "# PROJECT_DNA.md",
-    "",
-    "> DRAFT PREVIEW — inferred and unknown fields are not validated.",
-    "",
-    "| Field | Status | Value |",
-    "|---|---|---|",
-    rows,
-    "",
-    "Only Vision is populated from the user brief. No market, user, business, technical, or risk claims are inferred in this slice.",
-    "",
-  ].join("\n");
-}
-
-function escapeMarkdownText(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
 export function composeProjectPreview(input: {
   categoryKey: string;
   brief: string;
@@ -309,20 +234,12 @@ export function composeProjectPreview(input: {
         ? { name, status: "confirmed", value: brief, source: "user_brief" }
         : { name, status: "unknown", value: null, source: "unresolved" },
   );
-  const artifactPreviews: CompositionPreview["artifactPreviews"] = [
-    {
-      logicalKey: "MASTER_SKILL_PACKAGE.md",
-      content: renderMasterSkillPackage(brief, graph, graphHash),
-    },
-    { logicalKey: "PROJECT_DNA.md", content: renderProjectDna(fields) },
-  ];
-  const generatedKeys = new Set<string>(
-    artifactPreviews.map((artifact) => artifact.logicalKey),
-  );
-  const missingArtifacts = BLUEPRINT_ARTIFACTS.filter(
-    (artifact): artifact is Exclude<typeof artifact, "MASTER_SKILL_PACKAGE.md" | "PROJECT_DNA.md"> =>
-      !generatedKeys.has(artifact),
-  );
+  const artifactPreviews = renderDraftBlueprints({
+    brief,
+    graphHash,
+    graph,
+    fields,
+  });
 
   return {
     categoryKey: "ai-product",
@@ -333,16 +250,17 @@ export function composeProjectPreview(input: {
     accepted: false,
     executionReady: false,
     graphHash,
+    templateSetVersion: TEMPLATE_SET_VERSION,
     graph,
     projectDna: { fields },
     artifactPreviews,
-    missingArtifacts,
+    missingArtifacts: [],
     reviewStatus: "not_started",
     requiredReviewers: [...REVIEW_COUNCIL_ROLES],
     limitations: [
       "Only Tier 1 Core Thinking skills are included in this pilot catalog.",
+      "All eleven canonical artifacts are draft shells; unknown Project DNA fields stay unknown.",
       "The Review Council has not run; this preview is not accepted.",
-      "Nine required blueprint artifacts are not generated.",
       "The preview is not persisted and is not an agent execution handoff.",
     ],
   };

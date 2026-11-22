@@ -75,7 +75,7 @@ test("composed preview matches pinned skill-graph fixture and graph invariants",
   assert.equal(invariants.valid, true, invariants.errors.join("; "));
 });
 
-test("draft package fixture is incomplete, non-accepted, and completeness-consistent", () => {
+test("draft package fixture is complete as drafts, non-accepted, and completeness-consistent", () => {
   const draft = readJsonFixture(CONTRACT_PATHS.fixtures.draftPackage) as {
     requiredArtifacts: string[];
     presentArtifacts: string[];
@@ -92,8 +92,8 @@ test("draft package fixture is incomplete, non-accepted, and completeness-consis
   const completeness = assertPackageCompleteness(draft);
   assert.equal(completeness.valid, true, completeness.errors.join("; "));
   assert.deepEqual(draft.requiredArtifacts, [...BLUEPRINT_ARTIFACTS]);
-  assert.equal(draft.presentArtifacts.length, 2);
-  assert.equal(draft.missingArtifacts.length, 9);
+  assert.equal(draft.presentArtifacts.length, BLUEPRINT_ARTIFACTS.length);
+  assert.equal(draft.missingArtifacts.length, 0);
   assert.equal(draft.accepted, false);
   assert.equal(draft.executionReady, false);
   assert.equal(draft.packageStatus, "draft");

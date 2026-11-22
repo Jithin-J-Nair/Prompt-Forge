@@ -2,11 +2,12 @@
 
 ## Merged state
 
-The SkillForge design and first implementation phases are on `main`. Preserved checkpoints include:
+The SkillForge design and early implementation phases are on `main`. Preserved checkpoints include:
 
 - `4c1b02a` — architecture and foundational design documentation.
 - `2f24583` — first runnable composition preview (`/skillforge`, `POST /api/skillforge/compose`).
-- Contract validation phase — fixture-driven schemas and validators for Project DNA, skill graph, package completeness, review assessment, and export manifest (this document is updated when that phase lands).
+- Contract validation phase — fixture-driven schemas and validators for Project DNA, skill graph, package completeness, review assessment, and export manifest.
+- Draft blueprint templates phase — versioned template set generating all eleven canonical artifacts as draft shells (still unreviewed / unaccepted).
 
 GitHub may report no status checks on earlier pull requests. Local verification listed in each phase section is authoritative until CI is configured.
 
@@ -21,6 +22,7 @@ The design source of truth is [`SKILLFORGE_ARCHITECTURE.md`](SKILLFORGE_ARCHITEC
 - [`../blueprints/package-manifest.schema.json`](../blueprints/package-manifest.schema.json) — package completeness / acceptance gate contract.
 - [`../reviewers/review-assessment.schema.json`](../reviewers/review-assessment.schema.json) — Review Council assessment contract.
 - [`../agents/export-manifest.schema.json`](../agents/export-manifest.schema.json) — export handoff contract (`executionAuthorized` is always false).
+- [`../templates/draft-set-1.0.0.json`](../templates/draft-set-1.0.0.json) — published draft blueprint template set.
 - [`../skill-categories/catalog.yaml`](../skill-categories/catalog.yaml) — requested project-category and role taxonomy.
 - README boundaries in `agents/`, `blueprints/`, `composer/`, `knowledge/`, `projects/`, `reviewers/`, `skill-categories/`, `skills/`, and `templates/`.
 
@@ -31,11 +33,11 @@ The architecture distinguishes confirmed requirements from proposed defaults and
 - UI: `/skillforge`
 - API: `POST /api/skillforge/compose`
 - Scope: the `ai-product` pilot category and four complete Tier 1 Core Thinking seed skills in `src/lib/skillforge/catalog.ts`.
-- Output: a deterministic, dependency-ordered skill graph plus draft `MASTER_SKILL_PACKAGE.md` and `PROJECT_DNA.md` previews. The graph includes priorities, scopes, rationales, and a SHA-256 fingerprint.
-- Unknown Project DNA values remain explicitly unknown; only Vision is sourced from the brief.
-- The result is `draft`, `not_persisted`, not accepted, and not execution-ready. The Review Council is not run, and the nine remaining canonical artifacts are listed as missing.
+- Output: a deterministic, dependency-ordered skill graph plus draft previews for all eleven canonical artifacts, rendered from `templates/draft-set-1.0.0.json`.
+- Unknown Project DNA values remain explicitly unknown; only Vision is sourced from the brief. Bound artifact sections surface those unknowns instead of inventing content.
+- The result is `draft`, `not_persisted`, not accepted, and not execution-ready. The Review Council is not run. Export/handoff remains blocked.
 
-The slice makes no database writes or external model calls and performs no agent handoff. It is a runnable preview, not a production-ready composition pipeline.
+The slice makes no database writes or external model calls and performs no agent handoff. It is a runnable draft package preview, not a production-ready composition pipeline.
 
 ## Contract validation phase
 
@@ -45,6 +47,14 @@ Roadmap step 2 from the architecture: fixture-driven, non-production contract va
 - Negative fixtures prove unknown DNA cannot carry fabricated values and incomplete packages cannot be `accepted`.
 - Runnable validators in `src/lib/skillforge/contracts/` (`validate.ts`, `validate-cli.ts`) using JSON Schema draft 2020-12.
 - Commands: `npm test` (composer + contract suites) and `npm run validate:contracts`.
+
+## Draft blueprint templates phase
+
+Handoff recommended next step 4 / architecture path toward blueprint generation without persistence:
+
+- Versioned template set `skillforge-draft@1.0.0` in `templates/draft-set-1.0.0.json`.
+- Deterministic renderer in `src/lib/skillforge/blueprints.ts`.
+- Compose preview returns all eleven artifacts with `templateVersion`, `missingArtifacts: []`, and still `accepted: false` / `reviewStatus: "not_started"` / `executionReady: false`.
 
 ## Verification recorded
 
@@ -63,12 +73,20 @@ Contract validation phase:
 - `npm run typecheck` — passed.
 - Targeted ESLint on new contract modules — passed.
 
+Draft blueprint templates phase:
+
+- `npm test` — composer and contract-validation suites.
+- `npm run validate:contracts`
+- `npm run typecheck`
+- Targeted ESLint on changed SkillForge modules
+- `npm run build` with placeholder `DATABASE_URL` when verifying the page/API path
+
 ## Incomplete work
 
 - Review Council assessments, evidence, scoring, revision loops, and acceptance gates (runtime).
 - Persistence, immutable run/artifact lineage, identity, authorization, tenant isolation, and retention.
 - The other 14 project categories, Tier 2–7 skills, and catalog publication lifecycle.
-- Generation and validation of `PRODUCT_STRATEGY.md`, `DESIGN_SYSTEM.md`, `ARCHITECTURE.md`, `USER_FLOWS.md`, `DATABASE_DESIGN.md`, `AI_SYSTEM_DESIGN.md`, `AGENT_EXECUTION_PACKAGE.md`, `QUALITY_CHECKLIST.md`, and `LAUNCH_PLAN.md`.
+- Enriching draft artifacts beyond unknown-preserving shells once Project DNA fields are confirmed.
 - Safe external export and any future agent execution runtime.
 - Resolution of open v1 product decisions (auth/tenant model, model-provider stance, retention, frozen reviewer thresholds).
 
@@ -77,7 +95,7 @@ Contract validation phase:
 1. Resolve the v1 design decisions recorded in the architecture before introducing persistence, external model providers, or execution authority.
 2. Establish tenant-scoped projects and immutable skill/catalog versions on top of the validated contracts.
 3. Expand deterministic composition by category and capability, with tested deduplication, conflict resolution, provenance, and graph invariants.
-4. Add versioned templates and generate the remaining canonical artifacts; keep every incomplete package in draft.
+4. ~~Add versioned templates and generate the remaining canonical artifacts; keep every incomplete package in draft.~~ **Done for the AI Product pilot draft set.**
 5. Implement the evidence-backed Review Council and bounded revision/blocked flow. Do not mark a package accepted until all mandatory gates pass.
 6. Add authenticated, scoped export only after review; keep generated instructions separate from executable permissions.
 7. Establish privacy, retention, operational, and evaluation controls before production rollout.

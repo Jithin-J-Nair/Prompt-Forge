@@ -81,6 +81,8 @@ export const BLUEPRINT_ARTIFACTS = [
   "LAUNCH_PLAN.md",
 ] as const;
 
+export type BlueprintArtifactKey = (typeof BLUEPRINT_ARTIFACTS)[number];
+
 export const REVIEW_COUNCIL_ROLES = [
   "Creative Director",
   "Product Strategist",
@@ -133,6 +135,7 @@ export interface CompositionPreview {
   accepted: false;
   executionReady: false;
   graphHash: string;
+  templateSetVersion: string;
   graph: {
     nodes: SkillGraphNode[];
     edges: SkillGraphEdge[];
@@ -146,13 +149,11 @@ export interface CompositionPreview {
     }[];
   };
   artifactPreviews: {
-    logicalKey: "MASTER_SKILL_PACKAGE.md" | "PROJECT_DNA.md";
+    logicalKey: BlueprintArtifactKey;
     content: string;
+    templateVersion: string;
   }[];
-  missingArtifacts: Exclude<
-    (typeof BLUEPRINT_ARTIFACTS)[number],
-    "MASTER_SKILL_PACKAGE.md" | "PROJECT_DNA.md"
-  >[];
+  missingArtifacts: BlueprintArtifactKey[];
   reviewStatus: "not_started";
   requiredReviewers: (typeof REVIEW_COUNCIL_ROLES)[number][];
   limitations: string[];

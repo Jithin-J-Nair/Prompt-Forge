@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "1.0.0",
+  "templateSetId": "skillforge-draft",
+  "version": "1.0.0",
+  "status": "published",
+  "description": "Deterministic draft blueprint templates for the AI Product pilot. Unknown Project DNA fields stay unknown; drafts are never accepted without Review Council.",
+  "templates": [
+    {
+      "logicalKey": "MASTER_SKILL_PACKAGE.md",
+      "title": "Master Skill Package",
+      "requiredSections": [
+        "Project intent",
+        "Selected core expertise",
+        "Dependency graph",
+        "Provenance"
+      ]
+    },
+    {
+      "logicalKey": "PROJECT_DNA.md",
+      "title": "Project DNA",
+      "requiredSections": ["Field status table", "Provenance note"]
+    },
+    {
+      "logicalKey": "PRODUCT_STRATEGY.md",
+      "title": "Product Strategy",
+      "requiredSections": [
+        "Users",
+        "Problem",
+        "Market",
+        "Differentiation",
+        "Business model",
+        "Outcomes"
+      ],
+      "dnaBindings": {
+        "Users": "User",
+        "Problem": "Problem",
+        "Market": "Market",
+        "Differentiation": "Differentiation",
+        "Business model": "Business Model",
+        "Outcomes": "Success Metrics"
+      }
+    },
+    {
+      "logicalKey": "DESIGN_SYSTEM.md",
+      "title": "Design System",
+      "requiredSections": [
+        "Visual principles",
+        "Interaction principles",
+        "Accessibility constraints",
+        "Responsive constraints",
+        "Open decisions"
+      ]
+    },
+    {
+      "logicalKey": "ARCHITECTURE.md",
+      "title": "Architecture",
+      "requiredSections": [
+        "System boundaries",
+        "Components",
+        "Integrations",
+        "Quality attributes",
+        "Open decisions"
+      ],
+      "dnaBindings": {
+        "System boundaries": "Architecture",
+        "Components": "Technical Stack"
+      }
+    },
+    {
+      "logicalKey": "USER_FLOWS.md",
+      "title": "User Flows",
+      "requiredSections": [
+        "Primary tasks",
+        "States",
+        "Errors and recovery",
+        "Open decisions"
+      ],
+      "dnaBindings": {
+        "Primary tasks": "User Flows"
+      }
+    },
+    {
+      "logicalKey": "DATABASE_DESIGN.md",
+      "title": "Database Design",
+      "requiredSections": [
+        "Conceptual entities",
+        "Access boundaries",
+        "Retention concerns",
+        "Open decisions"
+      ]
+    },
+    {
+      "logicalKey": "AI_SYSTEM_DESIGN.md",
+      "title": "AI System Design",
+      "requiredSections": [
+        "Applicability",
+        "Models and context",
+        "Evaluation and safety",
+        "Open decisions"
+      ]
+    },
+    {
+      "logicalKey": "AGENT_EXECUTION_PACKAGE.md",
+      "title": "Agent Execution Package",
+      "requiredSections": [
+        "Bounded task graph",
+        "Prerequisites",
+        "Stop conditions",
+        "Prohibited operations",
+        "Handoff status"
+      ]
+    },
+    {
+      "logicalKey": "QUALITY_CHECKLIST.md",
+      "title": "Quality Checklist",
+      "requiredSections": [
+        "Package completeness",
+        "Review Council gate",
+        "Evidence requirements",
+        "Acceptance blockers"
+      ]
+    },
+    {
+      "logicalKey": "LAUNCH_PLAN.md",
+      "title": "Launch Plan",
+      "requiredSections": [
+        "Milestones",
+        "Risks",
+        "Rollout",
+        "Success measures",
+        "Open decisions"
+      ],
+      "dnaBindings": {
+        "Milestones": "Roadmap",
+        "Risks": "Risk Analysis",
+        "Success measures": "Success Metrics"
+      }
+    }
+  ]
+}
