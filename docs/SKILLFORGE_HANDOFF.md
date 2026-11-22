@@ -9,8 +9,9 @@
 - `/` — PromptForge home; primary CTA composes via `/skillforge?q=…`
 - `/skillforge` — compose, Review Council, browser + **server save**, Markdown export, **Agent pack** download
 - `/forge` — mega-prompt surface (resilient if DB persist fails; still returns the spec)
-- Catalog **v1.2.0** — 50 curated skills across 15 categories
-- Eleven blueprints + council gate; `executionReady` / `executionAuthorized` always **false**
+- Catalog **v1.3.0** — 57+ depth-enriched skills (including Tier-7 reviewers) across 15 categories
+- Immersive categories emit craft-dense blueprints (no placeholder binder pages)
+- Eleven blueprints + craft-aware council gate; `executionReady` / `executionAuthorized` always **false**
 
 ## Persistence
 

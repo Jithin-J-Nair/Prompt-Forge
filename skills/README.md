@@ -1,3 +1,9 @@
 # Skill packages
 
-This design phase defines a schema, not a library of completed skills. Each future skill version must validate against [`skill.schema.json`](skill.schema.json), include all 13 required expertise sections, identify applicability and boundaries, and carry version/provenance metadata. Published versions are immutable. Skill text is advisory content and never an authorization grant.
+Published skills live in the runtime catalog (`src/lib/skillforge/catalog*.ts`) and must validate against [`skill.schema.json`](skill.schema.json).
+
+Each skill includes all 13 expertise sections:
+
+Identity, Mission, Principles, Mental Models, Decision Frameworks, Best Practices, Anti Patterns, Review Criteria, Quality Metrics, Acceptance Criteria, Output Contract, Examples, Failure States.
+
+Catalog v1.3.0 applies depth enrichment so roles are playbooks—not empty job titles. Skill text is advisory and never an authorization grant.
