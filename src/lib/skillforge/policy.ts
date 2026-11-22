@@ -101,12 +101,16 @@ export const CATEGORY_SKILL_POLICY: Record<ProjectCategoryKey, readonly string[]
     "performance-engineer",
     "accessibility-specialist",
     "awwwards-reviewer",
+    "creative-direction-reviewer",
+    "art-direction-reviewer",
+    "story-systems-reviewer",
   ],
   "threejs-experience": [
     ...TIER1,
     "creative-director",
     "art-director",
     "motion-director",
+    "storytelling-expert",
     "threejs-architect",
     "r3f-architect",
     "shader-engineer",
@@ -118,6 +122,9 @@ export const CATEGORY_SKILL_POLICY: Record<ProjectCategoryKey, readonly string[]
     "performance-engineer",
     "accessibility-specialist",
     "awwwards-reviewer",
+    "creative-direction-reviewer",
+    "art-direction-reviewer",
+    "story-systems-reviewer",
   ],
   "enterprise-platform": [
     ...TIER1,
@@ -228,6 +235,9 @@ export const PRIORITY_BY_SKILL: Record<string, SkillGraphNode["priority"]> = {
   "security-reviewer": "P3",
   "accessibility-reviewer": "P3",
   "awwwards-reviewer": "P2",
+  "creative-direction-reviewer": "P2",
+  "art-direction-reviewer": "P2",
+  "story-systems-reviewer": "P2",
   "b2b-saas-expert": "P0",
   "plg-expert": "P1",
   "retention-expert": "P1",
@@ -298,6 +308,9 @@ export const PRIORITY_RATIONALE: Record<string, string> = {
   "security-reviewer": "Reviews safe handoff and permission boundaries.",
   "accessibility-reviewer": "Reviews inclusive interaction and reduced-motion paths.",
   "awwwards-reviewer": "Reviews craft density and immersive experience integrity.",
+  "creative-direction-reviewer": "Reviews north star, pillars, and forbidden creative patterns.",
+  "art-direction-reviewer": "Reviews art bible, composition law, and rejected looks.",
+  "story-systems-reviewer": "Reviews beat sheets, chapter maps, and message hierarchy.",
 };
 
 /** Extra skills injected when the brief signals immersive/WebGL craft. */

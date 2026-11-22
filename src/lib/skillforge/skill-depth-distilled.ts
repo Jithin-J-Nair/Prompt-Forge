@@ -2654,5 +2654,146 @@ export const DISTILLED_DEPTH: Record<string, DepthPatch> = {
         blocking: true,
       },
     ],
-  }
+  },
+  "creative-direction-reviewer": {
+    mission:
+      "Fail packages that list aesthetics without a single enforceable creative north star, pillars, and forbidden patterns.",
+    principles: [
+      "One north star beats moodboard sprawl.",
+      "Forbidden patterns must be explicit and testable.",
+      "References are posture, never clones.",
+      "Creative law must be executable by cook agents.",
+    ],
+    mentalModels: ["North star", "Pillar coherence", "Forbidden-pattern gate"],
+    decisionFrameworks: [
+      framework(
+        "Creative direction council pass",
+        "Before cook on brand/experience packages.",
+        [
+          "Read CREATIVE_DIRECTION.md for north star and pillars.",
+          "Verify forbidden patterns are concrete (not vibes).",
+          "Fail if craft artifacts contradict the north star.",
+        ],
+        ["REVIEWER_FRAMEWORKS.md creative lens with pass/fail."],
+      ),
+    ],
+    bestPractices: ["Cite CREATIVE_DIRECTION.md lines for every fail.", "Prefer remediations that restore one concept."],
+    antiPatterns: ["Passing moodboards with no concept.", "Rubber-stamping AI-default aesthetics."],
+    reviewCriteria: [
+      criterion("North star, pillars, and forbidden patterns are concrete.", "CREATIVE_DIRECTION.md", "critical"),
+    ],
+    qualityMetrics: [
+      { name: "Concept clarity", measurement: "Single north star sentence present", target: "Yes" },
+    ],
+    acceptanceCriteria: ["Creative direction review recorded with pass/fail."],
+    examples: [
+      {
+        title: "Moodboard without law",
+        input: "References only, no forbidden patterns",
+        expectedOutput: "Fail: no enforceable creative law; remediate CREATIVE_DIRECTION.md.",
+      },
+    ],
+    failureStates: [
+      {
+        condition: "Missing CREATIVE_DIRECTION.md",
+        impact: "Cannot review creative coherence.",
+        recovery: "Require creative direction artifact.",
+        blocking: true,
+      },
+    ],
+  },
+  "art-direction-reviewer": {
+    mission:
+      "Fail art direction that defaults to AI clichés, card-grid heroes, or non-executable composition law.",
+    principles: [
+      "Composition law must be agent-executable.",
+      "Rejected looks are named, not vibes.",
+      "Chrome stays quiet on experience surfaces.",
+      "Materials and typography must serve the experience thesis.",
+    ],
+    mentalModels: ["Composition law", "Rejected looks ledger", "Material system"],
+    decisionFrameworks: [
+      framework(
+        "Art direction council pass",
+        "Before cook on visual packages.",
+        [
+          "Check ART_DIRECTION.md for composition law and art bible.",
+          "Verify rejected looks include AI-default clusters when immersive.",
+          "Fail card-grid / inset-hero first viewports on experience briefs.",
+        ],
+        ["REVIEWER_FRAMEWORKS.md art lens."],
+      ),
+    ],
+    bestPractices: ["Cross-check DESIGN_SYSTEM tokens against art law.", "Require full-bleed hero rules when craft demands it."],
+    antiPatterns: ["Purple-gradient defaults.", "Vague 'premium minimal' without constraints."],
+    reviewCriteria: [
+      criterion("Art bible and composition law are specific enough to implement.", "ART_DIRECTION.md", "high"),
+    ],
+    qualityMetrics: [
+      { name: "Rejected looks", measurement: "Named rejected looks ≥3 when immersive", target: "Yes" },
+    ],
+    acceptanceCriteria: ["Art direction review recorded."],
+    examples: [
+      {
+        title: "Card-grid hero",
+        input: "Awwwards brief with SaaS card hero",
+        expectedOutput: "Fail: composition law violated; remediate first viewport.",
+      },
+    ],
+    failureStates: [
+      {
+        condition: "Missing ART_DIRECTION.md",
+        impact: "No visual law to enforce.",
+        recovery: "Require art direction artifact.",
+        blocking: true,
+      },
+    ],
+  },
+  "story-systems-reviewer": {
+    mission:
+      "Reject story systems that are marketing section stacks instead of visitor beat sheets and chapter maps.",
+    principles: [
+      "Beats must map to visitor jobs.",
+      "Message hierarchy protects the first viewport.",
+      "Voice bans empty hype without evidence.",
+      "Chapters need one job each.",
+    ],
+    mentalModels: ["Beat sheet", "Chapter map", "Message hierarchy"],
+    decisionFrameworks: [
+      framework(
+        "Story systems council pass",
+        "Before cook on experiential/marketing packages.",
+        [
+          "Read STORY_SYSTEM.md beat sheet and chapter map.",
+          "Check first-viewport message hierarchy.",
+          "Fail compose-loop docs posing as story.",
+        ],
+        ["REVIEWER_FRAMEWORKS.md story lens."],
+      ),
+    ],
+    bestPractices: ["Align chapters with USER_FLOWS visitor jobs.", "Keep CTA as narrative landing."],
+    antiPatterns: ["Section stacks with no beats.", "Multiple competing hero messages."],
+    reviewCriteria: [
+      criterion("Beat sheet and chapter map describe the visitor journey.", "STORY_SYSTEM.md", "high"),
+    ],
+    qualityMetrics: [
+      { name: "Chapter jobs", measurement: "Chapters with one stated job", target: "100%" },
+    ],
+    acceptanceCriteria: ["Story systems review recorded."],
+    examples: [
+      {
+        title: "Brochure stack",
+        input: "Features/Benefits/About with no beats",
+        expectedOutput: "Fail: no visitor beat sheet; remediate STORY_SYSTEM.md.",
+      },
+    ],
+    failureStates: [
+      {
+        condition: "Missing STORY_SYSTEM.md",
+        impact: "Cannot review narrative coherence.",
+        recovery: "Require story system artifact.",
+        blocking: true,
+      },
+    ],
+  },
 };

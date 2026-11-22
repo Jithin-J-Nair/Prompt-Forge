@@ -11,6 +11,13 @@ import {
   renderUserFlowsBody,
 } from "./blueprints-content.ts";
 import {
+  renderArtDirectionBody,
+  renderCreativeDirectionBody,
+  renderExperienceDnaBody,
+  renderReviewerFrameworksBody,
+  renderStorySystemBody,
+} from "./craft-direction.ts";
+import {
   BLUEPRINT_ARTIFACTS,
   type CompositionPreview,
   type ProjectDnaField,
@@ -178,7 +185,15 @@ function renderCategoryArtifact(
   const lines = [...packageBanner(template.logicalKey, accepted)];
   let sectionBodies: Record<string, string> = {};
 
-  if (template.logicalKey === "DESIGN_SYSTEM.md") {
+  if (template.logicalKey === "EXPERIENCE_DNA.md") {
+    sectionBodies = renderExperienceDnaBody(categoryKey, fields, brief);
+  } else if (template.logicalKey === "CREATIVE_DIRECTION.md") {
+    sectionBodies = renderCreativeDirectionBody(categoryKey, fields, brief);
+  } else if (template.logicalKey === "ART_DIRECTION.md") {
+    sectionBodies = renderArtDirectionBody(categoryKey, fields, brief);
+  } else if (template.logicalKey === "STORY_SYSTEM.md") {
+    sectionBodies = renderStorySystemBody(categoryKey, fields, brief);
+  } else if (template.logicalKey === "DESIGN_SYSTEM.md") {
     sectionBodies = renderDesignSystemBody(categoryKey, fields, brief);
   } else if (template.logicalKey === "ARCHITECTURE.md") {
     sectionBodies = renderArchitectureBody(categoryKey, fields);
@@ -264,6 +279,25 @@ function renderAiSystemDesign(
         : "Keep AI out of scope until a confirmed product job needs it.",
     ),
   ].join("\n");
+}
+
+function renderReviewerFrameworks(
+  categoryKey: ProjectCategoryKey,
+  graph: { nodes: SkillGraphNode[]; edges: SkillGraphEdge[] },
+  accepted: boolean,
+): string {
+  const sectionBodies = renderReviewerFrameworksBody(categoryKey, graph.nodes);
+  const lines = [...packageBanner("REVIEWER_FRAMEWORKS.md", accepted)];
+  for (const section of [
+    "Council roster",
+    "Craft lenses",
+    "Evidence rules",
+    "Fail conditions",
+    "Selected reviewer skills",
+  ] as const) {
+    lines.push(...renderGuidanceSection(section, sectionBodies[section]));
+  }
+  return lines.join("\n");
 }
 
 function renderAgentExecutionPackage(
@@ -391,6 +425,13 @@ export function renderDraftBlueprints(input: {
       byKey.set(
         template.logicalKey,
         renderAiSystemDesign(input.fields, accepted, input.categoryKey),
+      );
+      continue;
+    }
+    if (template.logicalKey === "REVIEWER_FRAMEWORKS.md") {
+      byKey.set(
+        template.logicalKey,
+        renderReviewerFrameworks(input.categoryKey, input.graph, accepted),
       );
       continue;
     }

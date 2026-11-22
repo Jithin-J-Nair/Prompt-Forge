@@ -11,10 +11,11 @@
 - `/forge` — mega-prompt surface (resilient if DB persist fails; still returns the spec)
 - Catalog **v1.4.2** — 57+ depth-enriched skills (license-audited GitHub adaptations for PM/UX/security/context/marketing/story + WebGL/GSAP; never pasted third-party SKILL.md)
 - Immersive categories emit craft-dense blueprints (no placeholder binder pages)
+- Craft-first artifacts: `EXPERIENCE_DNA`, `CREATIVE_DIRECTION`, `ART_DIRECTION`, `STORY_SYSTEM`, `REVIEWER_FRAMEWORKS` (architecture stays minimal boundary notes)
 - **Cook pack**: downloads `COOK.md` (one pasteable mega-prompt for coding AIs) + handoff + manifest
 - Deterministic short-brief expansion for craft/product targets
 - Curated skill ingest path: `npm run ingest:skills` (validate distilled JSON — no GitHub paste)
-- Eleven blueprints + craft-aware council gate; `executionReady` / `executionAuthorized` always **false**
+- Sixteen blueprints + craft-aware council gate; `executionReady` / `executionAuthorized` always **false**
 
 ## Persistence
 

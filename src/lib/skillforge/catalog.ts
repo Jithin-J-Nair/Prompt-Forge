@@ -5,7 +5,6 @@ import { buildSkill } from "./skill-factory.ts";
 import type { SkillPackage } from "./types.ts";
 
 export const CATALOG_VERSION = "skillforge-catalog-1.4.2";
-
 const ALL_CATEGORIES = [
   "ai-product",
   "ai-agent",

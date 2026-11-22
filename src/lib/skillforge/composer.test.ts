@@ -107,7 +107,7 @@ test("supports all configured project categories", () => {
     });
     assert.equal(preview.categoryKey, category.key);
     assert.ok(preview.graph.nodes.length >= 4);
-    assert.equal(preview.artifactPreviews.length, 11);
+    assert.equal(preview.artifactPreviews.length, BLUEPRINT_ARTIFACTS.length);
     assert.equal(preview.executionReady, false);
   }
 });

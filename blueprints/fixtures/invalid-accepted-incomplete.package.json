@@ -7,12 +7,17 @@
   "requiredArtifacts": [
     "MASTER_SKILL_PACKAGE.md",
     "PROJECT_DNA.md",
+    "EXPERIENCE_DNA.md",
+    "CREATIVE_DIRECTION.md",
+    "ART_DIRECTION.md",
+    "STORY_SYSTEM.md",
     "PRODUCT_STRATEGY.md",
     "DESIGN_SYSTEM.md",
     "ARCHITECTURE.md",
     "USER_FLOWS.md",
     "DATABASE_DESIGN.md",
     "AI_SYSTEM_DESIGN.md",
+    "REVIEWER_FRAMEWORKS.md",
     "AGENT_EXECUTION_PACKAGE.md",
     "QUALITY_CHECKLIST.md",
     "LAUNCH_PLAN.md"
@@ -22,12 +27,17 @@
     "PROJECT_DNA.md"
   ],
   "missingArtifacts": [
+    "EXPERIENCE_DNA.md",
+    "CREATIVE_DIRECTION.md",
+    "ART_DIRECTION.md",
+    "STORY_SYSTEM.md",
     "PRODUCT_STRATEGY.md",
     "DESIGN_SYSTEM.md",
     "ARCHITECTURE.md",
     "USER_FLOWS.md",
     "DATABASE_DESIGN.md",
     "AI_SYSTEM_DESIGN.md",
+    "REVIEWER_FRAMEWORKS.md",
     "AGENT_EXECUTION_PACKAGE.md",
     "QUALITY_CHECKLIST.md",
     "LAUNCH_PLAN.md"

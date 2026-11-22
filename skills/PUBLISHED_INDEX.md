@@ -1,5 +1,4 @@
 # Published SkillForge skills (catalog v1.4.2)
-
 Runtime source of truth: `src/lib/skillforge/catalog.ts` (+ depth, elite, reviewers).
 
 Skills are curated SkillForge-contract playbooks (13 sections). They are **not** verbatim copies of third-party GitHub skill repos. Distill elite practice into this contract; never paste copyrighted skill packs wholesale.
