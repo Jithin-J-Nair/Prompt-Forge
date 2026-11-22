@@ -21,6 +21,54 @@
       "requiredSections": ["Field status table", "Provenance note"]
     },
     {
+      "logicalKey": "EXPERIENCE_DNA.md",
+      "title": "Experience DNA",
+      "requiredSections": [
+        "Experience thesis",
+        "Emotional arc",
+        "Sensory register",
+        "Visitor jobs",
+        "Anti-experience",
+        "Open decisions"
+      ]
+    },
+    {
+      "logicalKey": "CREATIVE_DIRECTION.md",
+      "title": "Creative Direction",
+      "requiredSections": [
+        "North star concept",
+        "Creative pillars",
+        "Reference posture",
+        "Decision rules",
+        "Forbidden patterns",
+        "Open decisions"
+      ]
+    },
+    {
+      "logicalKey": "ART_DIRECTION.md",
+      "title": "Art Direction",
+      "requiredSections": [
+        "Art bible",
+        "Composition law",
+        "Material & imagery",
+        "UI chrome rules",
+        "Rejected looks",
+        "Open decisions"
+      ]
+    },
+    {
+      "logicalKey": "STORY_SYSTEM.md",
+      "title": "Story System",
+      "requiredSections": [
+        "Narrative premise",
+        "Beat sheet",
+        "Chapter map",
+        "Message hierarchy",
+        "Voice & tone",
+        "Open decisions"
+      ]
+    },
+    {
       "logicalKey": "PRODUCT_STRATEGY.md",
       "title": "Product Strategy",
       "requiredSections": [
@@ -97,6 +145,17 @@
         "Models and context",
         "Evaluation and safety",
         "Open decisions"
+      ]
+    },
+    {
+      "logicalKey": "REVIEWER_FRAMEWORKS.md",
+      "title": "Reviewer Frameworks",
+      "requiredSections": [
+        "Council roster",
+        "Craft lenses",
+        "Evidence rules",
+        "Fail conditions",
+        "Selected reviewer skills"
       ]
     },
     {

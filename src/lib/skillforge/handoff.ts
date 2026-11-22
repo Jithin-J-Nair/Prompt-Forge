@@ -66,10 +66,11 @@ export function buildAgentHandoffManifest(
       "Stop before any production mutation or credential use.",
     ],
     agentInstructions: [
-      "Read MASTER_SKILL_PACKAGE.md, PROJECT_DNA.md, and DESIGN_SYSTEM.md first.",
+      "Read EXPERIENCE_DNA.md, CREATIVE_DIRECTION.md, ART_DIRECTION.md, and STORY_SYSTEM.md first — then DESIGN_SYSTEM.md.",
+      "Treat ARCHITECTURE.md as boundary notes only; do not expand architecture theater when cooking.",
       "Follow skill graph priorities (P0 before P2) and only within assigned scopes.",
       "If immersive/Awwwards/Three.js skills are present: implement button/CTA micro-interactions, image/placeholder reveals, scroll theater, and GSAP/R3F per AGENT_EXECUTION_PACKAGE cook steps — do not invent a SaaS dashboard.",
-      "Honor reduced-motion and performance budgets before claiming done.",
+      "Honor reduced-motion and REVIEWER_FRAMEWORKS fail conditions before claiming done.",
       "Preserve executionAuthorized=false until a separately authorized executor exists.",
       prepared
         ? "Council passed — use this pack as the instructional source of truth to cook the build."

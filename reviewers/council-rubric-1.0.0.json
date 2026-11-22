@@ -14,7 +14,7 @@
   "reviewers": [
     {
       "role": "Creative Director",
-      "focusArtifact": "DESIGN_SYSTEM.md",
+      "focusArtifact": "CREATIVE_DIRECTION.md",
       "dimensions": ["requirementCoverage", "clarity", "distinctiveness"]
     },
     {
@@ -29,7 +29,7 @@
     },
     {
       "role": "Performance Engineer",
-      "focusArtifact": "ARCHITECTURE.md",
+      "focusArtifact": "QUALITY_CHECKLIST.md",
       "dimensions": ["measurableBudgets", "scalingAssumptions", "riskHandling"]
     },
     {
@@ -39,7 +39,7 @@
     },
     {
       "role": "UX Architect",
-      "focusArtifact": "USER_FLOWS.md",
+      "focusArtifact": "STORY_SYSTEM.md",
       "dimensions": ["taskCompletion", "errorRecovery", "clarity"]
     },
     {
@@ -49,7 +49,7 @@
     },
     {
       "role": "Awwwards Reviewer",
-      "focusArtifact": "DESIGN_SYSTEM.md",
+      "focusArtifact": "EXPERIENCE_DNA.md",
       "dimensions": ["craft", "originality", "interactionQuality"]
     }
   ]

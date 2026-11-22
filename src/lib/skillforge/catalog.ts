@@ -4,7 +4,7 @@ import { deepenCatalog } from "./skill-depth.ts";
 import { buildSkill } from "./skill-factory.ts";
 import type { SkillPackage } from "./types.ts";
 
-export const CATALOG_VERSION = "skillforge-catalog-1.3.1";
+export const CATALOG_VERSION = "skillforge-catalog-1.3.2";
 
 const ALL_CATEGORIES = [
   "ai-product",

@@ -22,13 +22,16 @@ test("tier-7 reviewer skills are published", () => {
     "security-reviewer",
     "accessibility-reviewer",
     "awwwards-reviewer",
+    "creative-direction-reviewer",
+    "art-direction-reviewer",
+    "story-systems-reviewer",
   ]) {
     assert.ok(getSkillBySlug(slug), `missing ${slug}`);
   }
-  assert.ok(PUBLISHED_SKILLS.length >= 57);
+  assert.ok(PUBLISHED_SKILLS.length >= 60);
 });
 
-test("awwwards short brief yields immersive skills, dense design system, visitor flows", () => {
+test("awwwards short brief yields immersive skills, dense craft artifacts, visitor flows", () => {
   const preview = composeProjectPreview({
     categoryKey: "awwwards-website",
     brief: "Awwwards site like activetheory.net",
@@ -44,15 +47,28 @@ test("awwwards short brief yields immersive skills, dense design system, visitor
     "shader-engineer",
     "gsap-architect",
     "motion-director",
+    "creative-direction-reviewer",
+    "art-direction-reviewer",
+    "story-systems-reviewer",
   ]) {
     assert.ok(slugs.includes(required), `missing skill ${required}`);
   }
 
+  const experience = preview.artifactPreviews.find((a) => a.logicalKey === "EXPERIENCE_DNA.md")!.content;
+  const creative = preview.artifactPreviews.find((a) => a.logicalKey === "CREATIVE_DIRECTION.md")!.content;
+  const art = preview.artifactPreviews.find((a) => a.logicalKey === "ART_DIRECTION.md")!.content;
+  const story = preview.artifactPreviews.find((a) => a.logicalKey === "STORY_SYSTEM.md")!.content;
+  const frameworks = preview.artifactPreviews.find((a) => a.logicalKey === "REVIEWER_FRAMEWORKS.md")!.content;
   const design = preview.artifactPreviews.find((a) => a.logicalKey === "DESIGN_SYSTEM.md")!.content;
   const architecture = preview.artifactPreviews.find((a) => a.logicalKey === "ARCHITECTURE.md")!.content;
   const flows = preview.artifactPreviews.find((a) => a.logicalKey === "USER_FLOWS.md")!.content;
   const master = preview.artifactPreviews.find((a) => a.logicalKey === "MASTER_SKILL_PACKAGE.md")!.content;
 
+  assert.ok(experience.includes("Experience thesis"));
+  assert.ok(creative.includes("North star concept"));
+  assert.ok(art.includes("Art bible"));
+  assert.ok(story.includes("Beat sheet"));
+  assert.ok(frameworks.includes("Craft lenses"));
   assert.ok(!design.includes(PLACEHOLDER_BAN_PHRASE));
   assert.ok(design.includes("Motion language"));
   assert.ok(design.includes("full-bleed"));
@@ -69,6 +85,7 @@ test("awwwards short brief yields immersive skills, dense design system, visitor
   const agent = preview.artifactPreviews.find((a) => a.logicalKey === "AGENT_EXECUTION_PACKAGE.md")!
     .content;
   assert.ok(agent.includes("How an external agent should cook this package"));
+  assert.ok(/EXPERIENCE_DNA|CREATIVE_DIRECTION/i.test(agent));
   assert.ok(/GSAP|R3F/i.test(agent));
   assert.ok(/button\/CTA micro-interactions/i.test(agent));
 

@@ -8,7 +8,7 @@ import { buildAgentHandoffManifest, buildAgentHandoffMarkdown } from "./handoff.
 import { parseSkillDocument } from "./skill-ingest.ts";
 
 test("catalog bumped for god-level cook surface", () => {
-  assert.equal(CATALOG_VERSION, "skillforge-catalog-1.3.1");
+  assert.equal(CATALOG_VERSION, "skillforge-catalog-1.3.2");
 });
 
 test("COOK prompt is a single pasteable agent build brief", () => {
@@ -21,6 +21,11 @@ test("COOK prompt is a single pasteable agent build brief", () => {
   assert.match(cook, /executionAuthorized/);
   assert.match(cook, /Buttons\/CTA|Button\/CTA|button\/CTA/i);
   assert.match(cook, /GSAP|R3F/);
+  assert.match(cook, /EXPERIENCE_DNA/);
+  assert.match(cook, /CREATIVE_DIRECTION/);
+  assert.match(cook, /ART_DIRECTION/);
+  assert.match(cook, /STORY_SYSTEM/);
+  assert.match(cook, /REVIEWER_FRAMEWORKS/);
   assert.match(cook, /DESIGN_SYSTEM/);
   assert.ok(cook.length > 4000);
 });

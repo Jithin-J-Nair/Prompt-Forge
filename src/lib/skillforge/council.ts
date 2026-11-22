@@ -24,6 +24,11 @@ const IMMERSIVE_CRAFT_MARKERS = [
   "Buttons / CTAs",
   "Image / media placeholders",
   "Scroll theater",
+  "Experience thesis",
+  "North star concept",
+  "Art bible",
+  "Beat sheet",
+  "Craft lenses",
 ];
 
 export const RUBRIC_VERSION = `${councilRubric.rubricId}@${councilRubric.version}`;
@@ -123,6 +128,10 @@ function assessCraftDensity(
 ): { delta: number; notes: string }[] {
   const penalties: { delta: number; notes: string }[] = [];
   const design = artifactByKey(artifacts, "DESIGN_SYSTEM.md");
+  const experience = artifactByKey(artifacts, "EXPERIENCE_DNA.md");
+  const creative = artifactByKey(artifacts, "CREATIVE_DIRECTION.md");
+  const art = artifactByKey(artifacts, "ART_DIRECTION.md");
+  const story = artifactByKey(artifacts, "STORY_SYSTEM.md");
   const architecture = artifactByKey(artifacts, "ARCHITECTURE.md");
   const flows = artifactByKey(artifacts, "USER_FLOWS.md");
   const all = artifacts.map((artifact) => artifact.content).join("\n");
@@ -146,6 +155,22 @@ function assessCraftDensity(
       delta: -16,
       notes: `DESIGN_SYSTEM.md too thin (${design.content.length} chars).`,
     });
+  }
+
+  if (immersiveCategory) {
+    for (const [key, artifact, min] of [
+      ["EXPERIENCE_DNA.md", experience, 700],
+      ["CREATIVE_DIRECTION.md", creative, 650],
+      ["ART_DIRECTION.md", art, 650],
+      ["STORY_SYSTEM.md", story, 700],
+    ] as const) {
+      if (artifact && artifact.content.length < min) {
+        penalties.push({
+          delta: -18,
+          notes: `${key} too thin (${artifact.content.length} chars) for immersive craft export.`,
+        });
+      }
+    }
   }
 
   if (

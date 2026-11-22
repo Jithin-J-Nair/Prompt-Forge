@@ -17,8 +17,8 @@
     {
       "reviewer": "Creative Director",
       "score": 90,
-      "evidence": "Reviewed `DESIGN_SYSTEM.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
-      "artifactLogicalKey": "DESIGN_SYSTEM.md"
+      "evidence": "Reviewed `CREATIVE_DIRECTION.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "CREATIVE_DIRECTION.md"
     },
     {
       "reviewer": "Product Strategist",
@@ -35,8 +35,8 @@
     {
       "reviewer": "Performance Engineer",
       "score": 90,
-      "evidence": "Reviewed `ARCHITECTURE.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
-      "artifactLogicalKey": "ARCHITECTURE.md"
+      "evidence": "Reviewed `QUALITY_CHECKLIST.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "QUALITY_CHECKLIST.md"
     },
     {
       "reviewer": "Security Engineer",
@@ -47,8 +47,8 @@
     {
       "reviewer": "UX Architect",
       "score": 90,
-      "evidence": "Reviewed `USER_FLOWS.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
-      "artifactLogicalKey": "USER_FLOWS.md"
+      "evidence": "Reviewed `STORY_SYSTEM.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "STORY_SYSTEM.md"
     },
     {
       "reviewer": "Accessibility Reviewer",
@@ -59,8 +59,8 @@
     {
       "reviewer": "Awwwards Reviewer",
       "score": 90,
-      "evidence": "Reviewed `DESIGN_SYSTEM.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
-      "artifactLogicalKey": "DESIGN_SYSTEM.md"
+      "evidence": "Reviewed `EXPERIENCE_DNA.md` against rubric `council-defaults-proposed@1.0.0`. Deterministic score 90/100.",
+      "artifactLogicalKey": "EXPERIENCE_DNA.md"
     }
   ],
   "unresolvedFindings": [],

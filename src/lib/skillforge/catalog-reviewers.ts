@@ -177,9 +177,83 @@ export const REVIEWER_SKILLS: SkillPackage[] = [
     ],
     reviewCriteria: [
       {
+        criterion: "Experience DNA and art direction hold a concrete thesis and composition law.",
+        evidence: "EXPERIENCE_DNA.md / ART_DIRECTION.md",
+        severityIfMissed: "critical",
+      },
+      {
         criterion: "Design system contains concrete visual and motion constraints.",
         evidence: "DESIGN_SYSTEM.md craft sections",
         severityIfMissed: "critical",
+      },
+    ],
+  }),
+  buildSkill({
+    slug: "creative-direction-reviewer",
+    name: "Creative Direction Reviewer",
+    tier: 7,
+    role: "Creative Direction Reviewer",
+    summary: "Scores whether the package has a single north star and enforceable creative law.",
+    capabilities: ["north-star-review", "pillar-coherence", "forbidden-pattern-gate"],
+    categoryKeys: [...REVIEW_CATEGORIES],
+    dependencies: ["creative-director"],
+    mission: "Reject packages that list aesthetics without a decisive creative concept.",
+    principles: [
+      "One north star beats moodboard sprawl.",
+      "Forbidden patterns must be explicit and testable.",
+      "References are posture, never clones.",
+    ],
+    reviewCriteria: [
+      {
+        criterion: "North star, pillars, and forbidden patterns are concrete.",
+        evidence: "CREATIVE_DIRECTION.md",
+        severityIfMissed: "critical",
+      },
+    ],
+  }),
+  buildSkill({
+    slug: "art-direction-reviewer",
+    name: "Art Direction Reviewer",
+    tier: 7,
+    role: "Art Direction Reviewer",
+    summary: "Scores visual system law: composition, materials, chrome, rejected looks.",
+    capabilities: ["composition-law-review", "material-system-review", "look-rejection-gate"],
+    categoryKeys: [...REVIEW_CATEGORIES],
+    dependencies: ["art-director"],
+    mission: "Fail art direction that defaults to AI clichés or card-grid heroes.",
+    principles: [
+      "Composition law is executable by an agent.",
+      "Rejected looks are named, not vibes.",
+      "Chrome stays quiet on experience surfaces.",
+    ],
+    reviewCriteria: [
+      {
+        criterion: "Art bible and composition law are specific enough to implement.",
+        evidence: "ART_DIRECTION.md",
+        severityIfMissed: "high",
+      },
+    ],
+  }),
+  buildSkill({
+    slug: "story-systems-reviewer",
+    name: "Story Systems Reviewer",
+    tier: 7,
+    role: "Story Systems Reviewer",
+    summary: "Scores narrative beats, chapter maps, and message hierarchy coherence.",
+    capabilities: ["beat-sheet-review", "chapter-map-review", "message-hierarchy-review"],
+    categoryKeys: [...REVIEW_CATEGORIES],
+    dependencies: ["storytelling-expert"],
+    mission: "Reject story systems that are marketing section stacks or compose-loop docs.",
+    principles: [
+      "Beats must map to visitor jobs.",
+      "Message hierarchy protects the first viewport.",
+      "Voice bans empty hype without evidence.",
+    ],
+    reviewCriteria: [
+      {
+        criterion: "Beat sheet and chapter map describe the visitor journey.",
+        evidence: "STORY_SYSTEM.md",
+        severityIfMissed: "high",
       },
     ],
   }),
