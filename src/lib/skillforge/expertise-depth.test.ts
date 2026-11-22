@@ -56,12 +56,21 @@ test("awwwards short brief yields immersive skills, dense design system, visitor
   assert.ok(!design.includes(PLACEHOLDER_BAN_PHRASE));
   assert.ok(design.includes("Motion language"));
   assert.ok(design.includes("full-bleed"));
+  assert.ok(design.includes("Buttons / CTAs"));
+  assert.ok(design.includes("Image / media placeholders"));
+  assert.ok(design.includes("Scroll theater"));
   assert.ok(design.length > 1200);
   assert.ok(architecture.includes("Scene inventory"));
   assert.ok(/WebGL|Experience-host|ExperienceCanvas/i.test(architecture));
   assert.ok(!/composes expertise package/i.test(flows));
   assert.ok(/lands in the arrival world|arrival world/i.test(flows));
   assert.ok(master.includes("Key principles"));
+
+  const agent = preview.artifactPreviews.find((a) => a.logicalKey === "AGENT_EXECUTION_PACKAGE.md")!
+    .content;
+  assert.ok(agent.includes("How an external agent should cook this package"));
+  assert.ok(/GSAP|R3F/i.test(agent));
+  assert.ok(/button\/CTA micro-interactions/i.test(agent));
 
   const features = preview.projectDna.fields.find((field) => field.name === "Core Features")?.value ?? "";
   assert.ok(/scroll-driven|WebGL|motion/i.test(features));

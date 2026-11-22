@@ -28,11 +28,18 @@
 4. Save to server and/or browser; Export MD; download **Agent pack**.
 5. Treat packs as instructional handoffs only.
 
+## God-law product stance (finished for v1 recipe OS)
+
+- Packs are **agent cook books** (including cinematic UI motion + GSAP/R3F when immersive).
+- SkillForge does **not** build the finished website in-product.
+- See `docs/GOD_LEVEL_SKILLFORGE_BUILD_PROMPT.md` for the locked build law.
+
 ## Still later (not blocking ready use)
 
 - Full auth / tenant isolation and retention ops
-- GitHub skill ingest pipeline (curated import under contract)
+- GitHub skill ingest pipeline (curated distillation under contract — not copy-paste)
 - In-product agent execution runtime
+- Optional LLM brief expansion behind a flag
 - Model-provider adapters (compose stays deterministic)
 
 ## Verification

@@ -333,8 +333,9 @@ export function SkillForgeComposer() {
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-fog md:text-base">
         Pick a category, describe the intent, and SkillForge builds a skill graph, Project DNA,
-        eleven blueprints, and a Review Council gate. Accepted packages are exportable instructions —
-        never executable permissions.
+        craft-dense blueprints, and a Review Council gate. Download an Agent pack your coding AI can
+        cook from (including button/image/scroll motion and GSAP/R3F when immersive). Execution stays
+        unauthorized.
       </p>
 
       <form

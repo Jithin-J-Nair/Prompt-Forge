@@ -54,6 +54,13 @@ export function renderDesignSystemBody(
         "- Owners: GSAP timelines for DOM/captions; R3F/camera for scene moves; shaders for material dissolves — one owner per property.",
         "- Example beat grid: Arrival dolly (1.0–1.4s) → chapter dissolve → work proof orbit → invite fade.",
         "- Ban constant scroll-triggered noise on every element.",
+        "",
+        "### Cinematic UI micro-interactions (mandatory for agent cook)",
+        "- **Buttons / CTAs:** hover → scale 1.02–1.04 + accent underline or glow fade (120–180ms, ease-out); press → scale 0.98 (80ms); focus-visible ring required; never rely on color alone.",
+        "- **Image / media placeholders:** shimmer or soft pulse while loading; on ready, clip-reveal or opacity+blur-out (400–700ms); reserve aspect-ratio boxes to prevent layout jump.",
+        "- **Scroll theater:** chapter enter uses coordinated caption fade + optional parallax (DOM via GSAP ScrollTrigger) and/or camera ease (R3F); one progress signal shared across owners.",
+        "- **Link/nav chrome:** quiet; motion only on intentional moments, not on every hover in the header.",
+        "- **Reduced motion:** replace micro-springs with instant state or 150ms opacity fades; keep scroll chapters readable as static sequence.",
       ].join("\n"),
       "Accessibility constraints": [
         "- WCAG-oriented contrast for text/UI chrome over atmospheric visuals.",
@@ -332,6 +339,11 @@ export function renderSkillCraftAppendix(nodes: readonly SkillGraphNode[]): stri
       "performance-engineer",
     ].includes(node.nodeKey),
   );
+  const immersive = creative.some((node) =>
+    ["threejs-architect", "r3f-architect", "gsap-architect", "motion-director"].includes(
+      node.nodeKey,
+    ),
+  );
   if (creative.length === 0) {
     return [
       "## Craft directives from selected skills",
@@ -345,6 +357,29 @@ export function renderSkillCraftAppendix(nodes: readonly SkillGraphNode[]): stri
     (node) =>
       `- **${node.name}** (${node.priority}): ${node.rationale} Scope: ${node.assignedScope.join(", ")}.`,
   );
+  const cookSteps = immersive
+    ? [
+        "## How an external agent should cook this package",
+        "",
+        "1. Read MASTER_SKILL_PACKAGE + DESIGN_SYSTEM motion language before writing UI.",
+        "2. Scaffold DOM app shell + ExperienceHost canvas boundary (do not put the whole site inside one Canvas).",
+        "3. Implement **button/CTA micro-interactions** (hover/press/focus) per Motion language.",
+        "4. Implement **image/placeholder load + reveal** motion with reserved aspect ratios.",
+        "5. Wire **GSAP ScrollTrigger** (or equivalent) for chapter captions/progress; publish one shared progress signal.",
+        "6. Build **R3F/Three** chapter scenes only where the scene inventory requires; dispose on chapter exit.",
+        "7. Add reduced-motion + low-FPS quality presets before claiming done.",
+        "8. Do not invent a SaaS dashboard layout when immersive skills are present.",
+        "",
+      ]
+    : [
+        "## How an external agent should cook this package",
+        "",
+        "1. Read MASTER_SKILL_PACKAGE, PRODUCT_STRATEGY, and ARCHITECTURE before coding.",
+        "2. Implement primary user flows with explicit empty/loading/error states.",
+        "3. Follow design tokens and accessibility constraints in DESIGN_SYSTEM.",
+        "4. Keep secrets and production access out of scope; executionAuthorized is false.",
+        "",
+      ];
   return [
     "## Craft directives from selected skills",
     "",
@@ -355,5 +390,6 @@ export function renderSkillCraftAppendix(nodes: readonly SkillGraphNode[]): stri
     "- Reject template SaaS layouts when immersive skills are present.",
     "- Keep executionAuthorized false; this appendix is instructional.",
     "",
+    ...cookSteps,
   ].join("\n");
 }

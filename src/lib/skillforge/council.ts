@@ -21,6 +21,9 @@ const IMMERSIVE_CRAFT_MARKERS = [
   "Scene inventory",
   "60fps",
   "reduced-motion",
+  "Buttons / CTAs",
+  "Image / media placeholders",
+  "Scroll theater",
 ];
 
 export const RUBRIC_VERSION = `${councilRubric.rubricId}@${councilRubric.version}`;
