@@ -857,6 +857,286 @@ export const SKILL_DEPTH: Record<string, DepthPatch> = {
       },
     ],
   },
+  "agent-architect": {
+    mission:
+      "Design agent roles, tools, memory, and stop conditions so agents are useful without becoming unsupervised operators.",
+    principles: [
+      "Tools are capabilities with gates, not model wishes.",
+      "Stop conditions are product features.",
+      "Memory is bounded and purpose-labeled.",
+      "Untrusted text never becomes policy.",
+    ],
+    mentalModels: ["Role → tools → memory → stops", "Human escalation ladder", "Least privilege tools"],
+    decisionFrameworks: [
+      framework(
+        "Agent charter",
+        "Any AI agent or tool-using workflow.",
+        [
+          "Write the agent’s job in one sentence.",
+          "List tools with auth gates and forbidden tools.",
+          "Define memory types and retention.",
+          "Define hard stops and human handoff triggers.",
+        ],
+        ["Agent charter in AI_SYSTEM_DESIGN / AGENT pack."],
+      ),
+    ],
+    bestPractices: ["Separate planner vs executor roles when risk is high."],
+    antiPatterns: ["Unlimited shell as a ‘helpful’ tool.", "No stop conditions."],
+    reviewCriteria: [
+      criterion("Agent charter includes tools, stops, and escalation.", "AI_SYSTEM_DESIGN.md", "critical"),
+    ],
+    qualityMetrics: [
+      { name: "Stop coverage", measurement: "Hard stops documented", target: "≥3" },
+    ],
+    acceptanceCriteria: ["Agent charter complete with stops and tool gates."],
+    examples: [
+      {
+        title: "Recruiting screener agent",
+        input: "Enterprise AI recruiting",
+        expectedOutput: "Role: shortlist assistant; tools: ATS read, email draft; forbid: offer letters send; stop: low confidence → human.",
+      },
+    ],
+    failureStates: [
+      {
+        condition: "Agent package without stop conditions.",
+        impact: "Unsafe autonomy.",
+        recovery: "Block acceptance until stops exist.",
+        blocking: true,
+      },
+    ],
+  },
+  "rag-architect": {
+    mission:
+      "Design retrieval, grounding, and corpus governance so answers stay citeable and tenant-safe.",
+    principles: [
+      "No retrieval → no grounded claim.",
+      "Corpus governance precedes fancy ranking.",
+      "Citations are user trust, not decoration.",
+    ],
+    mentalModels: ["Ingest → index → retrieve → ground → cite", "Freshness SLA", "Tenant isolation"],
+    decisionFrameworks: [
+      framework(
+        "RAG boundary sheet",
+        "RAG platforms and grounded AI products.",
+        [
+          "Define corpus sources and rights.",
+          "Define chunking/index strategy at hypothesis level.",
+          "Require citation or refusal when ungrounded.",
+          "Add evals for groundedness and retrieval quality.",
+        ],
+        ["RAG section in AI_SYSTEM_DESIGN.md."],
+      ),
+    ],
+    bestPractices: ["Evaluate with adversarial and empty-corpus cases."],
+    antiPatterns: ["Answering from parametric memory when retrieval fails silently."],
+    reviewCriteria: [
+      criterion("Grounding and citation rules are explicit.", "AI_SYSTEM_DESIGN.md", "high"),
+    ],
+    qualityMetrics: [
+      { name: "Groundedness gate", measurement: "Refusal/cite policy present", target: "Yes" },
+    ],
+    acceptanceCriteria: ["RAG boundary sheet present for RAG categories."],
+    examples: [
+      {
+        title: "Policy Q&A",
+        input: "Internal policy assistant",
+        expectedOutput: "Corpus: policy PDFs; cite page anchors; refuse if retrieval empty.",
+      },
+    ],
+    failureStates: [
+      {
+        condition: "RAG category without grounding rules.",
+        impact: "Confident hallucinations.",
+        recovery: "Add grounding/citation policy.",
+        blocking: true,
+      },
+    ],
+  },
+  "prompt-engineer": {
+    mission:
+      "Specify prompt contracts and channel separation without turning prompts into secret authority.",
+    principles: [
+      "System/developer/user/retrieved channels stay separated.",
+      "Prompt text is not a permissions grant.",
+      "Contracts include inputs, outputs, and failure modes.",
+    ],
+    mentalModels: ["Prompt as API", "Channel firewall", "Eval-linked prompts"],
+    decisionFrameworks: [
+      framework(
+        "Prompt contract",
+        "Any LLM feature.",
+        [
+          "Define required inputs and forbidden inputs.",
+          "Define output schema / sections.",
+          "Attach eval cases including injection attempts.",
+        ],
+        ["Prompt contracts in AI_SYSTEM_DESIGN.md."],
+      ),
+    ],
+    bestPractices: ["Version prompts like code."],
+    antiPatterns: ["Hiding secrets in prompts.", "One mega-prompt with no evals."],
+    reviewCriteria: [
+      criterion("Prompt contracts include failure modes and channel rules.", "AI_SYSTEM_DESIGN.md"),
+    ],
+    qualityMetrics: [
+      { name: "Contract completeness", measurement: "I/O + failures documented", target: "Yes" },
+    ],
+    acceptanceCriteria: ["At least one prompt contract for in-scope AI features."],
+    examples: [
+      {
+        title: "Screener summary prompt",
+        input: "Summarize candidate vs rubric",
+        expectedOutput: "Inputs: rubric+resume excerpts; output: score+evidence quotes; refuse if no evidence.",
+      },
+    ],
+    failureStates: [
+      {
+        condition: "AI feature with no prompt contract.",
+        impact: "Unstable model behavior.",
+        recovery: "Add contract before acceptance.",
+        blocking: false,
+      },
+    ],
+  },
+  "ux-architect": {
+    mission:
+      "Frame user goals, flows, states, and accessibility so interfaces serve jobs—not decoration first.",
+    principles: [
+      "Tasks before screens.",
+      "Every critical flow needs empty/loading/error/success.",
+      "Accessibility is part of UX architecture.",
+    ],
+    mentalModels: ["Job story → flow → states", "Error as UX", "Progressive disclosure"],
+    decisionFrameworks: [
+      framework(
+        "Flow architecture",
+        "Any user-facing product.",
+        [
+          "List primary jobs.",
+          "Map steps and decision points.",
+          "Specify states and recovery.",
+          "Mark a11y requirements for each critical path.",
+        ],
+        ["USER_FLOWS.md that matches the end user."],
+      ),
+    ],
+    bestPractices: ["Never document the composer’s internal loop as the product flow."],
+    antiPatterns: ["Happy-path-only flows.", "Inaccessible custom controls without keyboard paths."],
+    reviewCriteria: [
+      criterion("Primary flows include states and recovery.", "USER_FLOWS.md", "high"),
+    ],
+    qualityMetrics: [
+      { name: "State coverage", measurement: "Critical flows have E/L/E/S states", target: "100%" },
+    ],
+    acceptanceCriteria: ["User flows describe the product’s end user journey."],
+    examples: [
+      {
+        title: "Immersive visitor flow",
+        input: "Awwwards site",
+        expectedOutput: "Land → scroll chapters → CTA; skip path; reduced-motion path.",
+      },
+    ],
+    failureStates: [
+      {
+        condition: "Flows describe SkillForge compose loop.",
+        impact: "Agents build the wrong product.",
+        recovery: "Rewrite visitor/operator flows.",
+        blocking: true,
+      },
+    ],
+  },
+  "b2b-saas-expert": {
+    mission:
+      "Frame packaging, seats, and buying motions so SaaS builds match how B2B actually buys and expands.",
+    principles: [
+      "Buyer ≠ daily user often.",
+      "Packaging must map to value metrics.",
+      "Expansion paths beat one-time signup theater.",
+    ],
+    mentalModels: ["Buyer journey", "Seat vs usage value", "Land and expand"],
+    decisionFrameworks: [
+      framework(
+        "SaaS packaging spine",
+        "SaaS and enterprise-ish AI products.",
+        [
+          "Identify buyer, admin, end user.",
+          "Propose packaging hypotheses (not fake pricing facts).",
+          "Define activation and expansion signals.",
+        ],
+        ["PRODUCT_STRATEGY monetization/packaging section."],
+      ),
+    ],
+    bestPractices: ["Separate admin setup from end-user aha."],
+    antiPatterns: ["Consumer onboarding copied onto enterprise buyers."],
+    reviewCriteria: [
+      criterion("Buyer/admin/user roles are distinguished.", "PRODUCT_STRATEGY.md"),
+    ],
+    qualityMetrics: [
+      { name: "Role clarity", measurement: "Buyer vs user labeled", target: "Yes" },
+    ],
+    acceptanceCriteria: ["Packaging spine present for SaaS categories."],
+    examples: [
+      {
+        title: "Team SaaS",
+        input: "B2B workspace product",
+        expectedOutput: "Buyer: team lead; admin: IT; user: members; expansion: seats + usage tier hypothesis.",
+      },
+    ],
+    failureStates: [
+      {
+        condition: "SaaS package with no buyer/user distinction.",
+        impact: "Wrong onboarding and permissions.",
+        recovery: "Add packaging spine.",
+        blocking: false,
+      },
+    ],
+  },
+  "evaluation-engineer": {
+    mission:
+      "Define offline/online evals and regression gates so quality is measurable before scale.",
+    principles: [
+      "If you can’t measure it, you can’t accept it.",
+      "Evals include failure and adversarial cases.",
+      "Regression gates block silent quality drops.",
+    ],
+    mentalModels: ["Golden sets", "Online monitors", "Severity-weighted failures"],
+    decisionFrameworks: [
+      framework(
+        "Eval plan",
+        "AI and quality-critical products.",
+        [
+          "Define metrics and thresholds as hypotheses.",
+          "Build a small golden set including edge cases.",
+          "Attach gates to acceptance/release.",
+        ],
+        ["Eval plan in AI_SYSTEM_DESIGN / QUALITY_CHECKLIST."],
+      ),
+    ],
+    bestPractices: ["Keep eval datasets versioned."],
+    antiPatterns: ["Demo-only happy path as ‘eval’."],
+    reviewCriteria: [
+      criterion("Eval metrics and gates are documented for AI categories.", "QUALITY_CHECKLIST.md"),
+    ],
+    qualityMetrics: [
+      { name: "Gate presence", measurement: "At least one blocking quality gate", target: "≥1" },
+    ],
+    acceptanceCriteria: ["Eval plan exists when AI capabilities are in scope."],
+    examples: [
+      {
+        title: "RAG evals",
+        input: "Grounded Q&A",
+        expectedOutput: "Metrics: groundedness, citation presence; gate: fail if uncited answers >X%.",
+      },
+    ],
+    failureStates: [
+      {
+        condition: "AI package with no eval plan.",
+        impact: "Uncontrolled model quality.",
+        recovery: "Add eval plan.",
+        blocking: true,
+      },
+    ],
+  },
 };
 
 function isGeneric(skill: SkillPackage): boolean {

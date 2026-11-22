@@ -243,6 +243,13 @@ export function SkillForgeComposer() {
         data.markdown,
         "text/markdown;charset=utf-8",
       );
+      if (typeof data.cookPrompt === "string" && data.cookPrompt.length > 0) {
+        downloadBlob(
+          `skillforge-COOK-${preview.categoryKey}.md`,
+          data.cookPrompt,
+          "text/markdown;charset=utf-8",
+        );
+      }
       if (isRecord(data.manifest)) {
         downloadBlob(
           `skillforge-handoff-${preview.categoryKey}.json`,
@@ -250,7 +257,7 @@ export function SkillForgeComposer() {
           "application/json",
         );
       }
-      setNotice("Agent handoff pack downloaded (Markdown + manifest JSON).");
+      setNotice("Agent pack downloaded: COOK.md (paste into coding AI) + handoff + manifest.");
     } catch {
       setError("Could not build agent handoff.");
     }
@@ -476,7 +483,7 @@ export function SkillForgeComposer() {
                 onClick={() => void downloadHandoff()}
                 className="inline-flex items-center gap-2 rounded-full bg-ember px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ink uppercase"
               >
-                <Package className="pointer-events-none size-3.5" aria-hidden /> Agent pack
+                <Package className="pointer-events-none size-3.5" aria-hidden /> Cook pack
               </button>
             </div>
           </div>

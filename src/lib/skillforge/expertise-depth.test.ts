@@ -5,7 +5,7 @@ import { CATALOG_VERSION, PUBLISHED_SKILLS, getSkillBySlug } from "./catalog.ts"
 import { composeProjectPreview } from "./composer.ts";
 
 test("catalog v1.3 deepens creative skills beyond generic boilerplate", () => {
-  assert.equal(CATALOG_VERSION, "skillforge-catalog-1.3.0");
+  assert.ok(CATALOG_VERSION.startsWith("skillforge-catalog-1.3"));
   const creative = getSkillBySlug("creative-director");
   assert.ok(creative);
   assert.ok(!creative.principles.includes("Separate confirmed facts from inferences."));

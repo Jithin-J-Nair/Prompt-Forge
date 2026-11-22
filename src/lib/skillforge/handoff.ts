@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { buildCookPrompt } from "./cook-prompt.ts";
 import type { CompositionPreview } from "./types.ts";
 
 function sha256(value: string): string {
@@ -95,6 +96,7 @@ export function buildAgentHandoffMarkdown(
     "",
     "## Instructions for downstream agents",
     ...manifest.agentInstructions.map((line) => `- ${line}`),
+    "- Prefer the companion **COOK.md** mega-prompt as the single paste target for coding agents.",
     "",
     "## Prohibited operations",
     ...manifest.prohibitedOperations.map((line) => `- ${line}`),
@@ -118,3 +120,5 @@ export function buildAgentHandoffMarkdown(
   ];
   return lines.join("\n");
 }
+
+export { buildCookPrompt };

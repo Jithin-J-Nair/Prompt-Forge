@@ -1,3 +1,4 @@
+import { expandBriefHypotheses } from "./brief-expand.ts";
 import type { ProjectCategoryKey } from "./categories.ts";
 import type { ProjectDnaField } from "./types.ts";
 
@@ -67,6 +68,8 @@ export function buildProjectDna(input: {
   const lower = brief.toLowerCase();
   const round = input.revisionRound ?? 0;
   const immersive = isImmersive(input.categoryKey, lower);
+  const expansion = expandBriefHypotheses({ brief, categoryKey: input.categoryKey });
+  const shortBrief = brief.length < 90;
 
   const user =
     match(brief, [
@@ -123,7 +126,12 @@ export function buildProjectDna(input: {
             ? "B2B subscription or seat-based licensing (hypothesis)"
             : "Monetization model not confirmed";
 
-  const features = buildFeatureList(lower, input.categoryKey, immersive, round);
+  let features = buildFeatureList(lower, input.categoryKey, immersive, round);
+  if (shortBrief && immersive) {
+    features = `${features}; ${expansion.craftTargets.slice(0, 3).join("; ")}`;
+  } else if (shortBrief) {
+    features = `${features}; ${expansion.productTargets.slice(0, 2).join("; ")}`;
+  }
   const stack = buildStack(lower, input.categoryKey, immersive);
   const architecture = buildArchitecture(input.categoryKey, stack, immersive);
   const flows = buildFlows(input.categoryKey, user, immersive);
@@ -146,13 +154,19 @@ export function buildProjectDna(input: {
     ? [
         "Immersive scroll-theater craft with WebGL/motion authorship (hypothesis)",
         referenceHint ? `Reference-informed principles from “${referenceHint}” (hypothesis, not a clone)` : null,
+        shortBrief ? `Short-brief expansion targets: ${expansion.craftTargets.slice(0, 4).join("; ")}` : null,
         round >= 1 ? "Scene inventory + shader/motion budgets encoded in architecture" : null,
       ]
         .filter(Boolean)
         .join("; ")
-    : round >= 1
-      ? `Category-specialized expertise graph for ${input.categoryKey} with evidence-backed review gates`
-      : `Specialized ${input.categoryKey.replace(/-/g, " ")} package with Review Council acceptance gates (hypothesis)`;
+    : [
+        round >= 1
+          ? `Category-specialized expertise graph for ${input.categoryKey} with evidence-backed review gates`
+          : `Specialized ${input.categoryKey.replace(/-/g, " ")} package with Review Council acceptance gates (hypothesis)`,
+        shortBrief ? `Short-brief expansion: ${expansion.productTargets.join("; ")}` : null,
+      ]
+        .filter(Boolean)
+        .join("; ");
 
   const fields: DnaFieldRecord[] = [
     {
@@ -161,6 +175,7 @@ export function buildProjectDna(input: {
       value: brief,
       source: "user_brief",
     },
+    // Roadmap carries short-brief expansion pointer for agents (inferred enrichment lives in Differentiation/Features).
     inferred(
       "User",
       user,
@@ -184,9 +199,17 @@ export function buildProjectDna(input: {
     inferred("Architecture", architecture, immersive ? "immersive_architecture_policy" : "category_policy", immersive ? 0.68 : 0.56),
     inferred("Success Metrics", metrics, immersive ? "immersive_metrics_policy" : "category_policy", immersive ? 0.6 : 0.54),
     inferred("Risk Analysis", risks, immersive ? "immersive_risk_policy" : "category_policy", immersive ? 0.62 : 0.54),
-    inferred("Roadmap", roadmap, "composition_policy", 0.55),
+    inferred(
+      "Roadmap",
+      shortBrief
+        ? `${roadmap}; Short-brief expansion applied (hypothesis): ${expansion.expandedIntent.slice(0, 220)}`
+        : roadmap,
+      shortBrief ? "brief_expansion_policy" : "composition_policy",
+      shortBrief ? 0.58 : 0.55,
+    ),
   ];
 
+  // Deduplicate if Vision push added accidental extras — keep FIELD_ORDER only.
   return FIELD_ORDER.map((name) => {
     const found = fields.find((field) => field.name === name);
     return found ?? unknown(name);
