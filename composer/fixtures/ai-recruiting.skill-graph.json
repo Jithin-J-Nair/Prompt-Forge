@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "1.0.0",
+  "fixtureId": "ai-recruiting-platform",
+  "catalogVersion": "core-thinking-preview-1.0.0",
+  "categoryKey": "ai-product",
+  "brief": "Build an enterprise AI recruiting platform",
+  "graphHash": "e6561ff926cc052bd546c534034f104a941f994d933204d796837f9bd3ba842f",
+  "nodes": [
+    {
+      "nodeKey": "product-strategist",
+      "skillVersion": "product-strategist@1.0.0",
+      "name": "Product Strategist",
+      "role": "Product Strategist",
+      "tier": 1,
+      "priority": "P0",
+      "assignedScope": [
+        "problem-framing",
+        "user-outcomes",
+        "value-proposition"
+      ],
+      "rationale": "Frames the user problem before downstream decisions."
+    },
+    {
+      "nodeKey": "systems-thinker",
+      "skillVersion": "systems-thinker@1.0.0",
+      "name": "Systems Thinker",
+      "role": "Systems Thinker",
+      "tier": 1,
+      "priority": "P0",
+      "assignedScope": [
+        "system-boundaries",
+        "dependency-mapping",
+        "risk-framing"
+      ],
+      "rationale": "Surfaces boundaries and risks before solution design."
+    },
+    {
+      "nodeKey": "business-analyst",
+      "skillVersion": "business-analyst@1.0.0",
+      "name": "Business Analyst",
+      "role": "Business Analyst",
+      "tier": 1,
+      "priority": "P1",
+      "assignedScope": [
+        "business-assumptions",
+        "success-measures",
+        "market-evidence"
+      ],
+      "rationale": "Makes business assumptions and success measures explicit."
+    },
+    {
+      "nodeKey": "ux-architect",
+      "skillVersion": "ux-architect@1.0.0",
+      "name": "UX Architect",
+      "role": "UX Architect",
+      "tier": 1,
+      "priority": "P1",
+      "assignedScope": [
+        "task-flow-framing",
+        "interaction-states",
+        "accessibility-needs"
+      ],
+      "rationale": "Frames user goals and interaction questions before interface work."
+    }
+  ],
+  "edges": [
+    {
+      "from": "product-strategist",
+      "to": "business-analyst",
+      "type": "depends_on"
+    },
+    {
+      "from": "product-strategist",
+      "to": "systems-thinker",
+      "type": "depends_on"
+    },
+    {
+      "from": "product-strategist",
+      "to": "ux-architect",
+      "type": "depends_on"
+    }
+  ]
+}

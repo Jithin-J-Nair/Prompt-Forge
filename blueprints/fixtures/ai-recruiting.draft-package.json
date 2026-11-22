@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0.0",
+  "fixtureId": "ai-recruiting-platform",
+  "packageStatus": "draft",
+  "accepted": false,
+  "executionReady": false,
+  "requiredArtifacts": [
+    "MASTER_SKILL_PACKAGE.md",
+    "PROJECT_DNA.md",
+    "PRODUCT_STRATEGY.md",
+    "DESIGN_SYSTEM.md",
+    "ARCHITECTURE.md",
+    "USER_FLOWS.md",
+    "DATABASE_DESIGN.md",
+    "AI_SYSTEM_DESIGN.md",
+    "AGENT_EXECUTION_PACKAGE.md",
+    "QUALITY_CHECKLIST.md",
+    "LAUNCH_PLAN.md"
+  ],
+  "presentArtifacts": [
+    "MASTER_SKILL_PACKAGE.md",
+    "PROJECT_DNA.md"
+  ],
+  "missingArtifacts": [
+    "PRODUCT_STRATEGY.md",
+    "DESIGN_SYSTEM.md",
+    "ARCHITECTURE.md",
+    "USER_FLOWS.md",
+    "DATABASE_DESIGN.md",
+    "AI_SYSTEM_DESIGN.md",
+    "AGENT_EXECUTION_PACKAGE.md",
+    "QUALITY_CHECKLIST.md",
+    "LAUNCH_PLAN.md"
+  ],
+  "reviewStatus": "not_started",
+  "graphHash": "e6561ff926cc052bd546c534034f104a941f994d933204d796837f9bd3ba842f",
+  "limitations": [
+    "Only Tier 1 Core Thinking skills are included in this pilot catalog.",
+    "The Review Council has not run; this preview is not accepted.",
+    "Nine required blueprint artifacts are not generated.",
+    "The preview is not persisted and is not an agent execution handoff."
+  ]
+}

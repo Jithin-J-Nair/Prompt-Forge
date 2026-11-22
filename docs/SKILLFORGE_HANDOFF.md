@@ -2,12 +2,13 @@
 
 ## Merged state
 
-The first SkillForge design and implementation phase is merged into `main` at merge commit `37bf67588c2313eaf01f427753ac645741b577ce`. The preserved feature checkpoints are:
+The SkillForge design and first implementation phases are on `main`. Preserved checkpoints include:
 
 - `4c1b02a` — architecture and foundational design documentation.
-- `2f24583` — first runnable composition preview.
+- `2f24583` — first runnable composition preview (`/skillforge`, `POST /api/skillforge/compose`).
+- Contract validation phase — fixture-driven schemas and validators for Project DNA, skill graph, package completeness, review assessment, and export manifest (this document is updated when that phase lands).
 
-GitHub reported no status checks for the previous pull request. The local verification listed below passed before that merge.
+GitHub may report no status checks on earlier pull requests. Local verification listed in each phase section is authoritative until CI is configured.
 
 ## Architecture package
 
@@ -15,6 +16,11 @@ The design source of truth is [`SKILLFORGE_ARCHITECTURE.md`](SKILLFORGE_ARCHITEC
 
 - [`architecture/schema.sql`](architecture/schema.sql) — proposed PostgreSQL model; design reference only, not an applied migration.
 - [`../skills/skill.schema.json`](../skills/skill.schema.json) — versioned skill package contract with all 13 required sections.
+- [`../projects/project-dna.schema.json`](../projects/project-dna.schema.json) — Project DNA contract.
+- [`../composer/skill-graph.schema.json`](../composer/skill-graph.schema.json) — composed skill graph contract.
+- [`../blueprints/package-manifest.schema.json`](../blueprints/package-manifest.schema.json) — package completeness / acceptance gate contract.
+- [`../reviewers/review-assessment.schema.json`](../reviewers/review-assessment.schema.json) — Review Council assessment contract.
+- [`../agents/export-manifest.schema.json`](../agents/export-manifest.schema.json) — export handoff contract (`executionAuthorized` is always false).
 - [`../skill-categories/catalog.yaml`](../skill-categories/catalog.yaml) — requested project-category and role taxonomy.
 - README boundaries in `agents/`, `blueprints/`, `composer/`, `knowledge/`, `projects/`, `reviewers/`, `skill-categories/`, `skills/`, and `templates/`.
 
@@ -31,26 +37,45 @@ The architecture distinguishes confirmed requirements from proposed defaults and
 
 The slice makes no database writes or external model calls and performs no agent handoff. It is a runnable preview, not a production-ready composition pipeline.
 
-## Verification recorded before merge
+## Contract validation phase
 
-- `npm test` — 8 tests passed.
+Roadmap step 2 from the architecture: fixture-driven, non-production contract validation. This phase does **not** add persistence, identity, model providers, Review Council execution, or agent runtime.
+
+- Curated AI Product fixtures under `projects/fixtures/`, `composer/fixtures/`, `blueprints/fixtures/`, `reviewers/fixtures/`, and `agents/fixtures/`.
+- Negative fixtures prove unknown DNA cannot carry fabricated values and incomplete packages cannot be `accepted`.
+- Runnable validators in `src/lib/skillforge/contracts/` (`validate.ts`, `validate-cli.ts`) using JSON Schema draft 2020-12.
+- Commands: `npm test` (composer + contract suites) and `npm run validate:contracts`.
+
+## Verification recorded
+
+Composition preview phase:
+
+- `npm test` — composer tests passed.
 - `npm run typecheck` — passed.
-- Targeted ESLint on the new implementation files — passed.
-- `npm run build` — passed using a temporary placeholder `DATABASE_URL`, required because the existing `/api/health` route imports the database module during build.
-- Page and API smoke checks — passed, including the successful draft response and unsupported-category rejection.
+- Targeted ESLint on the composition implementation files — passed.
+- `npm run build` — passed using a temporary placeholder `DATABASE_URL`.
+- Page and API smoke checks — passed, including unsupported-category rejection.
+
+Contract validation phase:
+
+- `npm test` — composer and contract-validation suites.
+- `npm run validate:contracts` — starter skills plus positive/negative fixtures.
+- `npm run typecheck` — passed.
+- Targeted ESLint on new contract modules — passed.
 
 ## Incomplete work
 
-- Review Council assessments, evidence, scoring, revision loops, and acceptance gates.
+- Review Council assessments, evidence, scoring, revision loops, and acceptance gates (runtime).
 - Persistence, immutable run/artifact lineage, identity, authorization, tenant isolation, and retention.
 - The other 14 project categories, Tier 2–7 skills, and catalog publication lifecycle.
 - Generation and validation of `PRODUCT_STRATEGY.md`, `DESIGN_SYSTEM.md`, `ARCHITECTURE.md`, `USER_FLOWS.md`, `DATABASE_DESIGN.md`, `AI_SYSTEM_DESIGN.md`, `AGENT_EXECUTION_PACKAGE.md`, `QUALITY_CHECKLIST.md`, and `LAUNCH_PLAN.md`.
 - Safe external export and any future agent execution runtime.
+- Resolution of open v1 product decisions (auth/tenant model, model-provider stance, retention, frozen reviewer thresholds).
 
 ## Recommended next steps
 
 1. Resolve the v1 design decisions recorded in the architecture before introducing persistence, external model providers, or execution authority.
-2. Validate the skill and Project DNA contracts against representative fixtures; then establish tenant-scoped projects and immutable skill/catalog versions.
+2. Establish tenant-scoped projects and immutable skill/catalog versions on top of the validated contracts.
 3. Expand deterministic composition by category and capability, with tested deduplication, conflict resolution, provenance, and graph invariants.
 4. Add versioned templates and generate the remaining canonical artifacts; keep every incomplete package in draft.
 5. Implement the evidence-backed Review Council and bounded revision/blocked flow. Do not mark a package accepted until all mandatory gates pass.

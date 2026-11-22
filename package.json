@@ -7,7 +7,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/lib/skillforge/composer.test.ts"
+    "test": "tsx --test src/lib/skillforge/composer.test.ts src/lib/skillforge/contracts/contract-validation.test.ts",
+    "validate:contracts": "tsx src/lib/skillforge/contracts/validate-cli.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -26,6 +27,8 @@
     "@types/pg": "8.18.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "drizzle-kit": "0.31.10",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.6",

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillforge.invalid/schemas/package-manifest-1.0.0.json",
+  "title": "SkillForge Package Manifest",
+  "description": "Completeness and lineage contract for a draft or accepted expertise package. Incomplete packages remain draft or blocked, never accepted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "packageStatus",
+    "accepted",
+    "executionReady",
+    "requiredArtifacts",
+    "presentArtifacts",
+    "missingArtifacts",
+    "reviewStatus"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "fixtureId": { "type": "string", "minLength": 1 },
+    "packageStatus": {
+      "type": "string",
+      "enum": ["draft", "blocked", "accepted", "rejected"]
+    },
+    "accepted": { "type": "boolean" },
+    "executionReady": { "type": "boolean" },
+    "requiredArtifacts": {
+      "type": "array",
+      "minItems": 11,
+      "items": { "$ref": "#/$defs/artifactKey" },
+      "uniqueItems": true
+    },
+    "presentArtifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/artifactKey" },
+      "uniqueItems": true
+    },
+    "missingArtifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/artifactKey" },
+      "uniqueItems": true
+    },
+    "reviewStatus": {
+      "type": "string",
+      "enum": ["not_started", "in_progress", "passed", "failed", "blocked"]
+    },
+    "graphHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "accepted": { "const": true } } },
+      "then": {
+        "properties": {
+          "packageStatus": { "const": "accepted" },
+          "missingArtifacts": { "maxItems": 0 },
+          "reviewStatus": { "const": "passed" },
+          "executionReady": { "const": false }
+        },
+        "description": "Accepted packages must be complete and reviewed; execution remains out of scope for v1 handoff."
+      }
+    },
+    {
+      "if": { "properties": { "packageStatus": { "const": "draft" } } },
+      "then": {
+        "properties": {
+          "accepted": { "const": false },
+          "executionReady": { "const": false }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "artifactKey": {
+      "type": "string",
+      "enum": [
+        "MASTER_SKILL_PACKAGE.md",
+        "PROJECT_DNA.md",
+        "PRODUCT_STRATEGY.md",
+        "DESIGN_SYSTEM.md",
+        "ARCHITECTURE.md",
+        "USER_FLOWS.md",
+        "DATABASE_DESIGN.md",
+        "AI_SYSTEM_DESIGN.md",
+        "AGENT_EXECUTION_PACKAGE.md",
+        "QUALITY_CHECKLIST.md",
+        "LAUNCH_PLAN.md"
+      ]
+    }
+  }
+}

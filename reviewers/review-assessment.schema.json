@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillforge.invalid/schemas/review-assessment-1.0.0.json",
+  "title": "SkillForge Review Assessment",
+  "description": "Evidence-backed Review Council assessment contract. Scores without evidence are invalid.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "reviewStatus",
+    "rubricVersion",
+    "requiredReviewers",
+    "assessments",
+    "unresolvedFindings"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "fixtureId": { "type": "string", "minLength": 1 },
+    "reviewStatus": {
+      "type": "string",
+      "enum": ["not_started", "in_progress", "passed", "failed", "blocked"]
+    },
+    "rubricVersion": { "type": "string", "minLength": 1 },
+    "requiredReviewers": {
+      "type": "array",
+      "minItems": 8,
+      "items": { "$ref": "#/$defs/reviewerRole" },
+      "uniqueItems": true
+    },
+    "assessments": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/assessment" }
+    },
+    "unresolvedFindings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "revisionRound": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "reviewStatus": { "const": "not_started" } } },
+      "then": {
+        "properties": {
+          "assessments": { "maxItems": 0 },
+          "unresolvedFindings": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "reviewStatus": { "const": "passed" } } },
+      "then": {
+        "properties": {
+          "unresolvedFindings": { "maxItems": 0 },
+          "assessments": { "minItems": 8 }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "reviewerRole": {
+      "type": "string",
+      "enum": [
+        "Creative Director",
+        "Product Strategist",
+        "Systems Architect",
+        "Performance Engineer",
+        "Security Engineer",
+        "UX Architect",
+        "Accessibility Reviewer",
+        "Awwwards Reviewer"
+      ]
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer", "score", "evidence", "artifactLogicalKey"],
+      "properties": {
+        "reviewer": { "$ref": "#/$defs/reviewerRole" },
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "evidence": { "type": "string", "minLength": 1 },
+        "artifactLogicalKey": { "type": "string", "minLength": 1 },
+        "notApplicable": { "type": "boolean" }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "summary", "acceptanceCondition"],
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"]
+        },
+        "summary": { "type": "string", "minLength": 1 },
+        "acceptanceCondition": { "type": "string", "minLength": 1 },
+        "artifactLogicalKey": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

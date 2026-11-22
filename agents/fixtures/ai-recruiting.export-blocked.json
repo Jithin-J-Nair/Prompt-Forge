@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "fixtureId": "ai-recruiting-platform",
+  "handoffStatus": "blocked",
+  "packageAccepted": false,
+  "executionAuthorized": false,
+  "blockedReason": "Package remains draft: Review Council has not run and nine required artifacts are missing.",
+  "artifacts": [],
+  "prohibitedOperations": [
+    "Execute generated instructions against production systems",
+    "Embed or request live credentials",
+    "Grant unrestricted shell or network permissions",
+    "Treat handoff delivery as task completion"
+  ],
+  "stopConditions": [
+    "Any mandatory artifact is missing",
+    "Review Council gate has not passed",
+    "Unresolved critical or high findings remain"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "fixtureId": "invalid-accepted-incomplete",
+  "packageStatus": "accepted",
+  "accepted": true,
+  "executionReady": false,
+  "requiredArtifacts": [
+    "MASTER_SKILL_PACKAGE.md",
+    "PROJECT_DNA.md",
+    "PRODUCT_STRATEGY.md",
+    "DESIGN_SYSTEM.md",
+    "ARCHITECTURE.md",
+    "USER_FLOWS.md",
+    "DATABASE_DESIGN.md",
+    "AI_SYSTEM_DESIGN.md",
+    "AGENT_EXECUTION_PACKAGE.md",
+    "QUALITY_CHECKLIST.md",
+    "LAUNCH_PLAN.md"
+  ],
+  "presentArtifacts": [
+    "MASTER_SKILL_PACKAGE.md",
+    "PROJECT_DNA.md"
+  ],
+  "missingArtifacts": [
+    "PRODUCT_STRATEGY.md",
+    "DESIGN_SYSTEM.md",
+    "ARCHITECTURE.md",
+    "USER_FLOWS.md",
+    "DATABASE_DESIGN.md",
+    "AI_SYSTEM_DESIGN.md",
+    "AGENT_EXECUTION_PACKAGE.md",
+    "QUALITY_CHECKLIST.md",
+    "LAUNCH_PLAN.md"
+  ],
+  "reviewStatus": "not_started"
+}
