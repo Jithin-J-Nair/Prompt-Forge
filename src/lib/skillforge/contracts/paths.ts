@@ -44,9 +44,9 @@ export const CONTRACT_PATHS = {
       REPO_ROOT,
       "reviewers/fixtures/ai-recruiting.not-started-review.json",
     ),
-    blockedReview: path.join(
+    passedReview: path.join(
       REPO_ROOT,
-      "reviewers/fixtures/ai-recruiting.blocked-review.json",
+      "reviewers/fixtures/ai-recruiting.passed-review.json",
     ),
     exportBlocked: path.join(
       REPO_ROOT,

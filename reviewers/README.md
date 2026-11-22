@@ -6,4 +6,4 @@ Contract validation artifacts:
 
 - [`review-assessment.schema.json`](review-assessment.schema.json) — evidence-backed assessment contract.
 - [`council-rubric-1.0.0.json`](council-rubric-1.0.0.json) — published deterministic council rubric defaults.
-- [`fixtures/`](fixtures/) — not-started and blocked council fixtures for the AI Product pilot.
+- [`fixtures/`](fixtures/) — not-started and passed council fixtures for the AI Product pilot.

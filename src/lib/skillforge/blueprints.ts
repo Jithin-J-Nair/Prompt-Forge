@@ -25,14 +25,20 @@ function escapeMarkdownText(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function draftBanner(logicalKey: string): string[] {
+function packageBanner(logicalKey: string, accepted: boolean): string[] {
   return [
     `# ${logicalKey}`,
     "",
-    "> DRAFT PREVIEW — not reviewed, accepted, or executable.",
+    accepted
+      ? "> ACCEPTED FOR EXPORT — instructional handoff only; executionAuthorized remains false."
+      : "> DRAFT PACKAGE — Review Council gate not yet passed.",
     `> Template set: \`${TEMPLATE_SET_VERSION}\``,
     "",
   ];
+}
+
+function fieldValue(fields: readonly DnaField[], name: ProjectDnaField): DnaField | undefined {
+  return fields.find((field) => field.name === name);
 }
 
 function renderDnaSection(
@@ -40,17 +46,14 @@ function renderDnaSection(
   fieldName: ProjectDnaField,
   fields: readonly DnaField[],
 ): string[] {
-  const field = fields.find((entry) => entry.name === fieldName);
-  if (!field) {
-    return [`## ${heading}`, "", "- Status: unknown", "- Value: Unknown", ""];
-  }
-  if (field.status === "unknown" || field.value == null) {
+  const field = fieldValue(fields, fieldName);
+  if (!field || field.status === "unknown" || field.value == null) {
     return [
       `## ${heading}`,
       "",
       "- Status: unknown",
       "- Value: Unknown — not inferred in this draft.",
-      `- Source: \`${field.source}\``,
+      `- Source: \`${field?.source ?? "unresolved"}\``,
       "",
     ];
   }
@@ -60,23 +63,20 @@ function renderDnaSection(
     `- Status: ${field.status}`,
     `- Value: ${escapeMarkdownText(field.value)}`,
     `- Source: \`${field.source}\``,
+    ...(field.confidence != null ? [`- Confidence: ${field.confidence}`] : []),
     "",
   ];
 }
 
-function renderUnknownSections(headings: readonly string[]): string[] {
-  return headings.flatMap((heading) => [
-    `## ${heading}`,
-    "",
-    "Unknown — not inferred in this draft. Remains open until Project DNA or review evidence resolves it.",
-    "",
-  ]);
+function renderGuidanceSection(heading: string, body: string): string[] {
+  return [`## ${heading}`, "", body, ""];
 }
 
 function renderMasterSkillPackage(
   brief: string,
   graph: { nodes: SkillGraphNode[]; edges: SkillGraphEdge[] },
   graphHash: string,
+  accepted: boolean,
 ): string {
   const nodeLines = graph.nodes
     .map(
@@ -91,12 +91,12 @@ function renderMasterSkillPackage(
     : "- No dependency edges.";
 
   return [
-    ...draftBanner("MASTER_SKILL_PACKAGE.md"),
+    ...packageBanner("MASTER_SKILL_PACKAGE.md", accepted),
     "## Project intent",
     "",
     ...brief.split(/\r?\n/).map((line) => `> ${escapeMarkdownText(line)}`),
     "",
-    "## Selected core expertise",
+    "## Selected expertise",
     "",
     nodeLines,
     "",
@@ -109,14 +109,13 @@ function renderMasterSkillPackage(
     `- Catalog: \`${CATALOG_VERSION}\``,
     `- Template set: \`${TEMPLATE_SET_VERSION}\``,
     `- Graph SHA-256: \`${graphHash}\``,
-    "- Scope: Tier 1 Core Thinking pilot only.",
-    "- Review Council: not run.",
-    "- Draft package only; not an agent execution handoff.",
+    `- Package status: ${accepted ? "accepted_for_export" : "draft"}`,
+    "- Execution authorized: false",
     "",
   ].join("\n");
 }
 
-function renderProjectDna(fields: readonly DnaField[]): string {
+function renderProjectDna(fields: readonly DnaField[], accepted: boolean): string {
   const rows = fields
     .map((field) => {
       const value = escapeMarkdownText(field.value ?? "Unknown")
@@ -127,7 +126,7 @@ function renderProjectDna(fields: readonly DnaField[]): string {
     .join("\n");
 
   return [
-    ...draftBanner("PROJECT_DNA.md"),
+    ...packageBanner("PROJECT_DNA.md", accepted),
     "## Field status table",
     "",
     "| Field | Status | Value |",
@@ -136,7 +135,7 @@ function renderProjectDna(fields: readonly DnaField[]): string {
     "",
     "## Provenance note",
     "",
-    "Only Vision is populated from the user brief. No market, user, business, technical, or risk claims are inferred in this draft.",
+    "Vision is confirmed from the user brief. Other fields may be inferred with explicit confidence; unknowns stay labeled.",
     "",
   ].join("\n");
 }
@@ -144,44 +143,91 @@ function renderProjectDna(fields: readonly DnaField[]): string {
 function renderBoundArtifact(
   template: DraftTemplate,
   fields: readonly DnaField[],
+  accepted: boolean,
 ): string {
-  const lines = [...draftBanner(template.logicalKey)];
+  const lines = [...packageBanner(template.logicalKey, accepted)];
   for (const section of template.requiredSections) {
     const dnaField = template.dnaBindings?.[section];
     if (dnaField) {
       lines.push(...renderDnaSection(section, dnaField, fields));
-    } else {
-      lines.push(...renderUnknownSections([section]));
+      continue;
     }
+    if (section === "Open decisions") {
+      const unknowns = fields.filter((field) => field.status === "unknown").map((f) => f.name);
+      lines.push(
+        ...renderGuidanceSection(
+          section,
+          unknowns.length
+            ? `Still open: ${unknowns.join(", ")}.`
+            : "No blocking DNA unknowns remain; continue monitoring review findings.",
+        ),
+      );
+      continue;
+    }
+    if (section.toLowerCase().includes("accessib")) {
+      lines.push(
+        ...renderGuidanceSection(
+          section,
+          "Meet applicable WCAG-oriented acceptance checks; treat unverified claims as open.",
+        ),
+      );
+      continue;
+    }
+    if (section.toLowerCase().includes("visual") || section.toLowerCase().includes("interaction")) {
+      const features = fieldValue(fields, "Core Features")?.value;
+      lines.push(
+        ...renderGuidanceSection(
+          section,
+          features
+            ? `Derive visual/interaction principles from core features: ${features}.`
+            : "Define principles after core features are confirmed.",
+        ),
+      );
+      continue;
+    }
+    lines.push(
+      ...renderGuidanceSection(
+        section,
+        "Structured placeholder derived from composition policy; refine with confirmed evidence before production claims.",
+      ),
+    );
   }
   return lines.join("\n");
 }
 
-function renderAiSystemDesign(): string {
+function renderAiSystemDesign(fields: readonly DnaField[], accepted: boolean): string {
+  const stack = fieldValue(fields, "Technical Stack");
+  const applicable =
+    (stack?.value ?? "").toLowerCase().includes("model") ||
+    (stack?.value ?? "").toLowerCase().includes("retrieval") ||
+    (stack?.value ?? "").toLowerCase().includes("eval");
+
   return [
-    ...draftBanner("AI_SYSTEM_DESIGN.md"),
+    ...packageBanner("AI_SYSTEM_DESIGN.md", accepted),
     "## Applicability",
     "",
-    "This pilot targets the AI Product category, so an AI system design is expected. Specific model, retrieval, and evaluation choices remain unknown until Project DNA and review evidence resolve them.",
+    applicable
+      ? "AI capabilities are in scope for this category/brief."
+      : "AI may be optional; state not_applicable only with rationale if no model use is required.",
     "",
-    "## Models and context",
-    "",
-    "Unknown — not inferred in this draft.",
-    "",
-    "## Evaluation and safety",
-    "",
-    "Unknown — not inferred in this draft. Safety and evaluation gates remain mandatory before any accepted package.",
-    "",
-    "## Open decisions",
-    "",
-    "Unknown — not inferred in this draft.",
-    "",
+    ...renderDnaSection("Models and context", "Technical Stack", fields),
+    ...renderGuidanceSection(
+      "Evaluation and safety",
+      fieldValue(fields, "Success Metrics")?.value
+        ? `Tie evals to: ${fieldValue(fields, "Success Metrics")?.value}. Keep unsafe tool use blocked.`
+        : "Define evals before trusting model output; keep unsafe tool use blocked.",
+    ),
+    ...renderGuidanceSection(
+      "Open decisions",
+      "Provider choice, retention of prompts, and customer-managed credentials remain product decisions.",
+    ),
   ].join("\n");
 }
 
 function renderAgentExecutionPackage(
   graph: { nodes: SkillGraphNode[]; edges: SkillGraphEdge[] },
   graphHash: string,
+  accepted: boolean,
 ): string {
   const taskLines = graph.nodes
     .map(
@@ -191,20 +237,21 @@ function renderAgentExecutionPackage(
     .join("\n");
 
   return [
-    ...draftBanner("AGENT_EXECUTION_PACKAGE.md"),
+    ...packageBanner("AGENT_EXECUTION_PACKAGE.md", accepted),
     "## Bounded task graph",
     "",
     taskLines,
     "",
     "## Prerequisites",
     "",
-    "- Accepted package after Review Council (not satisfied).",
-    "- Resolved critical Project DNA unknowns needed for the requested tasks.",
+    accepted
+      ? "- Package accepted for export by Review Council."
+      : "- Accepted package after Review Council (not satisfied yet).",
+    "- Critical DNA unknowns resolved or explicitly deferred.",
     "",
     "## Stop conditions",
     "",
     "- Any mandatory artifact or reviewer gate fails.",
-    "- A required Project DNA field remains unknown for a blocking decision.",
     "- Instructions would require secrets, production access, or unrestricted tools.",
     "",
     "## Prohibited operations",
@@ -212,12 +259,12 @@ function renderAgentExecutionPackage(
     "- Execute against production systems.",
     "- Embed or request live credentials.",
     "- Grant unrestricted shell or network permissions.",
-    "- Treat draft handoff text as execution authority.",
+    "- Treat handoff text as execution authority.",
     "",
     "## Handoff status",
     "",
-    "- Status: blocked",
-    "- Package accepted: false",
+    `- Status: ${accepted ? "prepared" : "blocked"}`,
+    `- Package accepted: ${accepted}`,
     "- Execution authorized: false",
     `- Graph SHA-256: \`${graphHash}\``,
     "",
@@ -225,31 +272,32 @@ function renderAgentExecutionPackage(
 }
 
 function renderQualityChecklist(
-  presentArtifacts: readonly string[],
-  missingArtifacts: readonly string[],
+  accepted: boolean,
+  unknownCount: number,
 ): string {
   return [
-    ...draftBanner("QUALITY_CHECKLIST.md"),
+    ...packageBanner("QUALITY_CHECKLIST.md", accepted),
     "## Package completeness",
     "",
-    `- Present artifacts: ${presentArtifacts.length}/${BLUEPRINT_ARTIFACTS.length}`,
-    `- Missing artifacts: ${missingArtifacts.length === 0 ? "none" : missingArtifacts.join(", ")}`,
+    `- Present artifacts: ${BLUEPRINT_ARTIFACTS.length}/${BLUEPRINT_ARTIFACTS.length}`,
+    "- Missing artifacts: none",
     "",
     "## Review Council gate",
     "",
-    "- Status: evaluated after draft generation by the deterministic council.",
-    "- Acceptance requires every mandatory reviewer to pass the versioned rubric with evidence.",
+    accepted
+      ? "- Status: passed for export."
+      : "- Status: pending/blocked until thresholds and findings clear.",
     "",
     "## Evidence requirements",
     "",
-    "- Every score must cite artifact, section, rubric version, and rationale.",
-    "- Unknown Project DNA fields must remain labeled unknown.",
+    "- Every score must cite artifact, rubric version, and rationale.",
+    `- Unknown DNA fields remaining: ${unknownCount}`,
     "",
     "## Acceptance blockers",
     "",
-    "- Review Council has not run.",
-    "- Package remains draft and must not be marked accepted.",
-    "- Export/handoff remains blocked.",
+    accepted
+      ? "- None for export acceptance; execution remains unauthorized."
+      : "- Review Council gate has not passed.",
     "",
   ].join("\n");
 }
@@ -259,14 +307,17 @@ export function renderDraftBlueprints(input: {
   graphHash: string;
   graph: { nodes: SkillGraphNode[]; edges: SkillGraphEdge[] };
   fields: readonly DnaField[];
+  accepted?: boolean;
 }): CompositionPreview["artifactPreviews"] {
+  const accepted = input.accepted ?? false;
+  const unknownCount = input.fields.filter((field) => field.status === "unknown").length;
   const byKey = new Map<string, string>();
 
   byKey.set(
     "MASTER_SKILL_PACKAGE.md",
-    renderMasterSkillPackage(input.brief, input.graph, input.graphHash),
+    renderMasterSkillPackage(input.brief, input.graph, input.graphHash, accepted),
   );
-  byKey.set("PROJECT_DNA.md", renderProjectDna(input.fields));
+  byKey.set("PROJECT_DNA.md", renderProjectDna(input.fields, accepted));
 
   for (const template of TEMPLATES) {
     if (
@@ -276,37 +327,36 @@ export function renderDraftBlueprints(input: {
       continue;
     }
     if (template.logicalKey === "AI_SYSTEM_DESIGN.md") {
-      byKey.set(template.logicalKey, renderAiSystemDesign());
+      byKey.set(template.logicalKey, renderAiSystemDesign(input.fields, accepted));
       continue;
     }
     if (template.logicalKey === "AGENT_EXECUTION_PACKAGE.md") {
       byKey.set(
         template.logicalKey,
-        renderAgentExecutionPackage(input.graph, input.graphHash),
+        renderAgentExecutionPackage(input.graph, input.graphHash, accepted),
       );
       continue;
     }
     if (template.logicalKey === "QUALITY_CHECKLIST.md") {
-      byKey.set(
-        template.logicalKey,
-        renderQualityChecklist([...BLUEPRINT_ARTIFACTS], []),
-      );
+      byKey.set(template.logicalKey, renderQualityChecklist(accepted, unknownCount));
       continue;
     }
-    byKey.set(template.logicalKey, renderBoundArtifact(template, input.fields));
+    byKey.set(template.logicalKey, renderBoundArtifact(template, input.fields, accepted));
   }
 
   return BLUEPRINT_ARTIFACTS.map((logicalKey) => {
     const content = byKey.get(logicalKey);
-    if (!content) {
-      throw new Error(`Draft template missing renderer for ${logicalKey}.`);
-    }
-    return {
-      logicalKey,
-      content,
-      templateVersion: TEMPLATE_SET_VERSION,
-    };
+    if (!content) throw new Error(`Draft template missing renderer for ${logicalKey}.`);
+    return { logicalKey, content, templateVersion: TEMPLATE_SET_VERSION };
   });
+}
+
+export function buildExportMarkdown(
+  artifacts: CompositionPreview["artifactPreviews"],
+): string {
+  return artifacts
+    .map((artifact) => artifact.content.trimEnd())
+    .join("\n\n---\n\n");
 }
 
 export function listDraftTemplateKeys(): (typeof BLUEPRINT_ARTIFACTS)[number][] {

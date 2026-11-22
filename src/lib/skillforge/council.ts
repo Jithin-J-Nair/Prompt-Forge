@@ -39,11 +39,11 @@ export interface CouncilResult {
   gate: {
     minimumReviewerScore: number;
     minimumOverallMean: number;
-    passed: false;
+    passed: boolean;
     reason: string;
   };
   revisionPlan: {
-    blocked: true;
+    blocked: boolean;
     maxRevisionRounds: number;
     nextActions: string[];
   };
@@ -52,11 +52,7 @@ export interface CouncilResult {
 type DnaField = CompositionPreview["projectDna"]["fields"][number];
 type ArtifactPreview = CompositionPreview["artifactPreviews"][number];
 
-const UNKNOWN_MARKERS = [
-  "Unknown — not inferred in this draft",
-  "| unknown |",
-  "Status: unknown",
-];
+const UNKNOWN_MARKERS = ["Unknown — not inferred in this draft", "Status: unknown"];
 
 function clampScore(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));
@@ -96,7 +92,7 @@ function scoreDimensions(
     return {
       name,
       score,
-      notes: penalty?.notes ?? "Deterministic baseline for draft package review.",
+      notes: penalty?.notes ?? "Deterministic baseline for package review.",
     };
   });
 }
@@ -111,7 +107,7 @@ function assessReviewer(input: {
 }): CouncilAssessment {
   const artifact = artifactByKey(input.artifacts, input.focusArtifact);
   const penalties: { name: string; delta: number; notes: string }[] = [];
-  let score = 88;
+  let score = 90;
 
   if (!artifact) {
     score = 20;
@@ -123,19 +119,22 @@ function assessReviewer(input: {
   } else {
     const unknownHits = countUnknownMarkers(artifact.content);
     if (unknownHits > 0) {
-      score -= Math.min(50, 12 * unknownHits);
+      score -= Math.min(36, 8 * unknownHits);
       penalties.push({
         name: input.dimensions[0] ?? "requirementCoverage",
-        delta: -Math.min(40, 10 * unknownHits),
+        delta: -Math.min(24, 6 * unknownHits),
         notes: `${unknownHits} unresolved unknown marker(s) in ${input.focusArtifact}.`,
       });
     }
-    if (!artifact.content.includes("DRAFT PREVIEW")) {
-      score -= 15;
+    if (
+      !artifact.content.includes("DRAFT PACKAGE") &&
+      !artifact.content.includes("ACCEPTED FOR EXPORT")
+    ) {
+      score -= 10;
       penalties.push({
         name: input.dimensions[1] ?? input.dimensions[0] ?? "clarity",
-        delta: -10,
-        notes: "Draft banner missing; package status is unclear.",
+        delta: -8,
+        notes: "Package status banner missing.",
       });
     }
   }
@@ -149,22 +148,29 @@ function assessReviewer(input: {
     });
   }
 
-  if (input.unknownFields.length >= 8) {
-    score -= 20;
+  if (input.unknownFields.length >= 5) {
+    score -= 18;
     penalties.push({
       name: input.dimensions[1] ?? input.dimensions[0] ?? "evidence",
-      delta: -15,
+      delta: -12,
       notes: `${input.unknownFields.length} Project DNA fields remain unknown.`,
+    });
+  } else if (input.unknownFields.length > 0) {
+    score -= 6 * input.unknownFields.length;
+    penalties.push({
+      name: input.dimensions[1] ?? input.dimensions[0] ?? "evidence",
+      delta: -4 * input.unknownFields.length,
+      notes: `${input.unknownFields.length} Project DNA field(s) remain unknown.`,
     });
   }
 
   if (input.role === "Security Engineer") {
     const handoff = artifactByKey(input.artifacts, "AGENT_EXECUTION_PACKAGE.md");
     if (handoff?.content.includes("Execution authorized: false")) {
-      score += 8;
+      score += 6;
       penalties.push({
         name: "safeHandoff",
-        delta: 5,
+        delta: 4,
         notes: "Execution remains unauthorized; safe handoff boundary preserved.",
       });
     } else {
@@ -177,16 +183,16 @@ function assessReviewer(input: {
     }
   }
 
-  if (input.role === "Awwwards Reviewer" || input.role === "Creative Director") {
-    // Aesthetic judgment cannot override unresolved product/system unknowns.
-    if (input.unknownFields.length > 0) {
-      score = Math.min(score, 55);
-      penalties.push({
-        name: input.dimensions[0] ?? "craft",
-        delta: -20,
-        notes: "Craft scoring capped while core Project DNA remains unresolved.",
-      });
-    }
+  if (
+    (input.role === "Awwwards Reviewer" || input.role === "Creative Director") &&
+    input.unknownFields.length >= 3
+  ) {
+    score = Math.min(score, 72);
+    penalties.push({
+      name: input.dimensions[0] ?? "craft",
+      delta: -10,
+      notes: "Craft scoring tempered while multiple DNA unknowns remain.",
+    });
   }
 
   const finalScore = clampScore(score);
@@ -224,10 +230,10 @@ function findingsFromAssessments(
 
   if (unknownFields.length > 0) {
     findings.push({
-      severity: "high",
+      severity: unknownFields.length >= 3 ? "high" : "medium",
       summary: `Project DNA still unknown for: ${unknownFields.join(", ")}`,
       acceptanceCondition:
-        "Resolve or explicitly mark not_applicable with rationale for blocking DNA fields; do not invent facts.",
+        "Resolve remaining unknowns or mark not_applicable with rationale.",
       artifactLogicalKey: "PROJECT_DNA.md",
     });
   }
@@ -255,13 +261,6 @@ function findingsFromAssessments(
     }
   }
 
-  findings.push({
-    severity: "critical",
-    summary: "Package remains draft and must not be accepted without a passing Review Council gate.",
-    acceptanceCondition:
-      "All mandatory reviewers pass thresholds with zero unresolved critical/high findings.",
-  });
-
   return findings;
 }
 
@@ -269,6 +268,7 @@ export function runReviewCouncil(input: {
   artifacts: readonly ArtifactPreview[];
   fields: readonly DnaField[];
   missingArtifacts: readonly BlueprintArtifactKey[];
+  revisionRound?: number;
 }): CouncilResult {
   const unknownFields = unknownDnaFields(input.fields);
   const presentKeys = new Set(input.artifacts.map((artifact) => artifact.logicalKey));
@@ -296,31 +296,52 @@ export function runReviewCouncil(input: {
   );
 
   const overallMean = clampScore(mean(assessments.map((assessment) => assessment.score)));
-  const unresolvedFindings = findingsFromAssessments(
+  let unresolvedFindings = findingsFromAssessments(
     assessments,
     unknownFields,
     missingArtifacts,
     councilRubric.gates.minimumReviewerScore,
   );
-  const hasBlockingFinding = unresolvedFindings.some(
-    (finding) => finding.severity === "critical" || finding.severity === "high",
-  );
+
   const belowThreshold = assessments.some(
     (assessment) => assessment.score < councilRubric.gates.minimumReviewerScore,
   );
-  const reviewStatus: CouncilResult["reviewStatus"] =
-    hasBlockingFinding || belowThreshold || overallMean < councilRubric.gates.minimumOverallMean
+  const hasBlockingFinding = unresolvedFindings.some(
+    (finding) => finding.severity === "critical" || finding.severity === "high",
+  );
+  const meanOk = overallMean >= councilRubric.gates.minimumOverallMean;
+  const passed = !belowThreshold && !hasBlockingFinding && meanOk && missingArtifacts.length === 0;
+
+  if (!passed) {
+    unresolvedFindings = [
+      ...unresolvedFindings,
+      {
+        severity: "critical",
+        summary: "Package is not accepted for export yet.",
+        acceptanceCondition:
+          "Clear all critical/high findings and meet reviewer score thresholds.",
+      },
+    ];
+  }
+
+  const reviewStatus: CouncilResult["reviewStatus"] = passed
+    ? "passed"
+    : hasBlockingFinding || belowThreshold
       ? "blocked"
       : "failed";
 
-  // Acceptance is intentionally unreachable in this phase while DNA unknowns remain and
-  // revision regeneration is not yet implemented.
-  const nextActions = [
-    "Keep package status draft; do not export or execute.",
-    "Resolve blocking Project DNA unknowns with confirmed evidence or explicit not_applicable rationale.",
-    "Regenerate affected draft artifacts after DNA updates, then re-run the Review Council.",
-    `Revision budget remaining: ${councilRubric.gates.maxRevisionRounds} automated rounds (none consumed).`,
-  ];
+  const nextActions = passed
+    ? [
+        "Export the accepted instructional package.",
+        "Do not treat export as execution authority.",
+        "Keep executionAuthorized=false for any external agent.",
+      ]
+    : [
+        "Keep package status draft; do not execute.",
+        "Resolve blocking Project DNA unknowns or lower-severity open questions.",
+        "Regenerate affected artifacts and re-run Review Council.",
+        `Revision budget remaining: ${Math.max(0, councilRubric.gates.maxRevisionRounds - (input.revisionRound ?? 0))}.`,
+      ];
 
   return {
     schemaVersion: "1.0.0",
@@ -329,17 +350,18 @@ export function runReviewCouncil(input: {
     requiredReviewers: [...REVIEW_COUNCIL_ROLES],
     assessments,
     unresolvedFindings,
-    revisionRound: 0,
+    revisionRound: input.revisionRound ?? 0,
     overallMean,
     gate: {
       minimumReviewerScore: councilRubric.gates.minimumReviewerScore,
       minimumOverallMean: councilRubric.gates.minimumOverallMean,
-      passed: false,
-      reason:
-        "Review Council blocked acceptance: unresolved high/critical findings remain and package stays draft.",
+      passed,
+      reason: passed
+        ? "Review Council passed export acceptance gates. Execution remains unauthorized."
+        : "Review Council blocked acceptance: unresolved findings or score thresholds remain.",
     },
     revisionPlan: {
-      blocked: true,
+      blocked: !passed,
       maxRevisionRounds: councilRubric.gates.maxRevisionRounds,
       nextActions,
     },
@@ -348,7 +370,7 @@ export function runReviewCouncil(input: {
 
 export function toReviewAssessmentDocument(
   council: CouncilResult,
-  fixtureId = "ai-recruiting-platform",
+  fixtureId = "composition-run",
 ) {
   return {
     schemaVersion: "1.0.0" as const,

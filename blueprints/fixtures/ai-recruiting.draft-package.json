@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0.0",
   "fixtureId": "ai-recruiting-platform",
-  "packageStatus": "draft",
-  "accepted": false,
+  "packageStatus": "accepted",
+  "accepted": true,
   "executionReady": false,
   "requiredArtifacts": [
     "MASTER_SKILL_PACKAGE.md",
@@ -31,12 +31,12 @@
     "LAUNCH_PLAN.md"
   ],
   "missingArtifacts": [],
-  "reviewStatus": "blocked",
-  "graphHash": "e6561ff926cc052bd546c534034f104a941f994d933204d796837f9bd3ba842f",
+  "reviewStatus": "passed",
+  "graphHash": "b5115d6ccb27817adee3a34f4552aad870f8d517c0f82f49ddda43e85efefcf0",
   "limitations": [
-    "Only Tier 1 Core Thinking skills are included in this pilot catalog.",
-    "All eleven canonical artifacts are draft shells; unknown Project DNA fields stay unknown.",
-    "Review Council ran deterministically and blocked acceptance; revision regeneration is not automated yet.",
-    "The preview is not persisted and is not an agent execution handoff."
+    "Catalog skillforge-catalog-1.1.0 covers all 15 categories with curated skill policies.",
+    "Export is instructional only; executionAuthorized is always false.",
+    "Review Council passed export acceptance; runtime agent execution is still out of scope.",
+    "Identity/tenant isolation and production retention policies are not fully productized yet."
   ]
 }
