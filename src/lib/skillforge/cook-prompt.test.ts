@@ -16,7 +16,7 @@ test("COOK prompt is a single pasteable agent build brief", () => {
     brief: "Awwwards site like activetheory.net",
   });
   const cook = buildCookPrompt(preview);
-  assert.match(cook, /SKILLFORGE COOK PROMPT/);
+  assert.match(cook, /SKILLFORGE COOK\.md — BRAIN/);
   assert.match(cook, /executionAuthorized/);
   assert.match(cook, /Buttons\/CTA|Button\/CTA|button\/CTA/i);
   assert.match(cook, /GSAP|R3F/);

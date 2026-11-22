@@ -53,16 +53,19 @@ export function buildCookPrompt(preview: CompositionPreview): string {
     .join("\n");
 
   const lines = [
-    "# SKILLFORGE COOK PROMPT — paste into a coding AI agent",
+    "# SKILLFORGE COOK.md — BRAIN (attach this file to your agent)",
     "",
-    "You are a senior implementation agent. Your job is to **build the product described below** from this SkillForge package.",
+    "This file is the **SkillForge brain**: expertise graph, Project DNA, craft artifacts, and acceptance criteria.",
+    "Pair it with the **PromptForge BODY prompt** (execution protocol). Do not invent a generic template and sprinkle these adjectives on top.",
+    "",
+    "You are a senior implementation agent. When the PromptForge body is present, follow its phases while treating this COOK file as source of truth.",
     "",
     "## Hard laws",
     "- This package is instructional. It does **not** authorize production deploys, secrets access, or unrestricted shell.",
     "- `executionAuthorized` is **false**.",
     `- Package status: **${preview.accepted ? "ACCEPTED for export" : "DRAFT — council not passed; treat as guidance only"}**.`,
     "- Do not invent confirmed facts; respect inferred/unknown DNA labels.",
-    "- Prefer the package over your own generic SaaS template instincts.",
+    "- Prefer this brain over your own generic SaaS template instincts.",
     "",
     "## Project",
     `- Category: **${preview.categoryLabel}** (\`${preview.categoryKey}\`)`,

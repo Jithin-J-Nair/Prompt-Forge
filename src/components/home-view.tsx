@@ -13,9 +13,9 @@ import { HERO_ROTATIONS } from "@/lib/templates";
 import type { PromptSummary, PromptListResponse } from "@/lib/types";
 
 const MARQUEE_ITEMS = [
-  "Skill Graph", "Project DNA", "Master Blueprint", "Review Council",
-  "Agent Handoff", "RAG Architecture", "Security Gates", "Performance Budgets",
-  "Design Systems", "SaaS Strategy", "Prompt Injection Defense", "Export Pack",
+  "COOK.md Brain", "PromptForge Body", "Skill Graph", "Project DNA",
+  "Review Council", "Agent Handoff", "Awwwards Craft", "GSAP / R3F",
+  "Design Systems", "Security Gates", "Story System", "Export Pack",
 ];
 
 const STEPS = [
@@ -23,22 +23,22 @@ const STEPS = [
     icon: ScanText,
     no: "01",
     title: "State the intent",
-    body: "One line is enough — “enterprise AI recruiting platform”, “RAG knowledge desk”, “Three.js portfolio”. Category + brief is the whole intake.",
+    body: "One line is enough — “Awwwards site like Active Theory”, “enterprise AI recruiting”, “Three.js portfolio”. Category + brief is the whole intake.",
     meta: "3–400 characters",
   },
   {
     icon: Hammer,
     no: "02",
-    title: "Compose the experts",
-    body: "SkillForge selects specialist skills, resolves conflicts, builds Project DNA, and drafts eleven blueprints — then the Review Council gates the package.",
-    meta: "50 curated skills · 15 categories",
+    title: "SkillForge · brain",
+    body: "SkillForge selects specialist skills, builds Project DNA + craft artifacts, and downloads COOK.md — the full expertise brain for your agent.",
+    meta: "COOK.md · skill graph · council gate",
   },
   {
     icon: PackageCheck,
     no: "03",
-    title: "Hand off to agents",
-    body: "Export an instructional agent pack for Cursor, Claude, Codex, or a human team. Execution stays unauthorized until you say otherwise.",
-    meta: "executionAuthorized: false",
+    title: "PromptForge · body",
+    body: "Hit Next → PromptForge for the BODY prompt: phases, skill links into COOK, and review gates. Attach COOK + paste the body into any agentic AI.",
+    meta: "Brain + body = category-best craft",
   },
 ];
 
@@ -89,7 +89,7 @@ export function HomeView() {
           <Reveal>
             <p className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-line bg-carbon/70 px-4 py-2 font-mono text-[11px] tracking-[0.2em] text-fog uppercase backdrop-blur">
               <span className="inline-block size-1.5 animate-pulse-soft rounded-full bg-ember" aria-hidden />
-              PromptForge · SkillForge expertise OS · catalog v1.3
+              SkillForge brain → PromptForge body · catalog v1.4.2
             </p>
           </Reveal>
 
@@ -176,9 +176,9 @@ export function HomeView() {
                 <span className="text-gradient-ember">expertise out.</span>
               </h2>
               <p className="max-w-sm text-[15px] leading-relaxed text-fog">
-                Three stages, one forge. SkillForge composes specialists,
-                gates quality through the Review Council, and exports an
-                agent-ready instructional pack.
+                SkillForge builds the COOK brain. PromptForge writes the
+                body protocol. Together they drive Awwwards-class and
+                category-best builds across every forge category.
               </p>
             </div>
           </Reveal>

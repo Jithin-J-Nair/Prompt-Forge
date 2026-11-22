@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   CloudUpload,
@@ -14,6 +14,11 @@ import {
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react";
+import {
+  isPromptForgeBridgePayload,
+  PROMPTFORGE_BRIDGE_STORAGE_KEY,
+  type PromptForgeBridgePayload,
+} from "@/lib/promptforge/orchestrator-prompt";
 import { PROJECT_CATEGORIES } from "@/lib/skillforge/categories";
 import type { CompositionPreview } from "@/lib/skillforge/types";
 
@@ -115,6 +120,7 @@ type ServerPackageSummary = {
 };
 
 export function SkillForgeComposer() {
+  const router = useRouter();
   const params = useSearchParams();
   const initialBrief = params.get("q")?.trim() || "Build an enterprise AI recruiting platform";
   const initialCategory = params.get("category")?.trim() || "ai-product";
@@ -128,6 +134,8 @@ export function SkillForgeComposer() {
   const [notice, setNotice] = useState("");
   const [serverPackages, setServerPackages] = useState<ServerPackageSummary[]>([]);
   const [savingServer, setSavingServer] = useState(false);
+  const [bridge, setBridge] = useState<PromptForgeBridgePayload | null>(null);
+  const [handoffBusy, setHandoffBusy] = useState(false);
   const resultsRef = useRef<HTMLElement | null>(null);
   const autoRan = useRef(false);
   const saved = useSyncExternalStore(subscribeSaved, readSavedSnapshot, () => EMPTY_SAVED);
@@ -172,6 +180,7 @@ export function SkillForgeComposer() {
 
     setError("");
     setNotice("");
+    setBridge(null);
     setBusy(true);
 
     try {
@@ -225,8 +234,13 @@ export function SkillForgeComposer() {
     setNotice("Exported Markdown package downloaded.");
   }
 
-  async function downloadHandoff() {
-    if (!preview) return;
+  async function requestHandoffPack(options?: {
+    downloadFiles?: boolean;
+  }): Promise<PromptForgeBridgePayload | null> {
+    if (!preview) return null;
+    const downloadFiles = options?.downloadFiles ?? true;
+    setHandoffBusy(true);
+    setError("");
     try {
       const response = await fetch("/api/skillforge/handoff", {
         method: "POST",
@@ -236,31 +250,58 @@ export function SkillForgeComposer() {
       const data: unknown = await response.json();
       if (!response.ok || !isRecord(data) || typeof data.markdown !== "string") {
         setError(getErrorMessage(data) ?? "Could not build agent handoff.");
-        return;
+        return null;
       }
-      downloadBlob(
-        `skillforge-handoff-${preview.categoryKey}.md`,
-        data.markdown,
-        "text/markdown;charset=utf-8",
-      );
-      if (typeof data.cookPrompt === "string" && data.cookPrompt.length > 0) {
+
+      const nextBridge = isPromptForgeBridgePayload(data.bridge) ? data.bridge : null;
+      if (nextBridge) {
+        setBridge(nextBridge);
+        sessionStorage.setItem(PROMPTFORGE_BRIDGE_STORAGE_KEY, JSON.stringify(nextBridge));
+      }
+
+      if (downloadFiles) {
         downloadBlob(
-          `skillforge-COOK-${preview.categoryKey}.md`,
-          data.cookPrompt,
+          `skillforge-handoff-${preview.categoryKey}.md`,
+          data.markdown,
           "text/markdown;charset=utf-8",
         );
-      }
-      if (isRecord(data.manifest)) {
-        downloadBlob(
-          `skillforge-handoff-${preview.categoryKey}.json`,
-          JSON.stringify(data.manifest, null, 2),
-          "application/json",
+        if (typeof data.cookPrompt === "string" && data.cookPrompt.length > 0) {
+          downloadBlob(
+            `skillforge-COOK-${preview.categoryKey}.md`,
+            data.cookPrompt,
+            "text/markdown;charset=utf-8",
+          );
+        }
+        if (isRecord(data.manifest)) {
+          downloadBlob(
+            `skillforge-handoff-${preview.categoryKey}.json`,
+            JSON.stringify(data.manifest, null, 2),
+            "application/json",
+          );
+        }
+        setNotice(
+          "COOK.md brain downloaded. Next → PromptForge for the BODY prompt (phases + skill links).",
         );
       }
-      setNotice("Agent pack downloaded: COOK.md (paste into coding AI) + handoff + manifest.");
+
+      return nextBridge;
     } catch {
       setError("Could not build agent handoff.");
+      return null;
+    } finally {
+      setHandoffBusy(false);
     }
+  }
+
+  async function downloadHandoff() {
+    await requestHandoffPack({ downloadFiles: true });
+  }
+
+  async function goToPromptForge() {
+    const ready = bridge ?? (await requestHandoffPack({ downloadFiles: !bridge }));
+    if (!ready) return;
+    sessionStorage.setItem(PROMPTFORGE_BRIDGE_STORAGE_KEY, JSON.stringify(ready));
+    router.push("/promptforge");
   }
 
   function saveLocally() {
@@ -340,9 +381,9 @@ export function SkillForgeComposer() {
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-fog md:text-base">
         Pick a category, describe the intent, and SkillForge builds a skill graph, Project DNA,
-        craft-dense blueprints, and a Review Council gate. Download an Agent pack your coding AI can
-        cook from (including button/image/scroll motion and GSAP/R3F when immersive). Execution stays
-        unauthorized.
+        craft-dense blueprints, and a Review Council gate. Download COOK.md (the brain), then continue
+        to PromptForge for the BODY prompt — phases, skill links, and review gates for category-best
+        / Awwwards-class builds. Execution stays unauthorized.
       </p>
 
       <form
@@ -480,13 +521,44 @@ export function SkillForgeComposer() {
               </button>
               <button
                 type="button"
+                disabled={handoffBusy}
                 onClick={() => void downloadHandoff()}
-                className="inline-flex items-center gap-2 rounded-full bg-ember px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ink uppercase"
+                className="inline-flex items-center gap-2 rounded-full bg-ember px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ink uppercase disabled:opacity-50"
               >
-                <Package className="pointer-events-none size-3.5" aria-hidden /> Cook pack
+                <Package className="pointer-events-none size-3.5" aria-hidden />{" "}
+                {handoffBusy ? "Building…" : "Download COOK (brain)"}
+              </button>
+              <button
+                type="button"
+                disabled={handoffBusy}
+                data-testid="skillforge-next-promptforge"
+                onClick={() => void goToPromptForge()}
+                className="inline-flex items-center gap-2 rounded-full border border-flare/50 bg-flare/15 px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-flare uppercase disabled:opacity-50"
+              >
+                Next: PromptForge <ArrowRight className="pointer-events-none size-3.5" aria-hidden />
               </button>
             </div>
           </div>
+
+          {bridge && (
+            <div className="rounded-xl border border-flare/40 bg-flare/10 p-5">
+              <p className="font-mono text-[11px] tracking-[0.14em] text-flare uppercase">
+                Pipeline · brain ready
+              </p>
+              <p className="mt-2 text-sm leading-6 text-ivory">
+                COOK.md is prepared ({bridge.cookFilename}). Continue to PromptForge to copy the BODY
+                prompt — the agentic AI attaches COOK as the brain and pastes the body as the build
+                protocol.
+              </p>
+              <button
+                type="button"
+                onClick={() => void goToPromptForge()}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ember px-5 py-3 font-mono text-xs font-semibold tracking-[0.12em] text-ink uppercase"
+              >
+                Next → PromptForge body <ArrowRight className="size-4" aria-hidden />
+              </button>
+            </div>
+          )}
 
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <section className="rounded-xl border border-line bg-carbon/70 p-5 md:p-7">

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { buildPromptForgeBridgePayload } from "@/lib/promptforge/orchestrator-prompt";
 import {
   buildAgentHandoffManifest,
   buildAgentHandoffMarkdown,
@@ -47,8 +48,15 @@ export async function POST(request: Request) {
   const manifest = buildAgentHandoffManifest(preview);
   const markdown = buildAgentHandoffMarkdown(preview, manifest);
   const cookPrompt = buildCookPrompt(preview);
+  const bridge = buildPromptForgeBridgePayload(preview, cookPrompt);
   return NextResponse.json(
-    { manifest, markdown, cookPrompt },
+    {
+      manifest,
+      markdown,
+      cookPrompt,
+      orchestratorPrompt: bridge.orchestratorPrompt,
+      bridge,
+    },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

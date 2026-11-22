@@ -22,4 +22,6 @@ test("accepted composition yields prepared handoff with executionAuthorized fals
   const markdown = buildAgentHandoffMarkdown(preview, manifest);
   assert.match(markdown, /Agent Handoff Pack/);
   assert.match(markdown, /Execution authorized: \*\*false\*\*/);
+  assert.match(markdown, /COOK\.md/);
+  assert.match(markdown, /PromptForge BODY/i);
 });
