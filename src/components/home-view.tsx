@@ -13,32 +13,32 @@ import { HERO_ROTATIONS } from "@/lib/templates";
 import type { PromptSummary, PromptListResponse } from "@/lib/types";
 
 const MARQUEE_ITEMS = [
-  "Brand Identity", "Design System", "Layout Specification", "Page Blueprints",
-  "Component Contracts", "Copy Strategy", "Motion Score", "Technical Stack",
-  "SEO & Access", "Backend Schema", "Definition of Done", "Mega Prompt",
+  "Skill Graph", "Project DNA", "Master Blueprint", "Review Council",
+  "Agent Handoff", "RAG Architecture", "Security Gates", "Performance Budgets",
+  "Design Systems", "SaaS Strategy", "Prompt Injection Defense", "Export Pack",
 ];
 
 const STEPS = [
   {
     icon: ScanText,
     no: "01",
-    title: "Feed the furnace",
-    body: "Type any vague, lazy, one-line brief — “make a website for a gym”, “something for my band”. Quality of input is irrelevant. That is the point.",
-    meta: "avg. input: 6 words",
+    title: "State the intent",
+    body: "One line is enough — “enterprise AI recruiting platform”, “RAG knowledge desk”, “Three.js portfolio”. Category + brief is the whole intake.",
+    meta: "3–400 characters",
   },
   {
     icon: Hammer,
     no: "02",
-    title: "The forge engages",
-    body: "The engine locks your industry across 18 trained verticals, mints a brand, drafts tokens, maps every route, specs every component and scores the motion.",
-    meta: "12 sections · ~2.3s",
+    title: "Compose the experts",
+    body: "SkillForge selects specialist skills, resolves conflicts, builds Project DNA, and drafts eleven blueprints — then the Review Council gates the package.",
+    meta: "50 curated skills · 15 categories",
   },
   {
     icon: PackageCheck,
     no: "03",
-    title: "Ship the mega prompt",
-    body: "One combined, copy-ready mega prompt — complete with a definition of done. Paste it into v0, Bolt, Cursor, Lovable, or hand it to a human team.",
-    meta: "avg. output: 2,100 words",
+    title: "Hand off to agents",
+    body: "Export an instructional agent pack for Cursor, Claude, Codex, or a human team. Execution stays unauthorized until you say otherwise.",
+    meta: "executionAuthorized: false",
   },
 ];
 
@@ -78,7 +78,7 @@ export function HomeView() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = quick.trim();
-    router.push(q ? `/forge?q=${encodeURIComponent(q)}` : "/forge");
+    router.push(q ? `/skillforge?q=${encodeURIComponent(q)}` : "/skillforge");
   };
 
   return (
@@ -89,21 +89,22 @@ export function HomeView() {
           <Reveal>
             <p className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-line bg-carbon/70 px-4 py-2 font-mono text-[11px] tracking-[0.2em] text-fog uppercase backdrop-blur">
               <span className="inline-block size-1.5 animate-pulse-soft rounded-full bg-ember" aria-hidden />
-              Prompt enhancement engine · v1.0 · 18 industries trained
+              PromptForge · SkillForge expertise OS · catalog v1.2
             </p>
           </Reveal>
 
-          <h1 className="font-display text-[13.5vw] leading-[0.94] font-bold tracking-[-0.03em] uppercase select-none sm:text-[11vw] lg:text-[7.6rem]">
-            <Reveal delay={0.05}><span className="block">One lazy</span></Reveal>
-            <Reveal delay={0.12}>
+          <h1 className="font-display text-[12vw] leading-[0.94] font-bold tracking-[-0.03em] uppercase select-none sm:text-[10vw] lg:text-[6.8rem]">
+            <Reveal delay={0.05}>
               <span className="block">
-                sentence<span className="text-ember">,</span> <span className="text-stroke">in.</span>
+                Prompt<span className="text-ember">Forge</span>
               </span>
             </Reveal>
-            <Reveal delay={0.19}>
-              <span className="text-gradient-ember block">One god-tier</span>
+            <Reveal delay={0.12}>
+              <span className="block text-stroke">One idea in.</span>
             </Reveal>
-            <Reveal delay={0.26}><span className="block">spec out.</span></Reveal>
+            <Reveal delay={0.19}>
+              <span className="text-gradient-ember block">Expert pack out.</span>
+            </Reveal>
           </h1>
 
           <Reveal delay={0.34}>
@@ -113,19 +114,18 @@ export function HomeView() {
                   <TypeCycle phrases={HERO_ROTATIONS} />
                 </p>
                 <p className="mt-4 max-w-lg text-[15.5px] leading-relaxed text-fog">
-                  PromptForge swallows vague one-liners and forges them into
-                  production-grade website blueprints — brand system, design
-                  tokens, page-by-page UX, components, motion, SEO and backend.
-                  Ready to paste into any AI builder or hand to a dev team.
+                  Compose a reviewed skill graph, Project DNA, and agent handoff
+                  pack — elite specialist thinking embedded for AI agents and
+                  human teams. Not a chatbot. An expertise operating system.
                 </p>
 
                 <form onSubmit={submit} className="mt-7 flex max-w-lg items-center gap-2" role="search">
-                  <label htmlFor="quick-brief" className="sr-only">Your website idea</label>
+                  <label htmlFor="quick-brief" className="sr-only">Your project idea</label>
                   <input
                     id="quick-brief"
                     value={quick}
                     onChange={(e) => setQuick(e.target.value)}
-                    placeholder="make a website for..."
+                    placeholder="build an enterprise AI recruiting platform..."
                     maxLength={200}
                     className="h-13 flex-1 rounded-lg border border-line bg-carbon/80 px-4 font-mono text-[13.5px] text-ivory placeholder:text-smoke focus:border-ember focus:outline-none"
                   />
@@ -134,16 +134,16 @@ export function HomeView() {
                     className="group inline-flex h-13 shrink-0 items-center gap-2 rounded-lg bg-ember px-5 font-mono text-[12px] font-medium tracking-[0.14em] text-ink uppercase transition-colors duration-200 hover:bg-flare"
                   >
                     <Flame className="size-4 transition-transform duration-300 group-hover:rotate-12" />
-                    Forge it
+                    Compose
                   </button>
                 </form>
               </div>
 
               <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-line bg-line lg:w-[420px]">
                 {[
-                  { k: "sections", v: 12, suffix: "" },
-                  { k: "avg words out", v: 2100, suffix: "+" },
-                  { k: "industries", v: 18, suffix: "" },
+                  { k: "skills", v: 50, suffix: "" },
+                  { k: "artifacts", v: 11, suffix: "" },
+                  { k: "categories", v: 15, suffix: "" },
                 ].map((s) => (
                   <div key={s.k} className="bg-carbon/80 px-5 py-4 backdrop-blur">
                     <dd className="font-display text-2xl font-bold text-ember md:text-3xl">
@@ -171,14 +171,14 @@ export function HomeView() {
             <Eyebrow>The protocol</Eyebrow>
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <h2 className="max-w-2xl font-display text-4xl leading-[1.02] font-bold tracking-tight uppercase md:text-6xl">
-                Garbage in,
+                Intent in,
                 <br />
-                <span className="text-gradient-ember">blueprint out.</span>
+                <span className="text-gradient-ember">expertise out.</span>
               </h2>
               <p className="max-w-sm text-[15px] leading-relaxed text-fog">
-                Three stages, one furnace. No accounts, no prompts to learn,
-                no settings to fiddle with. The engine does the thinking your
-                brief refused to.
+                Three stages, one forge. SkillForge composes specialists,
+                gates quality through the Review Council, and exports an
+                agent-ready instructional pack.
               </p>
             </div>
           </Reveal>

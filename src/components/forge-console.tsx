@@ -16,8 +16,9 @@ import { Eyebrow } from "@/components/chrome";
 type Phase = "idle" | "forging" | "done" | "error";
 
 interface ForgeResult {
-  id: number;
+  id: number | null;
   createdAt: string;
+  ephemeral?: boolean;
   spec: EnhancedSpec;
 }
 
@@ -320,7 +321,11 @@ export function ForgeConsole() {
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 className="rounded-xl border border-ember/40 bg-gradient-to-br from-ember/[0.09] to-carbon p-7"
               >
-                <Eyebrow>Forged & filed to your library</Eyebrow>
+                <Eyebrow>
+                  {result.id == null
+                    ? "Forged (ephemeral — library unavailable)"
+                    : "Forged & filed to your library"}
+                </Eyebrow>
                 <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                   <div>
                     <p className="font-display text-3xl font-bold tracking-tight uppercase md:text-5xl">
@@ -333,16 +338,20 @@ export function ForgeConsole() {
                       confidence {(result.spec.confidence * 100).toFixed(0)}%
                     </p>
                   </div>
-                  <Link
-                    href={`/spec/${result.id}`}
-                    className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-coal px-5 py-2.5 font-mono text-[11px] tracking-[0.14em] text-ivory uppercase transition-colors hover:border-ember hover:text-ember"
-                  >
-                    Permanent link
-                    <ArrowUpRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </Link>
+                  {result.id != null && (
+                    <Link
+                      href={`/spec/${result.id}`}
+                      className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-coal px-5 py-2.5 font-mono text-[11px] tracking-[0.14em] text-ivory uppercase transition-colors hover:border-ember hover:text-ember"
+                    >
+                      Permanent link
+                      <ArrowUpRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </Link>
+                  )}
                 </div>
                 <p className="mt-5 border-t border-line pt-4 font-mono text-[10.5px] tracking-[0.14em] text-smoke uppercase">
-                  Spec #{String(result.id).padStart(4, "0")} — scroll for the full blueprint
+                  {result.id == null
+                    ? "Not persisted — scroll for the full blueprint"
+                    : `Spec #${String(result.id).padStart(4, "0")} — scroll for the full blueprint`}
                 </p>
               </motion.div>
             )}

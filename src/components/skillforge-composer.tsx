@@ -1,12 +1,15 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
+  CloudUpload,
   Download,
   LoaderCircle,
   LockKeyhole,
   Network,
+  Package,
   Save,
   ShieldAlert,
   ShieldCheck,
@@ -100,20 +103,69 @@ function writeSaved(next: SavedPackage[]) {
   window.dispatchEvent(new Event("skillforge-saved"));
 }
 
+type ServerPackageSummary = {
+  id: number;
+  title: string;
+  brief: string;
+  categoryKey: string;
+  categoryLabel: string;
+  accepted: boolean;
+  previewStatus: string;
+  createdAt: string;
+};
+
 export function SkillForgeComposer() {
-  const [brief, setBrief] = useState("Build an enterprise AI recruiting platform");
-  const [categoryKey, setCategoryKey] = useState<string>("ai-product");
+  const params = useSearchParams();
+  const initialBrief = params.get("q")?.trim() || "Build an enterprise AI recruiting platform";
+  const initialCategory = params.get("category")?.trim() || "ai-product";
+  const [brief, setBrief] = useState(initialBrief);
+  const [categoryKey, setCategoryKey] = useState<string>(
+    PROJECT_CATEGORIES.some((c) => c.key === initialCategory) ? initialCategory : "ai-product",
+  );
   const [preview, setPreview] = useState<CompositionPreview | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const [serverPackages, setServerPackages] = useState<ServerPackageSummary[]>([]);
+  const [savingServer, setSavingServer] = useState(false);
   const resultsRef = useRef<HTMLElement | null>(null);
+  const autoRan = useRef(false);
   const saved = useSyncExternalStore(subscribeSaved, readSavedSnapshot, () => EMPTY_SAVED);
 
-  async function compose() {
+  async function refreshServerPackages() {
+    try {
+      const response = await fetch("/api/skillforge/packages?limit=12");
+      if (!response.ok) return;
+      const data: unknown = await response.json();
+      if (
+        isRecord(data) &&
+        Array.isArray(data.packages)
+      ) {
+        setServerPackages(data.packages as ServerPackageSummary[]);
+      }
+    } catch {
+      /* persistence optional */
+    }
+  }
+
+  useEffect(() => {
+    void refreshServerPackages();
+  }, []);
+
+  useEffect(() => {
+    const q = params.get("q")?.trim();
+    if (!q || q.length < 3 || autoRan.current) return;
+    autoRan.current = true;
+    setBrief(q);
+    void compose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-shot from ?q=
+  }, [params]);
+
+  async function compose(overrideBrief?: string) {
     if (busy) return;
-    const trimmed = brief.trim();
-    if (trimmed.length < 3 || brief.length > 400) {
+    const source = overrideBrief ?? brief;
+    const trimmed = source.trim();
+    if (trimmed.length < 3 || source.length > 400) {
       setError("Project intent must be 3–400 characters.");
       return;
     }
@@ -153,16 +205,55 @@ export function SkillForgeComposer() {
     }
   }
 
-  function downloadExport() {
-    if (!preview) return;
-    const blob = new Blob([preview.exportMarkdown], { type: "text/markdown;charset=utf-8" });
+  function downloadBlob(filename: string, contents: string, type: string) {
+    const blob = new Blob([contents], { type });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `skillforge-${preview.categoryKey}-${preview.accepted ? "accepted" : "draft"}.md`;
+    anchor.download = filename;
     anchor.click();
     URL.revokeObjectURL(url);
+  }
+
+  function downloadExport() {
+    if (!preview) return;
+    downloadBlob(
+      `skillforge-${preview.categoryKey}-${preview.accepted ? "accepted" : "draft"}.md`,
+      preview.exportMarkdown,
+      "text/markdown;charset=utf-8",
+    );
     setNotice("Exported Markdown package downloaded.");
+  }
+
+  async function downloadHandoff() {
+    if (!preview) return;
+    try {
+      const response = await fetch("/api/skillforge/handoff", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preview }),
+      });
+      const data: unknown = await response.json();
+      if (!response.ok || !isRecord(data) || typeof data.markdown !== "string") {
+        setError(getErrorMessage(data) ?? "Could not build agent handoff.");
+        return;
+      }
+      downloadBlob(
+        `skillforge-handoff-${preview.categoryKey}.md`,
+        data.markdown,
+        "text/markdown;charset=utf-8",
+      );
+      if (isRecord(data.manifest)) {
+        downloadBlob(
+          `skillforge-handoff-${preview.categoryKey}.json`,
+          JSON.stringify(data.manifest, null, 2),
+          "application/json",
+        );
+      }
+      setNotice("Agent handoff pack downloaded (Markdown + manifest JSON).");
+    } catch {
+      setError("Could not build agent handoff.");
+    }
   }
 
   function saveLocally() {
@@ -178,6 +269,55 @@ export function SkillForgeComposer() {
     const next = [entry, ...loadSaved()].slice(0, 20);
     writeSaved(next);
     setNotice("Saved in this browser.");
+  }
+
+  async function saveToServer() {
+    if (!preview || savingServer) return;
+    setSavingServer(true);
+    setError("");
+    try {
+      const response = await fetch("/api/skillforge/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preview }),
+      });
+      const data: unknown = await response.json();
+      if (!response.ok) {
+        setError(getErrorMessage(data) ?? "Server save failed. Browser save still works.");
+        return;
+      }
+      setNotice(
+        isRecord(data) && typeof data.id === "number"
+          ? `Saved to server as package #${data.id}.`
+          : "Saved to server.",
+      );
+      void refreshServerPackages();
+    } catch {
+      setError("Server save unavailable. Use browser save or export.");
+    } finally {
+      setSavingServer(false);
+    }
+  }
+
+  async function loadServerPackage(id: number) {
+    setError("");
+    try {
+      const response = await fetch(`/api/skillforge/packages/${id}`);
+      const data: unknown = await response.json();
+      if (!response.ok || !isRecord(data) || !isCompositionPreview(data.preview)) {
+        setError(getErrorMessage(data) ?? "Could not load package.");
+        return;
+      }
+      setPreview(data.preview);
+      setBrief(data.preview.brief);
+      setCategoryKey(data.preview.categoryKey);
+      setNotice(`Loaded server package #${id}.`);
+      queueMicrotask(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    } catch {
+      setError("Could not load package.");
+    }
   }
 
   const canCompose = !busy && brief.trim().length >= 3 && brief.length <= 400;
@@ -312,14 +452,30 @@ export function SkillForgeComposer() {
                 onClick={saveLocally}
                 className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ivory uppercase"
               >
-                <Save className="size-3.5" aria-hidden /> Save
+                <Save className="pointer-events-none size-3.5" aria-hidden /> Browser
+              </button>
+              <button
+                type="button"
+                disabled={savingServer}
+                onClick={() => void saveToServer()}
+                className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ivory uppercase disabled:opacity-50"
+              >
+                <CloudUpload className="pointer-events-none size-3.5" aria-hidden />{" "}
+                {savingServer ? "Saving…" : "Server"}
               </button>
               <button
                 type="button"
                 onClick={downloadExport}
+                className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ivory uppercase"
+              >
+                <Download className="pointer-events-none size-3.5" aria-hidden /> Export MD
+              </button>
+              <button
+                type="button"
+                onClick={() => void downloadHandoff()}
                 className="inline-flex items-center gap-2 rounded-full bg-ember px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ink uppercase"
               >
-                <Download className="size-3.5" aria-hidden /> Export MD
+                <Package className="pointer-events-none size-3.5" aria-hidden /> Agent pack
               </button>
             </div>
           </div>
@@ -437,6 +593,28 @@ export function SkillForgeComposer() {
               </details>
             ))}
           </section>
+        </section>
+      )}
+
+      {serverPackages.length > 0 && (
+        <section className="mt-12">
+          <h2 className="font-display text-xl font-bold text-ivory">Saved on server</h2>
+          <ul className="mt-4 space-y-2">
+            {serverPackages.map((item) => (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  className="w-full rounded-lg border border-line bg-carbon/60 px-4 py-3 text-left text-sm text-ivory"
+                  onClick={() => void loadServerPackage(item.id)}
+                >
+                  <span className="font-mono text-[10px] text-flare uppercase">
+                    #{item.id} · {item.categoryKey} · {item.accepted ? "accepted" : "draft"}
+                  </span>
+                  <span className="mt-1 block">{item.title}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 

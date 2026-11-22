@@ -1,39 +1,43 @@
 # SkillForge implementation handoff
 
-## Merged state
+## Product stance
 
-SkillForge is the expertise-compose engine of **PromptForge** (same product). Usable compose on `main` for all 15 project categories:
+**PromptForge** is the brand. **SkillForge** is the expertise-compose engine. Same product: one idea → reviewed expertise package → agent handoff.
 
-- Architecture, contracts, templates, and catalog boundaries.
-- Deterministic composition with curated multi-tier skill policies.
-- Published catalog **v1.2.0** — core starters plus elite specialists (performance, a11y, privacy, payments, ML, prompt-injection defense, etc.).
-- Project DNA enrichment (confirmed + inferred, unknowns labeled).
-- All eleven canonical artifacts generated from versioned templates.
-- Review Council with revision rounds; packages can become **accepted for export**.
-- Browser save + Markdown export UX on `/skillforge`.
-- Primary nav CTA points at SkillForge compose; `/forge` remains the mega-prompt surface.
-- **Execution remains unauthorized** (`executionReady: false`).
+## Ready product surface
+
+- `/` — PromptForge home; primary CTA composes via `/skillforge?q=…`
+- `/skillforge` — compose, Review Council, browser + **server save**, Markdown export, **Agent pack** download
+- `/forge` — mega-prompt surface (resilient if DB persist fails; still returns the spec)
+- Catalog **v1.2.0** — 50 curated skills across 15 categories
+- Eleven blueprints + council gate; `executionReady` / `executionAuthorized` always **false**
+
+## Persistence
+
+- Table `skillforge_packages` (Postgres / Drizzle)
+- `GET/POST /api/skillforge/packages`, `GET /api/skillforge/packages/[id]`
+- `POST /api/skillforge/handoff` — agent manifest + Markdown pack
+- Browser localStorage remains as offline fallback
 
 ## How to use
 
-1. Open `/skillforge` (or **Compose package** in the nav).
-2. Choose a project category and enter a brief (3–400 chars).
-3. Compose → inspect skill graph, DNA, council scores, artifacts.
-4. Save in-browser and/or Export Markdown.
-5. Treat accepted packages as instructional handoffs only.
+1. Open `/` or `/skillforge`.
+2. Enter a brief (optionally `?q=` + `?category=`).
+3. Compose → inspect graph, DNA, council, artifacts.
+4. Save to server and/or browser; Export MD; download **Agent pack**.
+5. Treat packs as instructional handoffs only.
 
-## Incomplete / next
+## Still later (not blocking ready use)
 
-- Deeper human-authored skill prose and optional GitHub-sourced skill ingestion under the same contract.
-- Cloud persistence ledger + auth/tenant isolation (browser save is still the ready path).
-- Unified intake that folds mega-prompt output into the same package flow.
-- In-product agent execution runtime (export/handoff only today).
-- Model-provider adapters (compose stays deterministic).
+- Full auth / tenant isolation and retention ops
+- GitHub skill ingest pipeline (curated import under contract)
+- In-product agent execution runtime
+- Model-provider adapters (compose stays deterministic)
 
 ## Verification
 
 - `npm test`
 - `npm run validate:contracts`
 - `npm run typecheck`
-- ESLint on SkillForge modules
-- `npm run build` with a working `DATABASE_URL` when `/forge` persistence is needed
+- `npm run build` with a working `DATABASE_URL`
+- Ensure `skillforge_packages` exists (drizzle schema / SQL create)
