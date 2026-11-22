@@ -1,4 +1,5 @@
 import councilRubric from "../../../reviewers/council-rubric-1.0.0.json";
+import { PLACEHOLDER_BAN_PHRASE } from "./blueprints-content.ts";
 import {
   BLUEPRINT_ARTIFACTS,
   REVIEW_COUNCIL_ROLES,
@@ -6,6 +7,24 @@ import {
   type CompositionPreview,
   type ProjectDnaField,
 } from "./types.ts";
+
+const MUSH_MARKERS = [
+  PLACEHOLDER_BAN_PHRASE,
+  "Derive visual/interaction principles from core features:",
+  "system composes expertise package",
+  "expressive interactive experience",
+];
+
+const IMMERSIVE_CRAFT_MARKERS = [
+  "Motion language",
+  "full-bleed",
+  "Scene inventory",
+  "60fps",
+  "reduced-motion",
+  "Buttons / CTAs",
+  "Image / media placeholders",
+  "Scroll theater",
+];
 
 export const RUBRIC_VERSION = `${councilRubric.rubricId}@${councilRubric.version}`;
 
@@ -97,6 +116,73 @@ function scoreDimensions(
   });
 }
 
+function assessCraftDensity(
+  artifacts: readonly ArtifactPreview[],
+  role: ReviewerRole,
+  immersiveCategory: boolean,
+): { delta: number; notes: string }[] {
+  const penalties: { delta: number; notes: string }[] = [];
+  const design = artifactByKey(artifacts, "DESIGN_SYSTEM.md");
+  const architecture = artifactByKey(artifacts, "ARCHITECTURE.md");
+  const flows = artifactByKey(artifacts, "USER_FLOWS.md");
+  const all = artifacts.map((artifact) => artifact.content).join("\n");
+
+  for (const marker of MUSH_MARKERS) {
+    if (all.includes(marker)) {
+      penalties.push({
+        delta: marker === PLACEHOLDER_BAN_PHRASE ? -50 : -18,
+        notes: `Craft density failure: mush/placeholder marker present (${marker.slice(0, 48)}…).`,
+      });
+    }
+  }
+
+  if (immersiveCategory && design && design.content.length < 1200) {
+    penalties.push({
+      delta: -22,
+      notes: `DESIGN_SYSTEM.md too thin (${design.content.length} chars) for immersive craft export.`,
+    });
+  } else if (!immersiveCategory && design && design.content.length < 450) {
+    penalties.push({
+      delta: -16,
+      notes: `DESIGN_SYSTEM.md too thin (${design.content.length} chars).`,
+    });
+  }
+
+  if (
+    immersiveCategory &&
+    (role === "Awwwards Reviewer" ||
+      role === "Creative Director" ||
+      role === "Systems Architect" ||
+      role === "Performance Engineer")
+  ) {
+    const missing = IMMERSIVE_CRAFT_MARKERS.filter((marker) => !all.includes(marker));
+    if (missing.length > 0) {
+      penalties.push({
+        delta: -12 * Math.min(4, missing.length),
+        notes: `Immersive craft markers missing: ${missing.join(", ")}.`,
+      });
+    }
+    if (
+      architecture &&
+      /Modular monolith with clear domain boundaries/i.test(architecture.content) &&
+      !/Experience-host|Scene inventory/i.test(architecture.content)
+    ) {
+      penalties.push({
+        delta: -28,
+        notes: "Architecture still describes generic SaaS monolith for an immersive package.",
+      });
+    }
+    if (flows && /composes expertise package/i.test(flows.content)) {
+      penalties.push({
+        delta: -24,
+        notes: "USER_FLOWS describes SkillForge compose loop instead of visitor journey.",
+      });
+    }
+  }
+
+  return penalties;
+}
+
 function assessReviewer(input: {
   role: ReviewerRole;
   focusArtifact: BlueprintArtifactKey;
@@ -104,6 +190,7 @@ function assessReviewer(input: {
   artifacts: readonly ArtifactPreview[];
   unknownFields: readonly ProjectDnaField[];
   missingArtifacts: readonly BlueprintArtifactKey[];
+  immersiveCategory: boolean;
 }): CouncilAssessment {
   const artifact = artifactByKey(input.artifacts, input.focusArtifact);
   const penalties: { name: string; delta: number; notes: string }[] = [];
@@ -137,6 +224,19 @@ function assessReviewer(input: {
         notes: "Package status banner missing.",
       });
     }
+  }
+
+  for (const craftPenalty of assessCraftDensity(
+    input.artifacts,
+    input.role,
+    input.immersiveCategory,
+  )) {
+    score += craftPenalty.delta;
+    penalties.push({
+      name: input.dimensions[0] ?? "craft",
+      delta: craftPenalty.delta,
+      notes: craftPenalty.notes,
+    });
   }
 
   if (input.missingArtifacts.length > 0) {
@@ -269,6 +369,7 @@ export function runReviewCouncil(input: {
   fields: readonly DnaField[];
   missingArtifacts: readonly BlueprintArtifactKey[];
   revisionRound?: number;
+  categoryKey?: string;
 }): CouncilResult {
   const unknownFields = unknownDnaFields(input.fields);
   const presentKeys = new Set(input.artifacts.map((artifact) => artifact.logicalKey));
@@ -279,6 +380,8 @@ export function runReviewCouncil(input: {
         !presentKeys.has(required) && !input.missingArtifacts.includes(required),
     ),
   ];
+  const immersiveCategory =
+    input.categoryKey === "awwwards-website" || input.categoryKey === "threejs-experience";
 
   const assessments = (councilRubric.reviewers as {
     role: ReviewerRole;
@@ -292,6 +395,7 @@ export function runReviewCouncil(input: {
       artifacts: input.artifacts,
       unknownFields,
       missingArtifacts,
+      immersiveCategory,
     }),
   );
 

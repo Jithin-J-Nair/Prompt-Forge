@@ -9,8 +9,12 @@
 - `/` — PromptForge home; primary CTA composes via `/skillforge?q=…`
 - `/skillforge` — compose, Review Council, browser + **server save**, Markdown export, **Agent pack** download
 - `/forge` — mega-prompt surface (resilient if DB persist fails; still returns the spec)
-- Catalog **v1.2.0** — 50 curated skills across 15 categories
-- Eleven blueprints + council gate; `executionReady` / `executionAuthorized` always **false**
+- Catalog **v1.3.1** — 57+ depth-enriched skills (including Tier-7 reviewers) across 15 categories
+- Immersive categories emit craft-dense blueprints (no placeholder binder pages)
+- **Cook pack**: downloads `COOK.md` (one pasteable mega-prompt for coding AIs) + handoff + manifest
+- Deterministic short-brief expansion for craft/product targets
+- Curated skill ingest path: `npm run ingest:skills` (validate distilled JSON — no GitHub paste)
+- Eleven blueprints + craft-aware council gate; `executionReady` / `executionAuthorized` always **false**
 
 ## Persistence
 
@@ -27,11 +31,18 @@
 4. Save to server and/or browser; Export MD; download **Agent pack**.
 5. Treat packs as instructional handoffs only.
 
+## God-law product stance (finished for v1 recipe OS)
+
+- Packs are **agent cook books** (including cinematic UI motion + GSAP/R3F when immersive).
+- SkillForge does **not** build the finished website in-product.
+- See `docs/GOD_LEVEL_SKILLFORGE_BUILD_PROMPT.md` for the locked build law.
+
 ## Still later (not blocking ready use)
 
 - Full auth / tenant isolation and retention ops
-- GitHub skill ingest pipeline (curated import under contract)
+- GitHub skill ingest pipeline (curated distillation under contract — not copy-paste)
 - In-product agent execution runtime
+- Optional LLM brief expansion behind a flag
 - Model-provider adapters (compose stays deterministic)
 
 ## Verification

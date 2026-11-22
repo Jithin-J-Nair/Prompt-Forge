@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   buildAgentHandoffManifest,
   buildAgentHandoffMarkdown,
+  buildCookPrompt,
 } from "@/lib/skillforge/handoff";
 import type { CompositionPreview } from "@/lib/skillforge/types";
 
@@ -45,8 +46,9 @@ export async function POST(request: Request) {
 
   const manifest = buildAgentHandoffManifest(preview);
   const markdown = buildAgentHandoffMarkdown(preview, manifest);
+  const cookPrompt = buildCookPrompt(preview);
   return NextResponse.json(
-    { manifest, markdown },
+    { manifest, markdown, cookPrompt },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

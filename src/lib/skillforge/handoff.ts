@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { buildCookPrompt } from "./cook-prompt.ts";
 import type { CompositionPreview } from "./types.ts";
 
 function sha256(value: string): string {
@@ -65,12 +66,13 @@ export function buildAgentHandoffManifest(
       "Stop before any production mutation or credential use.",
     ],
     agentInstructions: [
-      "Read MASTER_SKILL_PACKAGE.md and PROJECT_DNA.md first.",
-      "Follow skill graph priorities (P0 before P2).",
-      "Implement only within assigned skill scopes.",
+      "Read MASTER_SKILL_PACKAGE.md, PROJECT_DNA.md, and DESIGN_SYSTEM.md first.",
+      "Follow skill graph priorities (P0 before P2) and only within assigned scopes.",
+      "If immersive/Awwwards/Three.js skills are present: implement button/CTA micro-interactions, image/placeholder reveals, scroll theater, and GSAP/R3F per AGENT_EXECUTION_PACKAGE cook steps — do not invent a SaaS dashboard.",
+      "Honor reduced-motion and performance budgets before claiming done.",
       "Preserve executionAuthorized=false until a separately authorized executor exists.",
       prepared
-        ? "Council passed — use this as the instructional source of truth."
+        ? "Council passed — use this pack as the instructional source of truth to cook the build."
         : "Council blocked — resolve findings before treating as accepted.",
     ],
   };
@@ -94,6 +96,7 @@ export function buildAgentHandoffMarkdown(
     "",
     "## Instructions for downstream agents",
     ...manifest.agentInstructions.map((line) => `- ${line}`),
+    "- Prefer the companion **COOK.md** mega-prompt as the single paste target for coding agents.",
     "",
     "## Prohibited operations",
     ...manifest.prohibitedOperations.map((line) => `- ${line}`),
@@ -117,3 +120,5 @@ export function buildAgentHandoffMarkdown(
   ];
   return lines.join("\n");
 }
+
+export { buildCookPrompt };

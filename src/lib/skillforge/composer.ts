@@ -13,7 +13,9 @@ import { CATALOG_VERSION, getSkillBySlug, PUBLISHED_SKILLS } from "./catalog.ts"
 import { runReviewCouncil, RUBRIC_VERSION } from "./council.ts";
 import { buildProjectDna } from "./dna.ts";
 import {
+  briefSignalsImmersive,
   CATEGORY_SKILL_POLICY,
+  IMMERSIVE_BRIEF_SKILLS,
   PRIORITY_BY_SKILL,
   PRIORITY_RATIONALE,
 } from "./policy.ts";
@@ -119,10 +121,19 @@ function orderByDependencies(skills: readonly SkillPackage[]): SkillPackage[] {
   return ordered;
 }
 
-function selectSkills(categoryKey: ProjectCategoryKey): SkillPackage[] {
-  const policy = CATEGORY_SKILL_POLICY[categoryKey];
+function selectSkills(categoryKey: ProjectCategoryKey, brief: string): SkillPackage[] {
+  const slugs = [...CATEGORY_SKILL_POLICY[categoryKey]];
+  if (
+    briefSignalsImmersive(brief) &&
+    categoryKey !== "awwwards-website" &&
+    categoryKey !== "threejs-experience"
+  ) {
+    for (const slug of IMMERSIVE_BRIEF_SKILLS) {
+      if (!slugs.includes(slug)) slugs.push(slug);
+    }
+  }
   const selected: SkillPackage[] = [];
-  for (const slug of policy) {
+  for (const slug of slugs) {
     const skill = getSkillBySlug(slug);
     if (!skill) throw new Error(`Catalog missing skill ${slug} for ${categoryKey}.`);
     selected.push(skill);
@@ -187,7 +198,7 @@ function composeOnce(input: {
   graphHash: string;
   fields: CompositionPreview["projectDna"]["fields"];
 } {
-  const skills = selectSkills(input.categoryKey);
+  const skills = selectSkills(input.categoryKey, input.brief);
   const graph = buildGraph(skills);
   const fields = buildProjectDna({
     brief: input.brief,
@@ -208,6 +219,7 @@ function composeOnce(input: {
 
   const artifactPreviews = renderDraftBlueprints({
     brief: input.brief,
+    categoryKey: input.categoryKey,
     graphHash,
     graph,
     fields,
@@ -271,6 +283,7 @@ export function composeProjectPreview(input: {
     fields: latestArtifacts.fields,
     missingArtifacts: [],
     revisionRound,
+    categoryKey: input.categoryKey,
   });
 
   while (!latestCouncil.gate.passed && revisionRound < MAX_REVISIONS) {
@@ -286,6 +299,7 @@ export function composeProjectPreview(input: {
       fields: latestArtifacts.fields,
       missingArtifacts: [],
       revisionRound,
+      categoryKey: input.categoryKey,
     });
   }
 
@@ -302,6 +316,7 @@ export function composeProjectPreview(input: {
       fields: latestArtifacts.fields,
       missingArtifacts: [],
       revisionRound,
+      categoryKey: input.categoryKey,
     });
   }
 
@@ -336,10 +351,10 @@ export function composeProjectPreview(input: {
       nextActions: latestCouncil.revisionPlan.nextActions,
     },
     limitations: [
-      `Catalog ${CATALOG_VERSION} covers all 15 categories with curated skill policies.`,
+      `Catalog ${CATALOG_VERSION} covers all 15 categories with depth-enriched skill playbooks.`,
       "Export is instructional only; executionAuthorized is always false.",
       accepted
-        ? "Review Council passed export acceptance; runtime agent execution is still out of scope."
+        ? "Review Council passed craft-density and completeness gates; runtime agent execution is still out of scope."
         : "Review Council did not pass; package remains draft after revision budget.",
       "Identity/tenant isolation and production retention policies are not fully productized yet.",
     ],

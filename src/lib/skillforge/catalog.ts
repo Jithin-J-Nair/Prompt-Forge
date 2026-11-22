@@ -1,8 +1,10 @@
 import { ELITE_SKILLS } from "./catalog-elite.ts";
+import { REVIEWER_SKILLS } from "./catalog-reviewers.ts";
+import { deepenCatalog } from "./skill-depth.ts";
 import { buildSkill } from "./skill-factory.ts";
 import type { SkillPackage } from "./types.ts";
 
-export const CATALOG_VERSION = "skillforge-catalog-1.2.0";
+export const CATALOG_VERSION = "skillforge-catalog-1.3.1";
 
 const ALL_CATEGORIES = [
   "ai-product",
@@ -424,8 +426,12 @@ export const STARTER_SKILLS: SkillPackage[] = [
   }),
 ];
 
-/** Full published catalog: core starters + elite specialists. */
-export const PUBLISHED_SKILLS: SkillPackage[] = [...STARTER_SKILLS, ...ELITE_SKILLS];
+/** Full published catalog: core starters + elite specialists + reviewer lenses, depth-applied. */
+export const PUBLISHED_SKILLS: SkillPackage[] = deepenCatalog([
+  ...STARTER_SKILLS,
+  ...ELITE_SKILLS,
+  ...REVIEWER_SKILLS,
+]);
 
 export function getSkillBySlug(slug: string): SkillPackage | undefined {
   return PUBLISHED_SKILLS.find((skill) => skill.identity.slug === slug);
