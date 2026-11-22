@@ -7,10 +7,11 @@ This document records **public GitHub repositories** reviewed during SkillForge 
 | SkillForge slug(s) | GitHub source studied | Stars (approx.) | Notes |
 | --- | --- | ---: | --- |
 | `threejs-architect` | [CloudAI-X/threejs-skills](https://github.com/CloudAI-X/threejs-skills) | ~4340 | Scene graph, R3F patterns, performance habits—distilled into SkillForge constraints, not pasted text |
-| `rendering-engineer` |同上 (threejs-skills) | ~4340 | Renderer lifecycle, device profiles, frame budgets |
-| `shader-engineer` |同上 (threejs-skills) | ~4340 | Material/shader discipline and fallback strategies |
-| `post-processing-engineer` |同上 (threejs-skills) | ~4340 | Pass graphs, cost control, mobile degrade |
-| `technical-artist` |同上 (threejs-skills) | ~4340 | Art-to-shader handoff and asset budgets |
+| `rendering-engineer` | CloudAI-X/threejs-skills (same) | ~4340 | Renderer lifecycle, device profiles, frame budgets |
+| `shader-engineer` | CloudAI-X/threejs-skills (same) | ~4340 | Material/shader discipline and fallback strategies |
+| `post-processing-engineer` | CloudAI-X/threejs-skills (same) | ~4340 | Pass graphs, cost control, mobile degrade |
+| `technical-artist` | CloudAI-X/threejs-skills (same) | ~4340 | Art-to-shader handoff and asset budgets |
+| `r3f-architect` | CloudAI-X/threejs-skills (R3F skill) | ~4340 | Canvas host, chapter modules, UI↔R3F bridge |
 
 Related catalog skills without a separate high-star twin (e.g. R3F-specific naming) inherit the same **research lineage** via `threejs-skills`, expressed in SkillForge vocabulary.
 
@@ -19,7 +20,7 @@ Related catalog skills without a separate high-star twin (e.g. R3F-specific nami
 | SkillForge slug(s) | GitHub source studied | Stars (approx.) | Notes |
 | --- | --- | ---: | --- |
 | `gsap-architect` | [greensock/gsap-skills](https://github.com/greensock/gsap-skills) | ~18902 | Timeline ownership, scroll triggers, reduced-motion—original SkillForge motion grammar |
-| `motion-director` |同上 (gsap-skills) | ~18902 | Scroll-as-timeline and choreography budgets in `SKILL_DEPTH` |
+| `motion-director` | greensock/gsap-skills (same) | ~18902 | Scroll-as-timeline and choreography budgets in SkillForge motion language |
 
 ## Creative / frontend design cluster
 
