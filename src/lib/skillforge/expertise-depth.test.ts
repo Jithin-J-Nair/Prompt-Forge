@@ -4,13 +4,34 @@ import { PLACEHOLDER_BAN_PHRASE } from "./blueprints-content.ts";
 import { CATALOG_VERSION, PUBLISHED_SKILLS, getSkillBySlug } from "./catalog.ts";
 import { composeProjectPreview } from "./composer.ts";
 
-test("catalog v1.3 deepens creative skills beyond generic boilerplate", () => {
-  assert.ok(CATALOG_VERSION.startsWith("skillforge-catalog-1.3"));
+test("catalog v1.4 deepens creative skills beyond generic boilerplate", () => {
+  assert.ok(CATALOG_VERSION.startsWith("skillforge-catalog-1.4"));
   const creative = getSkillBySlug("creative-director");
   assert.ok(creative);
   assert.ok(!creative.principles.includes("Separate confirmed facts from inferences."));
   assert.ok(creative.principles.some((principle) => /bold idea|first viewport|AI-default/i.test(principle)));
   assert.ok(creative.examples?.[0]?.expectedOutput.includes("scroll theater"));
+});
+
+test("threejs and gsap skills carry distilled modern craft (not generic stubs)", () => {
+  const three = getSkillBySlug("threejs-architect");
+  const gsap = getSkillBySlug("gsap-architect");
+  assert.ok(three);
+  assert.ok(gsap);
+  assert.ok(three.principles.some((p) => /dispose|animation loop|compression|Draco|meshopt/i.test(p)));
+  assert.ok(three.antiPatterns.some((p) => /requestAnimationFrame|many canvases|unoptimized/i.test(p)));
+  assert.ok(gsap.principles.some((p) => /timeline|ScrollTrigger|autoAlpha|cleanup|reduced-motion/i.test(p)));
+  assert.match(three.provenance?.source ?? "", /distilled|v1\.4/);
+});
+
+test("every published skill has a merged depth patch", async () => {
+  const { MERGED_SKILL_DEPTH } = await import("./skill-depth.ts");
+  for (const skill of PUBLISHED_SKILLS) {
+    assert.ok(
+      MERGED_SKILL_DEPTH[skill.identity.slug],
+      `missing merged depth for ${skill.identity.slug}`,
+    );
+  }
 });
 
 test("tier-7 reviewer skills are published", () => {

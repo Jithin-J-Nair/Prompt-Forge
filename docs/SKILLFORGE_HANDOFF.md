@@ -9,7 +9,7 @@
 - `/` — PromptForge home; primary CTA composes via `/skillforge?q=…`
 - `/skillforge` — compose, Review Council, browser + **server save**, Markdown export, **Agent pack** download
 - `/forge` — mega-prompt surface (resilient if DB persist fails; still returns the spec)
-- Catalog **v1.3.1** — 57+ depth-enriched skills (including Tier-7 reviewers) across 15 categories
+- Catalog **v1.4.0** — 57+ depth-enriched skills (GitHub-studied distillation for WebGL/GSAP + full domain depth; never pasted third-party SKILL.md)
 - Immersive categories emit craft-dense blueprints (no placeholder binder pages)
 - **Cook pack**: downloads `COOK.md` (one pasteable mega-prompt for coding AIs) + handoff + manifest
 - Deterministic short-brief expansion for craft/product targets

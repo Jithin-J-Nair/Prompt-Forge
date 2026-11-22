@@ -1,6 +1,6 @@
 import type { SkillPackage } from "./types.ts";
 
-export type DepthPatch = Partial<
+type DepthPatch = Partial<
   Pick<
     SkillPackage,
     | "mission"
@@ -36,1970 +36,2623 @@ function criterion(
   return { criterion: text, evidence, severityIfMissed };
 }
 
-/** Domain-distilled depth for catalog skills without elite SKILL_DEPTH bodies. */
+/** Domain-distilled SkillForge depth for roles without exact high-star GitHub twins (and reviewers). */
 export const DISTILLED_DEPTH: Record<string, DepthPatch> = {
   "business-analyst": {
-    mission: "Translate stakeholder intent into bounded requirements, measurable outcomes, and explicit assumptions agents can implement without inventing business logic.",
+    mission: "Deliver expert Business Analyst judgment focused on assumptions, success metrics, and scope cuts that agents can execute without guessing.",
     principles: [
-      "Requirements trace to a stakeholder goal or metric, not a feature wish list.",
-      "Separate confirmed facts from inferred business rules; label both.",
-      "Every requirement has acceptance signals an agent can verify in artifacts.",
-      "Scope cuts are decisions with rationale, not silent omissions.",
-      "Non-functional needs (compliance, SLA) are first-class requirements.",
+      "Business Analyst outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: business-assumptions, success-measures, market-evidence.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Capability map",
-      "Assumption ledger",
-      "Requirement triage (must/should/cut)",
-      "Outcome traceability",
+          "Assumption ledger",
+          "Metric → decision link",
+          "Scope cut matrix"
     ],
     decisionFrameworks: [
-      framework("Requirement spine", "Greenfield or ambiguous product briefs.", [
-        "Restate the business goal in measurable outcome language.",
-        "Inventory actors, systems touchpoints, and policy constraints.",
-        "Write functional requirements with verifiable acceptance signals.",
-        "List assumptions, open questions, and deferred scope with owners.",
-      ], [
-        "PRODUCT_STRATEGY.md and PROJECT_DNA.md with traceable requirements.",
-      ]),
-      framework("Impact sizing", "Competing asks exceed delivery capacity.", [
-        "Score each requirement by user/business impact and delivery risk.",
-        "Propose v1 cuts with explicit tradeoff narrative.",
-        "Record what was cut and what metric regresses if wrong.",
-      ], [
-        "Prioritized backlog hypothesis agents honor in architecture and UX.",
-      ]),
+      framework(
+        "Business Analyst intake",
+        "When the package needs Business Analyst expertise.",
+        [
+          "Collect inputs relevant to business-assumptions.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on assumptions, success metrics, and scope cuts with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Business Analyst contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Use given/when/then or equivalent for behavioral requirements.",
-      "Cross-check requirements against success metrics in PROJECT_DNA.md.",
-      "Flag regulatory or contractual constraints before technical design.",
-      "Keep requirement IDs stable for review council traceability.",
+          "Write measurable success metrics",
+          "Label every market claim inferred vs confirmed",
+          "Keep MVP cuts explicit"
     ],
     antiPatterns: [
-      "Solution-shaped requirements before the job is clear.",
-      "Vanity metrics with no measurement method.",
-      "Hiding ambiguity behind confident prose.",
-      "Mixing marketing copy into binding requirements.",
+          "Fake precision metrics",
+          "Expanding scope silently",
+          "Treating opinions as market facts"
     ],
     reviewCriteria: [
-      criterion("Business requirements trace to outcomes with acceptance signals.", "PRODUCT_STRATEGY.md requirement section.", "critical"),
-      criterion("Assumptions and scope cuts are explicit.", "PROJECT_DNA.md assumption inventory.", "high"),
+      criterion(
+        "Business Analyst contribution is concrete and within declared capabilities.",
+        "PRODUCT_STRATEGY.md / PROJECT_DNA.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Traceability density", measurement: "Requirements with linked outcome or metric", target: "\u226590% of must-haves" },
-      { name: "Assumption exposure", measurement: "Labeled assumptions count", target: "\u22653 or explicit none" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Outcome-linked requirements and assumption ledger present.",
-      "Scope cuts documented when brief exceeds reasonable v1.",
-      "No unlabeled business facts presented as confirmed.",
+      "At least one concrete Business Analyst output tied to business-assumptions is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Workflow automation", input: "Reduce invoice processing time for finance ops", expectedOutput: "Goal: cut median cycle time 40%; actors: AP clerk, approver; must: audit trail; cut: ERP migration." },
+      {
+        title: "Business Analyst contribution",
+        input: "Compose expertise needing Business Analyst.",
+        expectedOutput: "Business Analyst returns scoped business-assumptions, success-measures, market-evidence guidance with labeled unknowns and acceptance checks focused on assumptions, success metrics, and scope cuts.",
+      },
     ],
     failureStates: [
-      { condition: "Package lacks measurable outcomes or verifiable requirements.", impact: "Agents build wrong product.", recovery: "Block acceptance until requirement spine exists.", blocking: true },
-      { condition: "Assumptions buried in architecture only.", impact: "Silent scope drift.", recovery: "Hoist assumptions to DNA.", blocking: false },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Business Analyst cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "systems-thinker": {
-    mission: "Model feedback loops, boundaries, and failure propagation so architectures stay coherent under load, change, and partial outages.",
+    mission: "Deliver expert Systems Thinker judgment focused on boundaries, dependencies, and risk loops that agents can execute without guessing.",
     principles: [
-      "Draw the system boundary before optimizing a component.",
-      "Every integration is a contract with failure modes.",
-      "Prefer explicit backpressure and capacity limits over hope.",
-      "Local optima that harm global outcomes get rejected.",
-      "Document second-order effects of scaling and org change.",
+      "Systems Thinker outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: system-boundaries, dependency-mapping, risk-framing.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Stocks and flows",
-      "Causal loop sketch",
-      "Failure domain isolation",
-      "Coupling budget",
+          "System boundary map",
+          "Feedback loops",
+          "Risk → mitigation pairs"
     ],
     decisionFrameworks: [
-      framework("System loop map", "Multi-service or agentic workflows.", [
-        "Identify actors, stores, and message paths.",
-        "Mark synchronous vs async edges and ownership.",
-        "List top failure modes per edge with blast radius.",
-        "Define containment (circuit breakers, queues, idempotency).",
-      ], [
-        "ARCHITECTURE.md diagrams with failure notes.",
-      ]),
+      framework(
+        "Systems Thinker intake",
+        "When the package needs Systems Thinker expertise.",
+        [
+          "Collect inputs relevant to system-boundaries.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on boundaries, dependencies, and risk loops with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Systems Thinker contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Name single writers for each source of truth.",
-      "Specify timeout, retry, and idempotency defaults on integrations.",
-      "Relate operational metrics to user-visible symptoms.",
-      "Revisit boundaries when new skills add cross-cutting concerns.",
+          "Draw trust boundaries early",
+          "Name critical dependencies",
+          "Call out second-order risks"
     ],
     antiPatterns: [
-      "Distributed monolith disguised as microservices.",
-      "Infinite retry without dead-letter discipline.",
-      "Shared mutable state across autonomous agents.",
-      "Architecture diagrams with no failure arrows.",
+          "Buzzword architecture",
+          "Ignoring operational failure modes",
+          "Hidden circular dependencies"
     ],
     reviewCriteria: [
-      criterion("System boundaries and integration failure modes documented.", "ARCHITECTURE.md", "high"),
+      criterion(
+        "Systems Thinker contribution is concrete and within declared capabilities.",
+        "ARCHITECTURE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Failure mode coverage", measurement: "Critical integrations with timeout/retry/idempotency", target: "100% of P0 paths" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Boundary map includes ownership and async/sync classification.",
-      "At least three named failure modes with containment.",
+      "At least one concrete Systems Thinker output tied to system-boundaries is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Order fulfillment", input: "E-commerce with inventory, payments, shipping", expectedOutput: "Inventory owns stock; payment webhook idempotent; ship queue with DLQ; checkout degrades to async confirm." },
+      {
+        title: "Systems Thinker contribution",
+        input: "Compose expertise needing Systems Thinker.",
+        expectedOutput: "Systems Thinker returns scoped system-boundaries, dependency-mapping, risk-framing guidance with labeled unknowns and acceptance checks focused on boundaries, dependencies, and risk loops.",
+      },
     ],
     failureStates: [
-      { condition: "No integration failure treatment on multi-service package.", impact: "Cascading outages in implementation.", recovery: "Add loop map before build.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Systems Thinker cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "ai-product-manager": {
-    mission: "Shape AI product bets\u2014user value, model boundaries, evaluation, and rollout\u2014so capabilities ship with measurable trust and stop conditions.",
+    mission: "Deliver expert AI Product Manager judgment focused on AI product outcomes, eval gates, and model-use policy that agents can execute without guessing.",
     principles: [
-      "Model capability is a product surface, not a hidden implementation detail.",
-      "Evaluation criteria precede launch narratives.",
-      "Human oversight tiers match harm and reversibility.",
-      "Latency, cost, and quality tradeoffs are explicit product choices.",
-      "Untrusted prompts and documents never become policy.",
+      "AI Product Manager outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: ai-outcome-framing, model-use-policy, eval-gates.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Capability envelope",
-      "Human-in-the-loop ladder",
-      "Eval flywheel",
-      "Model drift as product risk",
+          "Job-to-be-done for model help",
+          "Eval gate ladder",
+          "Human-in-the-loop points"
     ],
     decisionFrameworks: [
-      framework("AI feature charter", "Any LLM, agent, or retrieval feature in v1.", [
-        "State user job and non-goals in one paragraph.",
-        "Define input/output contract and forbidden outputs.",
-        "Pick eval signals (accuracy, safety, latency) with thresholds.",
-        "Define rollout guardrails and kill switches.",
-      ], [
-        "AI_SYSTEM_DESIGN.md charter section.",
-      ]),
-      framework("Trust tiering", "Features touching PII, money, or irreversible actions.", [
-        "Classify action reversibility and blast radius.",
-        "Assign autonomy level and required confirmations.",
-        "Map escalation paths when confidence is low.",
-      ], [
-        "Stop conditions aligned with agent-architect patterns.",
-      ]),
+      framework(
+        "AI Product Manager intake",
+        "When the package needs AI Product Manager expertise.",
+        [
+          "Collect inputs relevant to ai-outcome-framing.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on AI product outcomes, eval gates, and model-use policy with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded AI Product Manager contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Ship with offline eval fixtures before online optimism.",
-      "Expose confidence and sourcing to users when answers affect decisions.",
-      "Budget token and infra cost per active user hypothesis.",
-      "Pair launch metrics with harm monitoring hypotheses.",
+          "Define offline/online evals before features",
+          "State when not to use a model",
+          "Keep tool authority outside model text"
     ],
     antiPatterns: [
-      "Demo-quality prompts masquerading as production spec.",
-      "Skipping eval on 'small' AI features.",
-      "Autonomy without kill switch.",
-      "Treating RAG as magic without corpus governance.",
+          "AI for its own sake",
+          "No eval plan",
+          "Letting prompts grant permissions"
     ],
     reviewCriteria: [
-      criterion("AI feature charter includes eval thresholds and stop conditions.", "AI_SYSTEM_DESIGN.md", "critical"),
+      criterion(
+        "AI Product Manager contribution is concrete and within declared capabilities.",
+        "AI_SYSTEM_DESIGN.md / PRODUCT_STRATEGY.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Eval definition", measurement: "Named eval signals with thresholds", target: "\u22652 signals" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Charter with eval thresholds and kill switches.",
-      "Harm and oversight tiers documented for sensitive flows.",
+      "At least one concrete AI Product Manager output tied to ai-outcome-framing is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Support copilot", input: "B2B SaaS ticket summarization", expectedOutput: "Job: shorten handle time; forbid: billing changes; eval: citation accuracy \u226595%; kill: safety filter trip rate spike." },
+      {
+        title: "AI Product Manager contribution",
+        input: "Compose expertise needing AI Product Manager.",
+        expectedOutput: "AI Product Manager returns scoped ai-outcome-framing, model-use-policy, eval-gates guidance with labeled unknowns and acceptance checks focused on AI product outcomes, eval gates, and model-use policy.",
+      },
     ],
     failureStates: [
-      { condition: "AI feature spec without eval or stops.", impact: "Unsafe or untrustworthy ship.", recovery: "Block until charter complete.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "AI Product Manager cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "context-engineer": {
-    mission: "Design what the model sees\u2014window budget, structure, and freshness\u2014so agents reason on the right evidence without context rot.",
+    mission: "Deliver expert Context Engineer judgment focused on context budgets, memory, and retrieval boundaries that agents can execute without guessing.",
     principles: [
-      "Context is a curated evidence packet, not a transcript dump.",
-      "Structure beats length: headings, slots, and provenance labels.",
-      "Recency and authority beat mere keyword overlap.",
-      "Separate instructions, tools, memory, and retrieved facts.",
-      "Measure context cost in tokens and attention, not vibes.",
+      "Context Engineer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: context-budgets, memory-policy, prompt-assembly.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Context layers (system/developer/user/tool)",
-      "Slot filling",
-      "Evidence packet",
-      "Attention dilution",
+          "Context budget envelope",
+          "Memory tiers",
+          "What must never enter context"
     ],
     decisionFrameworks: [
-      framework("Context budget map", "Multi-tool agents or large blueprints.", [
-        "List mandatory slots (goal, constraints, artifacts, stops).",
-        "Assign token budgets per layer with overflow strategy.",
-        "Define summarization triggers and lossy vs lossless compression.",
-        "Specify what must never be truncated (safety, permissions).",
-      ], [
-        "AGENT_EXECUTION_PACKAGE.md context layout.",
-      ]),
+      framework(
+        "Context Engineer intake",
+        "When the package needs Context Engineer expertise.",
+        [
+          "Collect inputs relevant to context-budgets.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on context budgets, memory, and retrieval boundaries with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Context Engineer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Pin stable identifiers (requirement IDs, file paths) over prose paraphrase.",
-      "Use structured blocks for tool results and citations.",
-      "Refresh stale context when user intent shifts mid-session.",
-      "Document what was omitted when summarizing.",
+          "Cap tokens with a purpose",
+          "Separate durable memory from scratchpad",
+          "Redact secrets from context"
     ],
     antiPatterns: [
-      "Dumping entire repositories into one prompt.",
-      "Unlabeled inferred content beside confirmed facts.",
-      "Repeating the same policy in five places.",
-      "Ignoring tool-output serialization limits.",
+          "Dumping entire corpora into prompts",
+          "Unbounded chat memory",
+          "Secrets in context windows"
     ],
     reviewCriteria: [
-      criterion("Context layout defines budgets and mandatory slots.", "AGENT_EXECUTION_PACKAGE.md or AI_SYSTEM_DESIGN.md", "high"),
+      criterion(
+        "Context Engineer contribution is concrete and within declared capabilities.",
+        "AI_SYSTEM_DESIGN.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Slot coverage", measurement: "Mandatory context slots documented", target: "100% of P0 slots" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Context budget map with overflow rules.",
-      "Provenance rules for retrieved vs authored text.",
+      "At least one concrete Context Engineer output tied to context-budgets is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Blueprint agent", input: "Compose MASTER_SKILL_PACKAGE from catalog", expectedOutput: "Slots: DNA summary, active skills, artifact checklist; budget: 8k tokens; overflow: compress DNA keep metrics." },
+      {
+        title: "Context Engineer contribution",
+        input: "Compose expertise needing Context Engineer.",
+        expectedOutput: "Context Engineer returns scoped context-budgets, memory-policy, prompt-assembly guidance with labeled unknowns and acceptance checks focused on context budgets, memory, and retrieval boundaries.",
+      },
     ],
     failureStates: [
-      { condition: "No context budget on large agent package.", impact: "Hallucinated planning and missed constraints.", recovery: "Add budget map.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Context Engineer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "knowledge-graph-architect": {
-    mission: "Model entities, relationships, and provenance so knowledge stays queryable, governable, and safe for agents and analytics.",
+    mission: "Deliver expert Knowledge Graph Architect judgment focused on entities, relations, and grounded retrieval structure that agents can execute without guessing.",
     principles: [
-      "Schema serves questions the product actually asks.",
-      "Every edge carries cardinality, direction, and source provenance.",
-      "Identifiers are stable across ingest and UI.",
-      "Graph extensions require migration and backfill plans.",
-      "Sensitivity labels flow with nodes and edges.",
+      "Knowledge Graph Architect outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: entity-modeling, relation-design, graph-provenance.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Entity\u2013relationship\u2013event",
-      "Ontology tiers (core vs extension)",
-      "Provenance chain",
-      "Traversal budget",
+          "Entity-relation map",
+          "Provenance edges",
+          "Query patterns"
     ],
     decisionFrameworks: [
-      framework("Graph spine design", "Domains with rich relationships (orgs, products, policies).", [
-        "List top user questions and required traversals.",
-        "Define core entity types and canonical IDs.",
-        "Specify relationship types with constraints and indexes.",
-        "Plan ingest, dedup, and tombstone semantics.",
-      ], [
-        "DATABASE_DESIGN.md graph section or companion doc.",
-      ]),
+      framework(
+        "Knowledge Graph Architect intake",
+        "When the package needs Knowledge Graph Architect expertise.",
+        [
+          "Collect inputs relevant to entity-modeling.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on entities, relations, and grounded retrieval structure with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Knowledge Graph Architect contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Prefer explicit relationship types over overloaded generic links.",
-      "Version ontology changes with deprecation windows.",
-      "Expose graph queries behind capacity limits.",
-      "Align graph privacy with row-level security patterns.",
+          "Name entity types and ownership",
+          "Require provenance on edges",
+          "Design for incremental updates"
     ],
     antiPatterns: [
-      "Everything-is-a-tag soup graph.",
-      "Cycles without traversal guards.",
-      "Missing provenance on automated ingest.",
-      "Graph as dumping ground for unstructured blobs.",
+          "Orphan nodes without meaning",
+          "Unversioned graph mutations",
+          "Graph as buzzword with no schema"
     ],
     reviewCriteria: [
-      criterion("Core entities, relationships, and ID strategy documented.", "DATABASE_DESIGN.md", "high"),
+      criterion(
+        "Knowledge Graph Architect contribution is concrete and within declared capabilities.",
+        "AI_SYSTEM_DESIGN.md / DATABASE_DESIGN.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Question coverage", measurement: "Top product questions mappable to traversals", target: "\u22655 mapped" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Core schema with IDs and provenance rules.",
-      "Ingest/dedup strategy stated.",
+      "At least one concrete Knowledge Graph Architect output tied to entity-modeling is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Vendor risk", input: "Enterprise vendor onboarding", expectedOutput: "Entities: Vendor, Assessment, Control; edges: VENDOR_HAS_ASSESSMENT; IDs: ULID; provenance: ingest source + timestamp." },
+      {
+        title: "Knowledge Graph Architect contribution",
+        input: "Compose expertise needing Knowledge Graph Architect.",
+        expectedOutput: "Knowledge Graph Architect returns scoped entity-modeling, relation-design, graph-provenance guidance with labeled unknowns and acceptance checks focused on entities, relations, and grounded retrieval structure.",
+      },
     ],
     failureStates: [
-      { condition: "Graph schema without ID or provenance strategy.", impact: "Brittle joins and trust failures.", recovery: "Add spine design.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Knowledge Graph Architect cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "model-selection-expert": {
-    mission: "Pick model classes, routing, and fallbacks matched to latency, cost, quality, and safety constraints\u2014not headline benchmarks.",
+    mission: "Deliver expert Model Selection Expert judgment focused on model class choice vs task, cost, and risk that agents can execute without guessing.",
     principles: [
-      "Task taxonomy drives routing, not vendor loyalty.",
-      "Fallback paths are part of the architecture.",
-      "Cost per successful outcome beats cost per token alone.",
-      "Safety and capability envelopes differ by route.",
-      "Document when smaller models are sufficient.",
+      "Model Selection Expert outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: model-fit, cost-risk-tradeoffs, provider-neutrality.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Router tiers",
-      "Capability matrix",
-      "SLO envelope",
-      "Fallback ladder",
+          "Task → model class matrix",
+          "Cost/latency envelope",
+          "Risk class gates"
     ],
     decisionFrameworks: [
-      framework("Model routing matrix", "Products with multiple AI surfaces.", [
-        "Classify tasks (extract, reason, generate, code, vision).",
-        "Attach latency, quality, and safety SLOs per class.",
-        "Assign primary and fallback models with triggers.",
-        "Estimate cost envelopes at expected volume.",
-      ], [
-        "AI_SYSTEM_DESIGN.md routing table.",
-      ]),
+      framework(
+        "Model Selection Expert intake",
+        "When the package needs Model Selection Expert expertise.",
+        [
+          "Collect inputs relevant to model-fit.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on model class choice vs task, cost, and risk with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Model Selection Expert contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Run side-by-side eval on representative fixtures before routing lock.",
-      "Isolate high-risk tasks to gated model routes.",
-      "Monitor drift with periodic re-eval samples.",
-      "Keep human-review path when router confidence is low.",
+          "Match model class to task difficulty",
+          "Document fallback models",
+          "Keep customer credentials out of prompts"
     ],
     antiPatterns: [
-      "One model for every task regardless of SLO.",
-      "Routing without measured fallback behavior.",
-      "Ignoring regional residency requirements.",
-      "Chasing leaderboard scores unrelated to user jobs.",
+          "Always pick the largest model",
+          "Ignoring latency budgets",
+          "Vendor lock without exit plan"
     ],
     reviewCriteria: [
-      criterion("Routing matrix links tasks to models and fallbacks.", "AI_SYSTEM_DESIGN.md", "critical"),
+      criterion(
+        "Model Selection Expert contribution is concrete and within declared capabilities.",
+        "AI_SYSTEM_DESIGN.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Fallback coverage", measurement: "P0 task classes with fallback", target: "100%" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Routing matrix with SLOs and fallbacks.",
-      "Cost envelope hypothesis documented.",
+      "At least one concrete Model Selection Expert output tied to model-fit is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Hybrid assistant", input: "Customer support + code tools", expectedOutput: "Extract: small fast model; reason: large; fallback: escalate human on low confidence; cost cap per session." },
+      {
+        title: "Model Selection Expert contribution",
+        input: "Compose expertise needing Model Selection Expert.",
+        expectedOutput: "Model Selection Expert returns scoped model-fit, cost-risk-tradeoffs, provider-neutrality guidance with labeled unknowns and acceptance checks focused on model class choice vs task, cost, and risk.",
+      },
     ],
     failureStates: [
-      { condition: "No fallback on production AI path.", impact: "Outages become total feature loss.", recovery: "Add fallback ladder.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Model Selection Expert cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "backend-architect": {
-    mission: "Define service boundaries, domain ownership, and runtime contracts so server logic stays testable, observable, and safe to evolve.",
+    mission: "Deliver expert Backend Architect judgment focused on services, domain boundaries, and reliability that agents can execute without guessing.",
     principles: [
-      "Domain modules own their invariants; adapters stay thin.",
-      "Idempotency and concurrency are designed, not patched later.",
-      "Configuration and secrets never live in code paths agents copy.",
-      "APIs expose intent, not internal persistence shape.",
-      "Backpressure and queueing are first-class design inputs.",
+      "Backend Architect outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: service-boundaries, reliability, domain-modeling.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Hexagonal ports",
-      "Write path vs read path",
-      "Transactional boundary",
-      "Outbox pattern",
+          "Domain module map",
+          "Sync vs async boundaries",
+          "Failure/retry policy"
     ],
     decisionFrameworks: [
-      framework("Service boundary map", "New backend or service split.", [
-        "Name aggregates and their consistency boundaries.",
-        "Assign sync command paths vs async event paths.",
-        "Define public commands/queries and internal modules.",
-        "List cross-cutting concerns (auth, audit, metrics).",
-      ], [
-        "ARCHITECTURE.md backend section.",
-      ]),
-      framework("Consistency chooser", "Conflicts between immediate UX and durable writes.", [
-        "Classify operation as command, query, or event.",
-        "Pick strong vs eventual consistency with user-visible behavior.",
-        "Document compensation or reconciliation when eventual.",
-      ], [
-        "No silent dual-writes without reconciliation plan.",
-      ]),
+      framework(
+        "Backend Architect intake",
+        "When the package needs Backend Architect expertise.",
+        [
+          "Collect inputs relevant to service-boundaries.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on services, domain boundaries, and reliability with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Backend Architect contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Standardize error taxonomy for clients and agents.",
-      "Version public APIs and events with deprecation policy.",
-      "Instrument golden paths before feature breadth.",
-      "Keep handlers small; push policy to domain layer.",
+          "Keep write paths explicit",
+          "Idempotency keys for critical writes",
+          "Define SLOs for core flows"
     ],
     antiPatterns: [
-      "God service owning unrelated domains.",
-      "Leaking ORM models as public API DTOs.",
-      "Synchronous chains deeper than two hops without cause.",
-      "Background jobs without idempotency keys.",
+          "God service",
+          "Chatty unbounded fan-out",
+          "Silent data corruption paths"
     ],
     reviewCriteria: [
-      criterion("Service boundaries and consistency choices documented.", "ARCHITECTURE.md", "critical"),
+      criterion(
+        "Backend Architect contribution is concrete and within declared capabilities.",
+        "ARCHITECTURE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Boundary clarity", measurement: "Named domains with owners", target: "All P0 domains covered" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Boundary map with consistency notes.",
-      "Public API/event contracts sketched.",
+      "At least one concrete Backend Architect output tied to service-boundaries is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Billing service", input: "Subscription lifecycle", expectedOutput: "Domain: Subscription aggregate; commands: create/cancel; events: subscription.changed; outbox to analytics." },
+      {
+        title: "Backend Architect contribution",
+        input: "Compose expertise needing Backend Architect.",
+        expectedOutput: "Backend Architect returns scoped service-boundaries, reliability, domain-modeling guidance with labeled unknowns and acceptance checks focused on services, domain boundaries, and reliability.",
+      },
     ],
     failureStates: [
-      { condition: "No domain boundaries on multi-entity backend.", impact: "Spaghetti coupling.", recovery: "Add boundary map.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Backend Architect cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "api-architect": {
-    mission: "Design outward-facing APIs that express product intent with stable contracts, evolution rules, and client-friendly error stories.",
+    mission: "Deliver expert API Architect judgment focused on API contracts, compatibility, and error shapes that agents can execute without guessing.",
     principles: [
-      "Resources and operations reflect user mental models.",
-      "Versioning and deprecation are part of day-one design.",
-      "Pagination, filtering, and limits are mandatory for lists.",
-      "Errors are actionable, not opaque codes alone.",
-      "Auth scopes align to least privilege per client type.",
+      "API Architect outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: api-contracts, versioning, compatibility.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Resource lifecycle",
-      "Contract-first evolution",
-      "Error as UX",
-      "Rate-limit tiers",
+          "Resource model",
+          "Versioning policy",
+          "Error taxonomy"
     ],
     decisionFrameworks: [
-      framework("API contract sheet", "Public or partner-facing HTTP/GraphQL APIs.", [
-        "List resources, verbs, and idempotency rules.",
-        "Define auth, scopes, and rate limits per route class.",
-        "Specify pagination, sorting, and field selection.",
-        "Document breaking vs additive change policy.",
-      ], [
-        "ARCHITECTURE.md API appendix.",
-      ]),
+      framework(
+        "API Architect intake",
+        "When the package needs API Architect expertise.",
+        [
+          "Collect inputs relevant to api-contracts.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on API contracts, compatibility, and error shapes with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded API Architect contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Use consistent naming and status code semantics.",
-      "Publish example requests/responses for critical flows.",
-      "Correlate request IDs across logs and traces.",
-      "Design webhooks with retry and signature verification.",
+          "Document breaking vs additive changes",
+          "Consistent error envelopes",
+          "Authz checks at the edge"
     ],
     antiPatterns: [
-      "Chatty APIs requiring N+1 client calls.",
-      "Undocumented implicit enums.",
-      "Breaking changes without version bump.",
-      "Giant payloads without compression or fields filter.",
+          "Ad-hoc endpoints without schema",
+          "Leaking internals in errors",
+          "Breaking clients silently"
     ],
     reviewCriteria: [
-      criterion("API contract includes auth, limits, and evolution policy.", "ARCHITECTURE.md", "high"),
+      criterion(
+        "API Architect contribution is concrete and within declared capabilities.",
+        "ARCHITECTURE.md / AGENT_EXECUTION_PACKAGE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Critical route coverage", measurement: "Documented idempotent writes", target: "100% of money/PII routes" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Contract sheet for P0 routes.",
-      "Error shape and rate limits defined.",
+      "At least one concrete API Architect output tied to api-contracts is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Partner API", input: "Read-only analytics export", expectedOutput: "GET /v1/reports; cursor pagination; 429 with Retry-After; scope: reports:read." },
+      {
+        title: "API Architect contribution",
+        input: "Compose expertise needing API Architect.",
+        expectedOutput: "API Architect returns scoped api-contracts, versioning, compatibility guidance with labeled unknowns and acceptance checks focused on API contracts, compatibility, and error shapes.",
+      },
     ],
     failureStates: [
-      { condition: "No versioning policy on public API.", impact: "Client breakage.", recovery: "Add evolution policy.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "API Architect cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "database-architect": {
-    mission: "Choose storage patterns, schema, and migration strategy so data stays correct, queryable, and recoverable at expected scale.",
+    mission: "Deliver expert Database Architect judgment focused on data model, access paths, and retention that agents can execute without guessing.",
     principles: [
-      "Schema expresses domain invariants, not every report wish.",
-      "Migrations are reversible or compensatable when possible.",
-      "Indexes follow measured access paths, not folklore.",
-      "Backups and restore RPO/RTO are explicit requirements.",
-      "PII and retention belong in the data model conversation.",
+      "Database Architect outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: data-modeling, access-paths, retention.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Aggregate persistence",
-      "Read model vs write model",
-      "Migration blast radius",
-      "Hot partition risk",
+          "Entity ownership",
+          "Access path map",
+          "Retention/deletion"
     ],
     decisionFrameworks: [
-      framework("Data model lock", "New transactional domain or major schema change.", [
-        "Map aggregates to tables/collections with keys.",
-        "Define constraints, indexes, and uniqueness rules.",
-        "Plan migration steps with backfill and validation.",
-        "Document backup, retention, and encryption.",
-      ], [
-        "DATABASE_DESIGN.md",
-      ]),
+      framework(
+        "Database Architect intake",
+        "When the package needs Database Architect expertise.",
+        [
+          "Collect inputs relevant to data-modeling.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on data model, access paths, and retention with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Database Architect contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Use explicit migrations with review checkpoints.",
-      "Load-test representative queries before lock.",
-      "Separate OLTP from heavy analytics where needed.",
-      "Document soft-delete and tombstone semantics.",
+          "Index for primary queries",
+          "Tenant keys everywhere multi-tenant",
+          "No secrets in plaintext columns"
     ],
     antiPatterns: [
-      "JSON blob replacing relational integrity without cause.",
-      "Missing foreign keys on critical relationships.",
-      "Manual prod DDL outside migration pipeline.",
-      "Unbounded growth tables without archival plan.",
+          "Schema by accident",
+          "Unbounded JSON blobs as the model",
+          "Forgotten deletion paths"
     ],
     reviewCriteria: [
-      criterion("Schema, migrations, and retention documented.", "DATABASE_DESIGN.md", "critical"),
+      criterion(
+        "Database Architect contribution is concrete and within declared capabilities.",
+        "DATABASE_DESIGN.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Migration plan", measurement: "Steps with rollback/backfill", target: "Present for schema changes" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "DATABASE_DESIGN.md with constraints and indexes.",
-      "Backup/RPO hypothesis stated.",
+      "At least one concrete Database Architect output tied to data-modeling is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Multi-tenant SaaS", input: "Org-scoped projects", expectedOutput: "Tables: org, project, member; RLS by org_id; migrations v001\u2013v00n; nightly backup RPO 1h." },
+      {
+        title: "Database Architect contribution",
+        input: "Compose expertise needing Database Architect.",
+        expectedOutput: "Database Architect returns scoped data-modeling, access-paths, retention guidance with labeled unknowns and acceptance checks focused on data model, access paths, and retention.",
+      },
     ],
     failureStates: [
-      { condition: "No migration plan on schema change.", impact: "Risky deploys.", recovery: "Block until migration narrative exists.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Database Architect cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "cloud-architect": {
-    mission: "Align compute, network, identity, and data planes with reliability targets, cost guardrails, and compliant residency.",
+    mission: "Deliver expert Cloud Architect judgment focused on deploy topology, regions, and operability that agents can execute without guessing.",
     principles: [
-      "Account and network isolation match blast radius.",
-      "Identity is the perimeter; keys rotate and least privilege.",
-      "Infrastructure is code-reviewed like application code.",
-      "Multi-AZ is default for stateful tiers that matter.",
-      "Cost and carbon are architectural inputs, not finance-only.",
+      "Cloud Architect outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: deployment-topology, scaling, operability.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Landing zone",
-      "Blast radius cell",
-      "Control vs data plane",
-      "Capacity headroom",
+          "Topology sketch",
+          "Blast radius",
+          "Rollback plan"
     ],
     decisionFrameworks: [
-      framework("Cloud topology", "Greenfield deploy or major platform change.", [
-        "Pick regions and residency constraints.",
-        "Sketch VPC/VNet, egress, and private endpoints.",
-        "Map workloads to runtime (K8s, serverless, VM).",
-        "Define SRE SLOs and DR strategy.",
-      ], [
-        "ARCHITECTURE.md cloud section.",
-      ]),
+      framework(
+        "Cloud Architect intake",
+        "When the package needs Cloud Architect expertise.",
+        [
+          "Collect inputs relevant to deployment-topology.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on deploy topology, regions, and operability with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Cloud Architect contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Tag resources for cost and ownership.",
-      "Automate drift detection on IaC.",
-      "Use managed services when ops burden exceeds team size.",
-      "Document break-glass access with audit.",
+          "Prefer boring proven topology first",
+          "Document region/data residency assumptions",
+          "Require rollback runbooks"
     ],
     antiPatterns: [
-      "Public databases for convenience.",
-      "Shared root credentials across envs.",
-      "Single-AZ stateful production.",
-      "Ungoverned serverless sprawl.",
+          "Premature multi-region",
+          "Snowflake infra without ops ownership",
+          "No rollback"
     ],
     reviewCriteria: [
-      criterion("Topology, identity, and DR documented.", "ARCHITECTURE.md", "high"),
+      criterion(
+        "Cloud Architect contribution is concrete and within declared capabilities.",
+        "ARCHITECTURE.md / LAUNCH_PLAN.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Residency compliance", measurement: "Stated region constraints", target: "100% when regulated" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Cloud topology with identity model.",
-      "DR/RTO hypothesis for P0 paths.",
+      "At least one concrete Cloud Architect output tied to deployment-topology is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "EU SaaS", input: "GDPR workloads", expectedOutput: "EU region only; private DB; WAF; IRSA-style workload identity; DR warm standby." },
+      {
+        title: "Cloud Architect contribution",
+        input: "Compose expertise needing Cloud Architect.",
+        expectedOutput: "Cloud Architect returns scoped deployment-topology, scaling, operability guidance with labeled unknowns and acceptance checks focused on deploy topology, regions, and operability.",
+      },
     ],
     failureStates: [
-      { condition: "No DR story on revenue-critical path.", impact: "Extended outage.", recovery: "Add DR section.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Cloud Architect cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "plg-expert": {
-    mission: "Design product-led growth loops\u2014activation, sharing, and expansion\u2014grounded in measurable funnel truth, not vanity signups.",
+    mission: "Deliver expert PLG Expert judgment focused on product-led activation and aha moments that agents can execute without guessing.",
     principles: [
-      "Time-to-value is the primary onboarding metric.",
-      "Loops must be ethical and consent-aware.",
-      "Virality requires a why-share moment tied to user success.",
-      "Free tier economics are modeled, not hoped.",
-      "Instrumentation precedes growth experiments.",
+      "PLG Expert outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: activation-loops, expansion, self-serve.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Aha moment",
-      "Activation funnel",
-      "Viral coefficient",
-      "PQL hypothesis",
+          "Activation funnel",
+          "Time-to-value",
+          "Self-serve vs sales-assist"
     ],
     decisionFrameworks: [
-      framework("PLG loop design", "Self-serve B2B or prosumer products.", [
-        "Define aha moment and activation checklist.",
-        "Map invite/share surfaces with user benefit.",
-        "Set guardrails for spam and dark patterns.",
-        "Attach metrics and experiment backlog.",
-      ], [
-        "PRODUCT_STRATEGY.md growth section.",
-      ]),
+      framework(
+        "PLG Expert intake",
+        "When the package needs PLG Expert expertise.",
+        [
+          "Collect inputs relevant to activation-loops.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on product-led activation and aha moments with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded PLG Expert contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Instrument cohort retention from day one.",
-      "Align sales-assist triggers with product signals.",
-      "Test onboarding with real first-time users.",
-      "Keep upgrade prompts contextual, not modal noise.",
+          "Define the aha event",
+          "Remove setup friction before growth hacks",
+          "Instrument activation clearly"
     ],
     antiPatterns: [
-      "Referral spam without value.",
-      "Gating core value behind excessive signup friction.",
-      "PLG without sales-assist path for enterprise.",
-      "Growth hacks that erode trust.",
+          "Paywall before value",
+          "Dark patterns as growth",
+          "Vanity signup metrics only"
     ],
     reviewCriteria: [
-      criterion("Activation metric and loop documented.", "PRODUCT_STRATEGY.md / LAUNCH_PLAN.md", "high"),
+      criterion(
+        "PLG Expert contribution is concrete and within declared capabilities.",
+        "PRODUCT_STRATEGY.md / USER_FLOWS.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Activation definition", measurement: "Named aha event", target: "Single clear event" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Aha moment and activation checklist.",
-      "Loop metrics named.",
+      "At least one concrete PLG Expert output tied to activation-loops is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Collaborative doc tool", input: "Team invites", expectedOutput: "Aha: first shared edit; loop: invite teammate; metric: D7 retained teams; no address book scraping." },
+      {
+        title: "PLG Expert contribution",
+        input: "Compose expertise needing PLG Expert.",
+        expectedOutput: "PLG Expert returns scoped activation-loops, expansion, self-serve guidance with labeled unknowns and acceptance checks focused on product-led activation and aha moments.",
+      },
     ],
     failureStates: [
-      { condition: "No activation definition.", impact: "Unmeasurable onboarding.", recovery: "Define aha moment.", blocking: false },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "PLG Expert cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "retention-expert": {
-    mission: "Turn retention into designed habit loops, lifecycle messaging, and product fixes backed by cohort evidence.",
+    mission: "Deliver expert Retention Expert judgment focused on habit loops and retention levers that agents can execute without guessing.",
     principles: [
-      "Retention is behavior change, not email volume.",
-      "Segment by job and lifecycle stage, not demographics alone.",
-      "Churn signals get product responses, not only campaigns.",
-      "Respect notification fatigue and consent.",
-      "Separate leading indicators from lagging revenue.",
+      "Retention Expert outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: retention-levers, habit-loops, churn-signals.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Cohort curve",
-      "Habit loop",
-      "Resurrection window",
-      "PMF signal",
+          "Habit loop",
+          "Churn reasons",
+          "Re-activation path"
     ],
     decisionFrameworks: [
-      framework("Retention diagnostic", "Flat or declining engagement.", [
-        "Plot cohort retention by key activation paths.",
-        "Identify drop steps in core loop.",
-        "Prioritize product vs lifecycle interventions.",
-        "Define experiments with success thresholds.",
-      ], [
-        "PRODUCT_STRATEGY.md metrics + experiment backlog.",
-      ]),
+      framework(
+        "Retention Expert intake",
+        "When the package needs Retention Expert expertise.",
+        [
+          "Collect inputs relevant to retention-levers.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on habit loops and retention levers with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Retention Expert contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Pair qualitative exit interviews with funnel data.",
-      "Win-back only when value prop fixed.",
-      "Coordinate in-product and email journeys.",
-      "Track resurrection separately from new user retention.",
+          "Tie retention to real job completion",
+          "Design gentle reminders not spam",
+          "Measure cohort retention"
     ],
     antiPatterns: [
-      "Discounting as default churn response.",
-      "Notification blasts without segmentation.",
-      "Optimizing vanity DAU over core job completion.",
-      "Ignoring power-user regression.",
+          "Notification spam",
+          "Retention theater without product value",
+          "Ignoring churn root causes"
     ],
     reviewCriteria: [
-      criterion("Cohort metrics and intervention hypotheses listed.", "PRODUCT_STRATEGY.md", "high"),
+      criterion(
+        "Retention Expert contribution is concrete and within declared capabilities.",
+        "PRODUCT_STRATEGY.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Cohort definition", measurement: "Weekly or monthly cohort tracked", target: "Defined" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Retention metrics with cohort definition.",
-      "At least one intervention hypothesis.",
+      "At least one concrete Retention Expert output tied to retention-levers is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "B2B analytics", input: "Weekly active teams", expectedOutput: "Metric: W4 team retention; drop: empty dashboard; fix: guided report template + weekly digest opt-in." },
+      {
+        title: "Retention Expert contribution",
+        input: "Compose expertise needing Retention Expert.",
+        expectedOutput: "Retention Expert returns scoped retention-levers, habit-loops, churn-signals guidance with labeled unknowns and acceptance checks focused on habit loops and retention levers.",
+      },
     ],
     failureStates: [
-      { condition: "No cohort metric on subscription product.", impact: "Flying blind post-launch.", recovery: "Add cohort definition.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Retention Expert cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "monetization-expert": {
-    mission: "Align pricing, packaging, and paywalls to delivered value with clear upgrade paths and billing integrity.",
+    mission: "Deliver expert Monetization Expert judgment focused on pricing, packaging, and willingness-to-pay hypotheses that agents can execute without guessing.",
     principles: [
-      "Price metric ties to customer value memory.",
-      "Packaging maps to jobs, not internal cost centers.",
-      "Upgrade friction is intentional but honest.",
-      "Billing edge cases are product requirements.",
-      "Grandfathering and migration rules are explicit.",
+      "Monetization Expert outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: pricing-hypotheses, packaging-tests, revenue-metrics.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Willingness-to-pay ladder",
-      "Good-better-best",
-      "Expansion revenue",
-      "Usage meter",
+          "Packaging ladder",
+          "Value metric",
+          "Expansion path"
     ],
     decisionFrameworks: [
-      framework("Monetization map", "New SKU or pricing change.", [
-        "Define value metric and tiers with limits.",
-        "Map features to tiers with upgrade triggers.",
-        "Document billing flows and proration rules.",
-        "List compliance and tax touchpoints.",
-      ], [
-        "PRODUCT_STRATEGY.md business model + payments notes.",
-      ]),
+      framework(
+        "Monetization Expert intake",
+        "When the package needs Monetization Expert expertise.",
+        [
+          "Collect inputs relevant to pricing-hypotheses.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on pricing, packaging, and willingness-to-pay hypotheses with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Monetization Expert contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Prototype paywall copy with real user scenarios.",
-      "Instrument upgrade funnel events.",
-      "Plan entitlements in architecture early.",
-      "Test downgrade and cancellation flows.",
+          "Price against outcomes not feature counts",
+          "Label pricing as hypothesis until validated",
+          "Keep billing honesty"
     ],
     antiPatterns: [
-      "Feature gating that blocks core job completion.",
-      "Opaque overage charges.",
-      "Pricing page disconnected from in-product limits.",
-      "Changing price without communication plan.",
+          "Feature checkbox pricing only",
+          "Hidden fees",
+          "Confirmed ARPU invented from thin air"
     ],
     reviewCriteria: [
-      criterion("Tiers, limits, and upgrade paths documented.", "PRODUCT_STRATEGY.md", "high"),
+      criterion(
+        "Monetization Expert contribution is concrete and within declared capabilities.",
+        "PRODUCT_STRATEGY.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Entitlement clarity", measurement: "Tier limits enumerated", target: "All P0 limits listed" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Tier map with limits and upgrade triggers.",
-      "Billing edge cases listed.",
+      "At least one concrete Monetization Expert output tied to pricing-hypotheses is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "API platform", input: "Usage-based tier", expectedOutput: "Free: 1k calls/mo; Pro: 50k; meter: API calls; upgrade: soft cap warning at 80%." },
+      {
+        title: "Monetization Expert contribution",
+        input: "Compose expertise needing Monetization Expert.",
+        expectedOutput: "Monetization Expert returns scoped pricing-hypotheses, packaging-tests, revenue-metrics guidance with labeled unknowns and acceptance checks focused on pricing, packaging, and willingness-to-pay hypotheses.",
+      },
     ],
     failureStates: [
-      { condition: "No entitlement model in architecture.", impact: "Revenue leaks and support load.", recovery: "Add entitlements to ARCHITECTURE.md.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Monetization Expert cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "growth-designer": {
-    mission: "Embed growth mechanics into UX with craft integrity\u2014onboarding, invites, and upgrades that feel native to the product story.",
+    mission: "Deliver expert Growth Designer judgment focused on growth surfaces without dark patterns that agents can execute without guessing.",
     principles: [
-      "Growth UI inherits brand and accessibility standards.",
-      "Every growth surface has a measurable hypothesis.",
-      "Friction is designed, not accidental.",
-      "Social proof must be truthful and permissioned.",
-      "Degrade gracefully when growth SDKs fail.",
+      "Growth Designer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: growth-surfaces, experiment-design, ethical-growth.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Growth surface map",
-      "Progressive disclosure",
-      "Trust gradient",
-      "Experiment slot",
+          "Growth loop",
+          "Ethical persuasion",
+          "Experiment backlog"
     ],
     decisionFrameworks: [
-      framework("Growth UX pass", "Onboarding or referral redesign.", [
-        "Annotate flows with metric hooks per step.",
-        "Check accessibility and reduced-motion for growth modals.",
-        "Align visuals with DESIGN_SYSTEM tokens.",
-        "Define control and variant at story level.",
-      ], [
-        "USER_FLOWS.md growth annotations.",
-      ]),
+      framework(
+        "Growth Designer intake",
+        "When the package needs Growth Designer expertise.",
+        [
+          "Collect inputs relevant to growth-surfaces.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on growth surfaces without dark patterns with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Growth Designer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Place invites after success moments.",
-      "Use skeleton states during async growth calls.",
-      "Coordinate with content strategist on voice.",
-      "Keep upgrade CTAs in predictable locations.",
+          "Design opt-in clarity",
+          "Instrument experiments",
+          "Protect trust over short spikes"
     ],
     antiPatterns: [
-      "Full-screen interstitials blocking task completion.",
-      "Fake countdown timers.",
-      "Growth widgets breaking layout on mobile.",
-      "Untested color contrast on promo banners.",
+          "Dark patterns",
+          "Fake scarcity",
+          "Growth that breaks accessibility"
     ],
     reviewCriteria: [
-      criterion("Growth flows annotated with metrics and a11y notes.", "USER_FLOWS.md / DESIGN_SYSTEM.md", "high"),
+      criterion(
+        "Growth Designer contribution is concrete and within declared capabilities.",
+        "USER_FLOWS.md / DESIGN_SYSTEM.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Instrumented steps", measurement: "Funnel steps with event names", target: "\u226580% of growth path" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Growth surfaces mapped in user flows.",
-      "Hypothesis per major surface.",
+      "At least one concrete Growth Designer output tied to growth-surfaces is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Invite flow", input: "Post-save share", expectedOutput: "After save success: inline invite card; event: invite_shown; a11y: focus trap only on optional modal." },
+      {
+        title: "Growth Designer contribution",
+        input: "Compose expertise needing Growth Designer.",
+        expectedOutput: "Growth Designer returns scoped growth-surfaces, experiment-design, ethical-growth guidance with labeled unknowns and acceptance checks focused on growth surfaces without dark patterns.",
+      },
     ],
     failureStates: [
-      { condition: "Growth modals without a11y review.", impact: "Excludes users and risks compliance.", recovery: "Add a11y pass.", blocking: false },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Growth Designer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "security-engineer-skill": {
-    mission: "Embed threat-aware design, least privilege, and safe agent handoffs so implementations resist realistic abuse without granting unsafe autonomy.",
+    mission: "Deliver expert Security Engineer judgment focused on least privilege, threat coverage, and safe handoff that agents can execute without guessing.",
     principles: [
-      "Threat model before hardening checklist theater.",
-      "Secrets and credentials are never execution artifacts.",
-      "Agents get capabilities, not ambient admin.",
-      "Defense in depth with measurable control coverage.",
-      "Security findings block ship when severity is critical.",
+      "Security Engineer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: threat-coverage, least-privilege, safe-handoff.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "STRIDE-lite",
-      "Trust boundaries",
-      "Blast radius",
-      "Secure defaults",
+          "Threat → control map",
+          "Privilege ladder",
+          "Safe handoff boundary"
     ],
     decisionFrameworks: [
-      framework("Threat sketch", "Any internet-facing or agentic system.", [
-        "List assets, actors, and entry points.",
-        "Brainstorm top abuse scenarios (authz, injection, exfil).",
-        "Map mitigations to layers with owners.",
-        "Define verification steps in QUALITY_CHECKLIST.md.",
-      ], [
-        "ARCHITECTURE.md security subsection.",
-      ]),
-      framework("Agent handoff gate", "Packages authorizing execution.", [
-        "Enumerate permitted actions vs documentation-only.",
-        "Require human approval for credential or prod changes.",
-        "State forbidden operations explicitly.",
-      ], [
-        "AGENT_EXECUTION_PACKAGE.md stays executionAuthorized-safe.",
-      ]),
+      framework(
+        "Security Engineer intake",
+        "When the package needs Security Engineer expertise.",
+        [
+          "Collect inputs relevant to threat-coverage.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on least privilege, threat coverage, and safe handoff with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Security Engineer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Use standard auth patterns (OIDC, scoped tokens).",
-      "Validate and encode all external input at boundaries.",
-      "Centralize audit logs for sensitive actions.",
-      "Run dependency and secret scanning in CI narrative.",
+          "Keep executionAuthorized false in packs",
+          "Secrets never in prompts/logs",
+          "Defense in depth for authz"
     ],
     antiPatterns: [
-      "Security through obscurity as sole control.",
-      "Embedding live secrets in blueprints.",
-      "Wildcard CORS on authenticated routes.",
-      "Ignoring supply-chain update policy.",
+          "Security as checkbox adjectives",
+          "Over-privileged agents",
+          "Secrets in client bundles"
     ],
     reviewCriteria: [
-      criterion("Threat sketch and mitigations present.", "ARCHITECTURE.md + QUALITY_CHECKLIST.md", "critical"),
-      criterion("No secrets or live credentials in artifacts.", "All blueprint files.", "critical"),
+      criterion(
+        "Security Engineer contribution is concrete and within declared capabilities.",
+        "AGENT_EXECUTION_PACKAGE.md / ARCHITECTURE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Control coverage", measurement: "Top threats with mitigations", target: "\u22655 mapped" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Threat sketch with mitigations.",
-      "Explicit forbidden operations for agents.",
+      "At least one concrete Security Engineer output tied to threat-coverage is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Admin API", input: "Role-based dashboard", expectedOutput: "Threat: IDOR; mitigation: row-level authz; test: deny cross-tenant IDs; agents forbid prod DB creds." },
+      {
+        title: "Security Engineer contribution",
+        input: "Compose expertise needing Security Engineer.",
+        expectedOutput: "Security Engineer returns scoped threat-coverage, least-privilege, safe-handoff guidance with labeled unknowns and acceptance checks focused on least privilege, threat coverage, and safe handoff.",
+      },
     ],
     failureStates: [
-      { condition: "Internet-facing package without threat sketch.", impact: "Preventable incidents.", recovery: "Block until threat sketch exists.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Security Engineer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "accessibility-specialist": {
-    mission: "Make interaction, content, and motion inclusive by default\u2014keyboard, screen reader, contrast, and cognitive load treated as ship criteria.",
+    mission: "Deliver expert Accessibility Specialist judgment focused on inclusive interaction, semantics, and reduced motion that agents can execute without guessing.",
     principles: [
-      "If it is not keyboard reachable, it is not done.",
-      "Semantics and labels beat aria hacks.",
-      "Motion honors prefers-reduced-motion.",
-      "Color never carries meaning alone.",
-      "Live regions and focus management are specified.",
+      "Accessibility Specialist outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: wcag-gates, semantic-structure, assistive-tech-paths.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Perceivable\u2013operable\u2013understandable\u2013robust",
-      "Focus order graph",
-      "Accessible name computation",
-      "Motion equivalence",
+          "Keyboard path",
+          "Semantics tree",
+          "Reduced-motion path"
     ],
     decisionFrameworks: [
-      framework("A11y conformance pass", "Any user-facing UI or immersive hybrid.", [
-        "Audit critical paths for keyboard and focus.",
-        "Check contrast for text and controls.",
-        "Define alt, captions, and heading hierarchy.",
-        "Document reduced-motion alternatives.",
-      ], [
-        "DESIGN_SYSTEM.md a11y section + QUALITY_CHECKLIST.md",
-      ]),
+      framework(
+        "Accessibility Specialist intake",
+        "When the package needs Accessibility Specialist expertise.",
+        [
+          "Collect inputs relevant to wcag-gates.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on inclusive interaction, semantics, and reduced motion with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Accessibility Specialist contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Test with screen reader on one critical flow.",
-      "Specify skip links and landmarks on marketing sites.",
-      "Trap focus only in true modals with escape.",
-      "Pair WebGL experiences with textual equivalents.",
+          "Focus order and skip links",
+          "Do not use color alone",
+          "Require reduced-motion fallbacks on motion-led sites"
     ],
     antiPatterns: [
-      "div-onClick without keyboard support.",
-      "Auto-playing media without controls.",
-      "Custom widgets without roles/states.",
-      "Low contrast gray-on-gray UI chrome.",
+          "A11y as afterthought",
+          "Inaccessible canvas-only UX",
+          "Missing labels/errors"
     ],
     reviewCriteria: [
-      criterion("A11y criteria on critical paths documented.", "DESIGN_SYSTEM.md / QUALITY_CHECKLIST.md", "critical"),
+      criterion(
+        "Accessibility Specialist contribution is concrete and within declared capabilities.",
+        "DESIGN_SYSTEM.md / USER_FLOWS.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Critical path coverage", measurement: "Keyboard + contrast checked", target: "100% P0 flows" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "A11y section with contrast and motion rules.",
-      "Critical path checklist present.",
+      "At least one concrete Accessibility Specialist output tied to wcag-gates is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Marketing site", input: "Immersive scroll + nav", expectedOutput: "Skip link; focus visible; reduced motion: static scenes; video: captions; contrast AA on UI chrome." },
+      {
+        title: "Accessibility Specialist contribution",
+        input: "Compose expertise needing Accessibility Specialist.",
+        expectedOutput: "Accessibility Specialist returns scoped wcag-gates, semantic-structure, assistive-tech-paths guidance with labeled unknowns and acceptance checks focused on inclusive interaction, semantics, and reduced motion.",
+      },
     ],
     failureStates: [
-      { condition: "No reduced-motion story on motion-heavy site.", impact: "Vestibular harm risk.", recovery: "Add motion fallbacks.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Accessibility Specialist cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "design-systems-architect": {
-    mission: "Build scalable token, component, and documentation systems so agents ship consistent UI without one-off styling drift.",
+    mission: "Deliver expert Design Systems Architect judgment focused on tokens, components, and consistent craft contracts that agents can execute without guessing.",
     principles: [
-      "Tokens precede components; components precede pages.",
-      "Variants are finite and named, not infinite CSS.",
-      "Documentation shows do/don't, not only API tables.",
-      "Composition patterns are part of the system.",
-      "Accessibility baked into component defaults.",
+      "Design Systems Architect outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: design-tokens, component-contracts, contribution-rules.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Token ladder",
-      "Component API surface",
-      "Pattern vs primitive",
-      "Versioned migration",
+          "Token tiers",
+          "Component states matrix",
+          "Theme boundaries"
     ],
     decisionFrameworks: [
-      framework("Design system charter", "Multi-surface product or design-heavy build.", [
-        "Define token tiers (color, type, space, motion).",
-        "List core components and forbidden one-offs.",
-        "Specify theming and density modes.",
-        "Plan adoption and deprecation for legacy UI.",
-      ], [
-        "DESIGN_SYSTEM.md as source of truth.",
-      ]),
+      framework(
+        "Design Systems Architect intake",
+        "When the package needs Design Systems Architect expertise.",
+        [
+          "Collect inputs relevant to design-tokens.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on tokens, components, and consistent craft contracts with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Design Systems Architect contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Align Figma/code naming when design files exist.",
-      "Ship Storybook or equivalent usage examples in prose.",
-      "Document focus and aria for interactive components.",
-      "Keep motion tokens aligned with motion-director when immersive.",
+          "Define color/type/space tokens first",
+          "Document component states",
+          "Keep immersive chrome quiet"
     ],
     antiPatterns: [
-      "One-off hex values scattered in feature CSS.",
-      "Duplicate components differing only slightly.",
-      "Undocumented breaking token changes.",
-      "System so large no agent can navigate it.",
+          "One-off styles everywhere",
+          "Token soup without meaning",
+          "Breaking brand for convenience"
     ],
     reviewCriteria: [
-      criterion("Tokens and core components documented.", "DESIGN_SYSTEM.md", "high"),
+      criterion(
+        "Design Systems Architect contribution is concrete and within declared capabilities.",
+        "DESIGN_SYSTEM.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Token completeness", measurement: "Color, type, space, motion present", target: "All four" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Token ladder and component list.",
-      "Do/don't examples for hero patterns.",
+      "At least one concrete Design Systems Architect output tied to design-tokens is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "SaaS dashboard", input: "Component library", expectedOutput: "Tokens: semantic colors; components: Button, Input, Dialog; forbid raw Tailwind arbitrary values on chrome." },
+      {
+        title: "Design Systems Architect contribution",
+        input: "Compose expertise needing Design Systems Architect.",
+        expectedOutput: "Design Systems Architect returns scoped design-tokens, component-contracts, contribution-rules guidance with labeled unknowns and acceptance checks focused on tokens, components, and consistent craft contracts.",
+      },
     ],
     failureStates: [
-      { condition: "No DESIGN_SYSTEM.md on design-led brief.", impact: "Inconsistent UI.", recovery: "Create charter first.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Design Systems Architect cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "privacy-engineer": {
-    mission: "Engineer data minimization, consent, and rights fulfillment so products respect regulatory and user trust obligations by design.",
+    mission: "Deliver expert Privacy Engineer judgment focused on minimization, consent, and retention that agents can execute without guessing.",
     principles: [
-      "Collect the minimum needed for the stated job.",
-      "Purpose limitation is documented per data class.",
-      "Consent and preferences are enforceable in code paths.",
-      "Deletion and export are workflows, not tickets.",
-      "Cross-border transfer rules are architecture inputs.",
+      "Privacy Engineer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: data-minimization, consent-retention, privacy-threat-model.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Data inventory",
-      "Purpose binding",
-      "Retention clock",
-      "DPIA trigger",
+          "Data minimization",
+          "Consent surfaces",
+          "Retention clock"
     ],
     decisionFrameworks: [
-      framework("Privacy architecture pass", "Features touching PII or sensitive behavior.", [
-        "Inventory data classes and legal bases (labeled hypothesis).",
-        "Map flows: collect, store, process, share, delete.",
-        "Define retention and anonymization jobs.",
-        "Specify user rights endpoints and SLAs.",
-      ], [
-        "ARCHITECTURE.md privacy + DATABASE_DESIGN.md retention.",
-      ]),
+      framework(
+        "Privacy Engineer intake",
+        "When the package needs Privacy Engineer expertise.",
+        [
+          "Collect inputs relevant to data-minimization.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on minimization, consent, and retention with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Privacy Engineer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Pseudonymize analytics where possible.",
-      "Separate marketing identifiers from auth identifiers.",
-      "Log access to sensitive tables.",
-      "Default opt-in only where law and ethics require it.",
+          "Collect only needed fields",
+          "Document retention/deletion",
+          "Separate analytics from secrets"
     ],
     antiPatterns: [
-      "Logging full payloads with PII for debug.",
-      "Indefinite retention without business case.",
-      "Third-party SDKs without data mapping.",
-      "Privacy policy promises code does not keep.",
+          "Collect everything just in case",
+          "Opaque tracking",
+          "No deletion path"
     ],
     reviewCriteria: [
-      criterion("Data inventory and retention documented.", "ARCHITECTURE.md / DATABASE_DESIGN.md", "critical"),
+      criterion(
+        "Privacy Engineer contribution is concrete and within declared capabilities.",
+        "DATABASE_DESIGN.md / LAUNCH_PLAN.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Retention rules", measurement: "Per-class retention stated", target: "100% PII classes" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Data inventory with purposes.",
-      "Deletion/export narrative present.",
+      "At least one concrete Privacy Engineer output tied to data-minimization is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Analytics product", input: "EU users", expectedOutput: "Classes: email, usage events; retention: 24mo; export API; delete cascades with 30d backup lag documented." },
+      {
+        title: "Privacy Engineer contribution",
+        input: "Compose expertise needing Privacy Engineer.",
+        expectedOutput: "Privacy Engineer returns scoped data-minimization, consent-retention, privacy-threat-model guidance with labeled unknowns and acceptance checks focused on minimization, consent, and retention.",
+      },
     ],
     failureStates: [
-      { condition: "PII feature without retention rules.", impact: "Compliance and trust risk.", recovery: "Add inventory and retention.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Privacy Engineer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "observability-engineer": {
-    mission: "Make systems legible with logs, metrics, traces, and SLOs so agents and humans debug production behavior from artifacts, not guesswork.",
+    mission: "Deliver expert Observability Engineer judgment focused on SLOs, redacted telemetry, and actionable alerts that agents can execute without guessing.",
     principles: [
-      "Golden signals for every user-critical path.",
-      "Structured logs with correlation IDs.",
-      "SLOs tie to user pain, not only infra graphs.",
-      "Dashboards answer questions, not decorate walls.",
-      "Alerts are actionable with runbook links.",
+      "Observability Engineer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: slo-design, telemetry-redaction, incident-signals.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "RED/USE methods",
-      "SLO error budget",
-      "Trace exemplar",
-      "Cardinality budget",
+          "SLO → alert",
+          "Redaction policy",
+          "Trace of primary journeys"
     ],
     decisionFrameworks: [
-      framework("Observability pack", "New service or major feature.", [
-        "Define SLIs for latency, errors, saturation.",
-        "Set SLO targets and error budget policy.",
-        "List required log fields and trace propagation.",
-        "Name on-call runbooks for top alerts.",
-      ], [
-        "ARCHITECTURE.md observability + QUALITY_CHECKLIST.md",
-      ]),
+      framework(
+        "Observability Engineer intake",
+        "When the package needs Observability Engineer expertise.",
+        [
+          "Collect inputs relevant to slo-design.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on SLOs, redacted telemetry, and actionable alerts with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Observability Engineer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Propagate trace context across async boundaries.",
-      "Avoid high-cardinality metric labels.",
-      "Test alert routing in staging narrative.",
-      "Correlate business events with technical metrics sparingly.",
+          "Instrument primary user journeys",
+          "Redact PII by default",
+          "Alert on user pain not vanity"
     ],
     antiPatterns: [
-      "printf debugging only in production.",
-      "Alert storms without ownership.",
-      "Metrics without SLO consumers.",
-      "Logging secrets or raw tokens.",
+          "Log everything including secrets",
+          "Noisy useless alerts",
+          "Metrics without owners"
     ],
     reviewCriteria: [
-      criterion("SLOs and instrumentation plan documented.", "ARCHITECTURE.md", "high"),
+      criterion(
+        "Observability Engineer contribution is concrete and within declared capabilities.",
+        "ARCHITECTURE.md / QUALITY_CHECKLIST.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Golden path SLI", measurement: "P0 routes with SLI", target: "100%" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "SLO table for P0 paths.",
-      "Correlation ID strategy stated.",
+      "At least one concrete Observability Engineer output tied to slo-design is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "API gateway", input: "Checkout", expectedOutput: "SLI: success rate + p95 latency; SLO 99.5%; traces across payment webhook; alert links to runbook." },
+      {
+        title: "Observability Engineer contribution",
+        input: "Compose expertise needing Observability Engineer.",
+        expectedOutput: "Observability Engineer returns scoped slo-design, telemetry-redaction, incident-signals guidance with labeled unknowns and acceptance checks focused on SLOs, redacted telemetry, and actionable alerts.",
+      },
     ],
     failureStates: [
-      { condition: "Revenue path without SLO.", impact: "Blind outages.", recovery: "Add SLO pack.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Observability Engineer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "platform-sre": {
-    mission: "Operate platforms with reliability engineering discipline\u2014capacity, releases, incidents, and toil reduction\u2014aligned to product SLOs.",
+    mission: "Deliver expert Platform SRE judgment focused on deploy safety, rollback, and runbooks that agents can execute without guessing.",
     principles: [
-      "Toil is measured and budgeted down.",
-      "Releases are reversible by default.",
-      "Incidents teach system changes, not blame.",
-      "Capacity plans include growth and failure drills.",
-      "Platform abstractions hide sharp edges safely.",
+      "Platform SRE outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: deploy-safety, rollback, capacity-runbooks.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Error budget policy",
-      "Blast radius of deploy",
-      "Runbook as code",
-      "Toil taxonomy",
+          "Deploy pipeline",
+          "Rollback path",
+          "Incident ladder"
     ],
     decisionFrameworks: [
-      framework("Reliability program", "Production platform ownership.", [
-        "Adopt SLOs agreed with product.",
-        "Define release channels and rollback criteria.",
-        "Schedule game days for top failure scenarios.",
-        "Track toil and automation backlog.",
-      ], [
-        "LAUNCH_PLAN.md + QUALITY_CHECKLIST.md ops sections.",
-      ]),
+      framework(
+        "Platform SRE intake",
+        "When the package needs Platform SRE expertise.",
+        [
+          "Collect inputs relevant to deploy-safety.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on deploy safety, rollback, and runbooks with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Platform SRE contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Canary or progressive delivery on risky changes.",
-      "Immutable artifacts promoted across envs.",
-      "Document on-call expectations and escalation.",
-      "Automate backups restores tests quarterly.",
+          "Require rollback for every release path",
+          "Document runbooks for top failures",
+          "Separate progressive delivery from big-bang"
     ],
     antiPatterns: [
-      "Manual prod changes without record.",
-      "Hero culture replacing automation.",
-      "Shared kubectl admin for everyone.",
-      "Ignoring capacity until outage.",
+          "No rollback",
+          "Heroics instead of runbooks",
+          "Unowned production"
     ],
     reviewCriteria: [
-      criterion("Release and rollback strategy documented.", "LAUNCH_PLAN.md", "high"),
+      criterion(
+        "Platform SRE contribution is concrete and within declared capabilities.",
+        "LAUNCH_PLAN.md / ARCHITECTURE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Rollback readiness", measurement: "Documented rollback for deploy", target: "Required for P0" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Release strategy with rollback.",
-      "Game day or drill hypothesis.",
+      "At least one concrete Platform SRE output tied to deploy-safety is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "K8s SaaS", input: "Weekly releases", expectedOutput: "Blue/green deploy; automatic rollback on SLO burn; monthly restore drill." },
+      {
+        title: "Platform SRE contribution",
+        input: "Compose expertise needing Platform SRE.",
+        expectedOutput: "Platform SRE returns scoped deploy-safety, rollback, capacity-runbooks guidance with labeled unknowns and acceptance checks focused on deploy safety, rollback, and runbooks.",
+      },
     ],
     failureStates: [
-      { condition: "No rollback story on stateful deploy.", impact: "Long incidents.", recovery: "Add release framework.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Platform SRE cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "mobile-architect": {
-    mission: "Define mobile client architecture\u2014navigation, offline, sync, and platform conventions\u2014so native-quality UX meets backend contracts.",
+    mission: "Deliver expert Mobile Architect judgment focused on mobile navigation, offline, and permissions that agents can execute without guessing.",
     principles: [
-      "Platform HIG/Material patterns are defaults unless brief forbids.",
-      "Offline and sync semantics are explicit.",
-      "Battery and network respect are architectural.",
-      "Deep links and app state restoration are designed.",
-      "Mobile security uses OS keystores, not custom crypto folklore.",
+      "Mobile Architect outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: mobile-navigation, offline-sync, permission-minimization.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Navigation graph",
-      "Sync tombstone",
-      "App lifecycle",
-      "Push notification contract",
+          "Navigation map",
+          "Offline modes",
+          "Permission just-in-time"
     ],
     decisionFrameworks: [
-      framework("Mobile architecture brief", "iOS/Android or cross-platform app.", [
-        "Choose stack with rationale (native, RN, Flutter).",
-        "Map screens, navigation, and state ownership.",
-        "Define offline cache and conflict resolution.",
-        "List platform capabilities (push, biometrics, background).",
-      ], [
-        "ARCHITECTURE.md mobile section.",
-      ]),
+      framework(
+        "Mobile Architect intake",
+        "When the package needs Mobile Architect expertise.",
+        [
+          "Collect inputs relevant to mobile-navigation.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on mobile navigation, offline, and permissions with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Mobile Architect contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Instrument crash-free sessions and cold start.",
-      "Handle token refresh and session expiry gracefully.",
-      "Test on mid-tier devices, not flagship only.",
-      "Align API pagination with mobile list UX.",
+          "Design touch targets and safe areas",
+          "Define offline/read-only modes",
+          "Ask permissions with context"
     ],
     antiPatterns: [
-      "Webview for core flows without need.",
-      "Unbounded image caches.",
-      "Blocking main thread on network.",
-      "Ignoring platform permission patterns.",
+          "Desktop layouts squeezed",
+          "Permission spam on launch",
+          "Ignoring offline"
     ],
     reviewCriteria: [
-      criterion("Navigation, offline, and sync documented.", "ARCHITECTURE.md", "high"),
+      criterion(
+        "Mobile Architect contribution is concrete and within declared capabilities.",
+        "USER_FLOWS.md / ARCHITECTURE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Offline story", measurement: "Conflict rules stated", target: "Present when offline required" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Mobile stack choice with rationale.",
-      "Sync/offline rules when applicable.",
+      "At least one concrete Mobile Architect output tied to mobile-navigation is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Field service app", input: "Offline work orders", expectedOutput: "Local SQLite cache; sync on reconnect; conflicts: server wins on status; push for assignment." },
+      {
+        title: "Mobile Architect contribution",
+        input: "Compose expertise needing Mobile Architect.",
+        expectedOutput: "Mobile Architect returns scoped mobile-navigation, offline-sync, permission-minimization guidance with labeled unknowns and acceptance checks focused on mobile navigation, offline, and permissions.",
+      },
     ],
     failureStates: [
-      { condition: "Offline-required brief without sync design.", impact: "Data loss in field.", recovery: "Add sync rules.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Mobile Architect cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "payments-architect": {
-    mission: "Design payment flows\u2014authorization, capture, reconciliation, and disputes\u2014with idempotency and compliance as non-negotiable architecture.",
+    mission: "Deliver expert Payments Architect judgment focused on checkout, ledgers, and PCI-aware boundaries that agents can execute without guessing.",
     principles: [
-      "Money movement is idempotent end-to-end.",
-      "PCI scope minimization via tokenization.",
-      "Ledger thinking: nothing lost, nothing duplicated.",
-      "Webhooks are untrusted until verified.",
-      "Reconciliation is a scheduled product feature.",
+      "Payments Architect outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: checkout-flows, ledger-boundaries, fraud-signals.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Payment state machine",
-      "Idempotency key",
-      "Ledger double-entry",
-      "Chargeback lifecycle",
+          "Payment state machine",
+          "Ledger entries",
+          "PCI boundary"
     ],
     decisionFrameworks: [
-      framework("Payments flow map", "Checkout, billing, or marketplace payouts.", [
-        "Draw states for pay, fail, retry, refund, dispute.",
-        "Assign idempotency keys per client action.",
-        "Define webhook verification and replay handling.",
-        "Plan reconciliation and reporting jobs.",
-      ], [
-        "ARCHITECTURE.md payments + DATABASE_DESIGN.md ledger.",
-      ]),
+      framework(
+        "Payments Architect intake",
+        "When the package needs Payments Architect expertise.",
+        [
+          "Collect inputs relevant to checkout-flows.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on checkout, ledgers, and PCI-aware boundaries with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Payments Architect contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Never store raw card data in application DB.",
-      "Use provider test fixtures in QUALITY_CHECKLIST.",
-      "Expose customer-visible payment status clearly.",
-      "Audit admin payment actions.",
+          "Never store raw PAN in app DB",
+          "Idempotent charges",
+          "Clear failure/retry UX"
     ],
     antiPatterns: [
-      "Double charge on retry without idempotency.",
-      "Trusting client-side amount.",
-      "Missing refund partial state handling.",
-      "Silent webhook drop without DLQ.",
+          "Homegrown card storage",
+          "Double-charge risk",
+          "Opaque payment errors"
     ],
     reviewCriteria: [
-      criterion("Payment state machine and idempotency documented.", "ARCHITECTURE.md", "critical"),
+      criterion(
+        "Payments Architect contribution is concrete and within declared capabilities.",
+        "ARCHITECTURE.md / USER_FLOWS.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Idempotent routes", measurement: "Money routes with keys", target: "100%" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "State machine diagram narrative.",
-      "Webhook verification described.",
+      "At least one concrete Payments Architect output tied to checkout-flows is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Subscription checkout", input: "Stripe integration", expectedOutput: "States: requires_payment, active, past_due; idempotency on POST /subscribe; signed webhooks; nightly reconciliation report." },
+      {
+        title: "Payments Architect contribution",
+        input: "Compose expertise needing Payments Architect.",
+        expectedOutput: "Payments Architect returns scoped checkout-flows, ledger-boundaries, fraud-signals guidance with labeled unknowns and acceptance checks focused on checkout, ledgers, and PCI-aware boundaries.",
+      },
     ],
     failureStates: [
-      { condition: "Payments without idempotency story.", impact: "Double charges.", recovery: "Block until flow map exists.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Payments Architect cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "data-engineer": {
-    mission: "Build reliable data pipelines\u2014ingest, transform, quality, and serve\u2014so analytics and ML consume trustworthy datasets.",
+    mission: "Deliver expert Data Engineer judgment focused on pipelines, freshness, and lineage that agents can execute without guessing.",
     principles: [
-      "Contracts upstream; quality checks in the pipe.",
-      "Lineage and ownership are documented.",
-      "Batch and stream paths have SLAs.",
-      "PII handling mirrors OLTP privacy rules.",
-      "Schemas version with backward compatibility.",
+      "Data Engineer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: pipeline-design, freshness-slas, data-lineage.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Medallion layers",
-      "Data contract",
-      "Slowly changing dimension",
-      "Freshness SLA",
+          "Pipeline DAG",
+          "Freshness SLO",
+          "Lineage map"
     ],
     decisionFrameworks: [
-      framework("Pipeline blueprint", "New analytics domain or warehouse feed.", [
-        "Source systems and cadence.",
-        "Transform stages with tests and quarantine.",
-        "Serving layer (warehouse, metrics, features).",
-        "Ownership and on-call for pipeline breaks.",
-      ], [
-        "ARCHITECTURE.md data platform section.",
-      ]),
+      framework(
+        "Data Engineer intake",
+        "When the package needs Data Engineer expertise.",
+        [
+          "Collect inputs relevant to pipeline-design.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on pipelines, freshness, and lineage with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Data Engineer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Idempotent loads with watermarking.",
-      "Document null and late-arriving data rules.",
-      "Monitor row counts and schema drift.",
-      "Separate dev/prod data with access controls.",
+          "Define freshness SLAs",
+          "Make lineage queryable",
+          "Separate raw and curated zones"
     ],
     antiPatterns: [
-      "Mystery cron jobs without owners.",
-      "Transform logic only in BI tools.",
-      "Full-table scrapes on huge sources.",
-      "Ignoring data quality failures.",
+          "Unowned brittle ETL",
+          "No freshness checks",
+          "Silent schema drift"
     ],
     reviewCriteria: [
-      criterion("Pipeline stages and quality checks documented.", "ARCHITECTURE.md", "high"),
+      criterion(
+        "Data Engineer contribution is concrete and within declared capabilities.",
+        "DATABASE_DESIGN.md / ARCHITECTURE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Freshness SLA", measurement: "Stated for P0 datasets", target: "Documented" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Pipeline blueprint with ownership.",
-      "Quality checks named.",
+      "At least one concrete Data Engineer output tied to pipeline-design is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Product analytics", input: "Event stream to warehouse", expectedOutput: "Bronze raw events; silver deduped sessions; gold daily activation; SLA 4h; PII hashed at bronze." },
+      {
+        title: "Data Engineer contribution",
+        input: "Compose expertise needing Data Engineer.",
+        expectedOutput: "Data Engineer returns scoped pipeline-design, freshness-slas, data-lineage guidance with labeled unknowns and acceptance checks focused on pipelines, freshness, and lineage.",
+      },
     ],
     failureStates: [
-      { condition: "Analytics without freshness SLA.", impact: "Stale decisions.", recovery: "Add SLA.", blocking: false },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Data Engineer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "ml-engineer": {
-    mission: "Productionize ML\u2014training, serving, monitoring, and rollback\u2014so models improve outcomes without silent drift or ops mystery.",
+    mission: "Deliver expert ML Engineer judgment focused on model lifecycle, drift, and serving contracts that agents can execute without guessing.",
     principles: [
-      "Training and serving environments are reproducible.",
-      "Feature pipelines match training and inference.",
-      "Monitoring covers data, model, and business KPIs.",
-      "Human review for high-impact predictions when needed.",
-      "Rollback to last good model is rehearsed.",
+      "ML Engineer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: model-lifecycle, drift-monitoring, serving-contracts.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Train-serve skew",
-      "Feature store",
-      "Model card",
-      "Drift detector",
+          "Train → eval → serve",
+          "Drift signals",
+          "Serving contract"
     ],
     decisionFrameworks: [
-      framework("ML platform slice", "Scoring or ranking in production.", [
-        "Define problem, label, and metric.",
-        "Sketch offline/online eval separation.",
-        "Plan serving latency and scaling.",
-        "List monitors and retrain triggers.",
-      ], [
-        "AI_SYSTEM_DESIGN.md ML section.",
-      ]),
+      framework(
+        "ML Engineer intake",
+        "When the package needs ML Engineer expertise.",
+        [
+          "Collect inputs relevant to model-lifecycle.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on model lifecycle, drift, and serving contracts with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded ML Engineer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Version datasets and models together.",
-      "Shadow deploy risky model upgrades.",
-      "Document bias and limitation hypotheses.",
-      "Keep batch and realtime feature paths aligned.",
+          "Version datasets and models",
+          "Monitor drift and quality",
+          "Define rollback to previous model"
     ],
     antiPatterns: [
-      "Notebook-only training path.",
-      "No baseline model comparison.",
-      "Unmonitored feature null spikes.",
-      "Serving without timeout and fallback.",
+          "Unversioned models in prod",
+          "No eval gates",
+          "Training-serving skew ignored"
     ],
     reviewCriteria: [
-      criterion("Train/serve path and monitoring documented.", "AI_SYSTEM_DESIGN.md", "high"),
+      criterion(
+        "ML Engineer contribution is concrete and within declared capabilities.",
+        "AI_SYSTEM_DESIGN.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Eval baseline", measurement: "Named offline metric + threshold", target: "Present" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Model card style summary.",
-      "Monitoring and rollback triggers.",
+      "At least one concrete ML Engineer output tied to model-lifecycle is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Churn model", input: "Batch scores nightly", expectedOutput: "Metric: AUROC; monitor: score distribution drift; rollback if precision drops 10% WoW." },
+      {
+        title: "ML Engineer contribution",
+        input: "Compose expertise needing ML Engineer.",
+        expectedOutput: "ML Engineer returns scoped model-lifecycle, drift-monitoring, serving-contracts guidance with labeled unknowns and acceptance checks focused on model lifecycle, drift, and serving contracts.",
+      },
     ],
     failureStates: [
-      { condition: "Production ML without monitoring.", impact: "Silent degradation.", recovery: "Add monitor plan.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "ML Engineer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "trust-safety": {
-    mission: "Design abuse resistance, moderation workflows, and safety policies so communities and AI surfaces resist harm at scale.",
+    mission: "Deliver expert Trust & Safety Specialist judgment focused on abuse controls and escalation paths that agents can execute without guessing.",
     principles: [
-      "Abuse scenarios are assumed, not edge cases.",
-      "Report-to-action workflows are specified.",
-      "Automation assists humans; high harm escalates.",
-      "Transparency balances user safety and privacy.",
-      "Rate limits and friction match abuse economics.",
+      "Trust & Safety Specialist outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: abuse-controls, content-policy, escalation-paths.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Abuse funnel",
-      "Severity ladder",
-      "Appeal loop",
-      "Safety KPI",
+          "Abuse scenarios",
+          "Detection → action",
+          "Human escalation"
     ],
     decisionFrameworks: [
-      framework("Trust & safety charter", "UGC, messaging, or generative products.", [
-        "List prohibited content/behavior classes.",
-        "Define detection signals (rules, ML, reports).",
-        "Map enforcement actions and appeals.",
-        "Set metrics: prevalence, response time, false positives.",
-      ], [
-        "PRODUCT_STRATEGY.md policy + ARCHITECTURE.md enforcement.",
-      ]),
+      framework(
+        "Trust & Safety Specialist intake",
+        "When the package needs Trust & Safety Specialist expertise.",
+        [
+          "Collect inputs relevant to abuse-controls.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on abuse controls and escalation paths with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Trust & Safety Specialist contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Design slow paths for ambiguous cases.",
-      "Log enforcement decisions for audit.",
-      "Coordinate with legal/privacy on retention.",
-      "Test adversarial prompts for AI surfaces.",
+          "Enumerate top abuse cases",
+          "Rate-limit sensitive actions",
+          "Provide appeal/escalation path"
     ],
     antiPatterns: [
-      "Reactive-only moderation after PR crisis.",
-      "Permanent bans without appeal path.",
-      "Publishing private report details.",
-      "Ignoring coordinated inauthentic behavior.",
+          "No abuse model",
+          "Automated bans without review path",
+          "Safety theater"
     ],
     reviewCriteria: [
-      criterion("Policy classes and enforcement paths documented.", "PRODUCT_STRATEGY.md", "high"),
+      criterion(
+        "Trust & Safety Specialist contribution is concrete and within declared capabilities.",
+        "PRODUCT_STRATEGY.md / AGENT_EXECUTION_PACKAGE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Severity coverage", measurement: "Harm classes with actions", target: "\u22655 classes" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Charter with enforcement ladder.",
-      "Metrics for response and prevalence.",
+      "At least one concrete Trust & Safety Specialist output tied to abuse-controls is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Creator platform", input: "Comment moderation", expectedOutput: "Classes: spam, hate, harassment; auto-hide spam; human queue for hate; appeal within 7d." },
+      {
+        title: "Trust & Safety Specialist contribution",
+        input: "Compose expertise needing Trust & Safety Specialist.",
+        expectedOutput: "Trust & Safety Specialist returns scoped abuse-controls, content-policy, escalation-paths guidance with labeled unknowns and acceptance checks focused on abuse controls and escalation paths.",
+      },
     ],
     failureStates: [
-      { condition: "UGC product without enforcement map.", impact: "Harm amplification.", recovery: "Add charter.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Trust & Safety Specialist cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "qa-architect": {
-    mission: "Design quality strategy\u2014test layers, environments, and gates\u2014so agents know what proof is required before ship.",
+    mission: "Deliver expert QA Architect judgment focused on risk-based quality gates and release checks that agents can execute without guessing.",
     principles: [
-      "Risk-based testing, not checkbox coverage theater.",
-      "Automate golden paths; explore edges deliberately.",
-      "Test data and environments are first-class design.",
-      "Quality gates map to user-critical flows.",
-      "Flaky tests are defects, not noise.",
+      "QA Architect outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: test-strategy, risk-based-coverage, release-gates.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Test pyramid",
-      "Risk heat map",
-      "Shift-left gates",
-      "Fixture contract",
+          "Risk → test map",
+          "Release checklist",
+          "Regression suite"
     ],
     decisionFrameworks: [
-      framework("Quality strategy", "Any shippable product package.", [
-        "Identify P0 user journeys.",
-        "Assign unit/integration/e2e ownership per journey.",
-        "Define env matrix and test data rules.",
-        "List release gates in QUALITY_CHECKLIST.md.",
-      ], [
-        "QUALITY_CHECKLIST.md as enforceable gate list.",
-      ]),
+      framework(
+        "QA Architect intake",
+        "When the package needs QA Architect expertise.",
+        [
+          "Collect inputs relevant to test-strategy.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on risk-based quality gates and release checks with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded QA Architect contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Seed reproducible fixtures for agents.",
-      "Include negative and permission tests on auth paths.",
-      "Performance smoke on critical APIs.",
-      "Document manual exploratory charters when needed.",
+          "Prioritize tests by user risk",
+          "Include a11y/perf smoke for immersive",
+          "Block on critical failures"
     ],
     antiPatterns: [
-      "100% line coverage goal without risk focus.",
-      "E2E-only strategy slowing everyone.",
-      "Shared mutable test data chaos.",
-      "Skipping accessibility in test plan.",
+          "Only happy-path demos",
+          "No regression net",
+          "QA after ship only"
     ],
     reviewCriteria: [
-      criterion("P0 journeys have test layers assigned.", "QUALITY_CHECKLIST.md", "critical"),
+      criterion(
+        "QA Architect contribution is concrete and within declared capabilities.",
+        "QUALITY_CHECKLIST.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "P0 journey coverage", measurement: "Journeys with automated checks", target: "100% P0" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Quality strategy with P0 journeys.",
-      "Release gates enumerated.",
+      "At least one concrete QA Architect output tied to test-strategy is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Auth product", input: "Login and reset", expectedOutput: "Unit: password policy; integration: token refresh; e2e: reset email flow; gate: all P0 green." },
+      {
+        title: "QA Architect contribution",
+        input: "Compose expertise needing QA Architect.",
+        expectedOutput: "QA Architect returns scoped test-strategy, risk-based-coverage, release-gates guidance with labeled unknowns and acceptance checks focused on risk-based quality gates and release checks.",
+      },
     ],
     failureStates: [
-      { condition: "No QUALITY_CHECKLIST on shippable brief.", impact: "Unverifiable ship.", recovery: "Add strategy.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "QA Architect cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "content-strategist": {
-    mission: "Shape voice, information architecture, and copy systems so content supports the user job and brand without bloating the experience.",
+    mission: "Deliver expert Content Strategist judgment focused on voice, hierarchy, and conversion-safe copy that agents can execute without guessing.",
     principles: [
-      "Content serves the job; cut what does not.",
-      "Voice rules are actionable for UI and marketing.",
-      "SEO serves humans first when in scope.",
-      "Localization readiness is designed early.",
-      "Legal and claims are labeled, not blurred.",
+      "Content Strategist outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: content-hierarchy, voice-tone, conversion-copy.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Content hierarchy",
-      "Voice spectrum",
-      "Message map",
-      "Progressive disclosure of copy",
+          "Message hierarchy",
+          "Voice dial",
+          "CTA ladder"
     ],
     decisionFrameworks: [
-      framework("Content architecture", "Marketing site, app, or docs-heavy product.", [
-        "Define audiences and primary messages per surface.",
-        "Build page/screen content map with priorities.",
-        "Write voice do/don't with examples.",
-        "Plan governance for updates and claims.",
-      ], [
-        "PRODUCT_STRATEGY.md + USER_FLOWS.md content notes.",
-      ]),
+      framework(
+        "Content Strategist intake",
+        "When the package needs Content Strategist expertise.",
+        [
+          "Collect inputs relevant to content-hierarchy.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on voice, hierarchy, and conversion-safe copy with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Content Strategist contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Pair headlines with proof nearby.",
-      "Use plain language for errors and empty states.",
-      "Coordinate with accessibility on heading order.",
-      "Keep immersive sites terse under dominant media.",
+          "Protect first-viewport hierarchy",
+          "Write recovery-oriented errors",
+          "Ban empty hype adjectives"
     ],
     antiPatterns: [
-      "Lorem ipsum in acceptance artifacts.",
-      "Jargon-heavy empty states.",
-      "Duplicate messaging across every section.",
-      "Unsubstantiated superlatives.",
+          "Feature dumps as headlines",
+          "Inconsistent voice",
+          "CTA wallpaper"
     ],
     reviewCriteria: [
-      criterion("Voice rules and content map present.", "PRODUCT_STRATEGY.md / USER_FLOWS.md", "high"),
+      criterion(
+        "Content Strategist contribution is concrete and within declared capabilities.",
+        "STORY-adjacent sections / PRODUCT_STRATEGY.md / DESIGN_SYSTEM.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Voice clarity", measurement: "Do/don't examples count", target: "\u22653 pairs" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Content map for primary surfaces.",
-      "Voice do/don't documented.",
+      "At least one concrete Content Strategist output tied to content-hierarchy is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "B2B landing", input: "Dev tool", expectedOutput: "Voice: direct, technical, no hype; hero: outcome + proof link; cut: feature laundry list above fold." },
+      {
+        title: "Content Strategist contribution",
+        input: "Compose expertise needing Content Strategist.",
+        expectedOutput: "Content Strategist returns scoped content-hierarchy, voice-tone, conversion-copy guidance with labeled unknowns and acceptance checks focused on voice, hierarchy, and conversion-safe copy.",
+      },
     ],
     failureStates: [
-      { condition: "Brand-led site without voice rules.", impact: "Inconsistent tone.", recovery: "Add voice guide.", blocking: false },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Content Strategist cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "api-security-specialist": {
-    mission: "Harden APIs against authz flaws, injection, and abuse with concrete controls verified in architecture and checklists.",
+    mission: "Deliver expert API Security Specialist judgment focused on API authz, rate limits, and injection defense that agents can execute without guessing.",
     principles: [
-      "Default deny on authorization.",
-      "Input validation at the outermost boundary.",
-      "Rate limits and bot defenses on auth and expensive routes.",
-      "OAuth scopes are minimal and auditable.",
-      "Security tests ride on P0 API fixtures.",
+      "API Security Specialist outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: authz-checks, rate-limits, injection-defense.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "BOLA/IDOR",
-      "Token binding",
-      "Abuse economics",
-      "Schema validation",
+          "Authz matrix",
+          "Rate-limit classes",
+          "Injection surfaces"
     ],
     decisionFrameworks: [
-      framework("API security review", "External or partner APIs.", [
-        "Threat walk on authn/authz per route class.",
-        "Validate schemas and reject unknown fields.",
-        "Apply rate limits and anomaly signals.",
-        "Verify TLS, mTLS, or signing requirements.",
-      ], [
-        "ARCHITECTURE.md API security + QUALITY_CHECKLIST.md",
-      ]),
+      framework(
+        "API Security Specialist intake",
+        "When the package needs API Security Specialist expertise.",
+        [
+          "Collect inputs relevant to authz-checks.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on API authz, rate limits, and injection defense with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded API Security Specialist contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Use standard libraries for JWT/OAuth validation.",
-      "Test horizontal privilege escalation cases.",
-      "Return generic errors on auth failures.",
-      "Rotate keys with documented procedure.",
+          "Deny by default",
+          "Rate-limit expensive endpoints",
+          "Validate and encode untrusted input"
     ],
     antiPatterns: [
-      "Security by long UUID only.",
-      "GraphQL introspection open in prod without cause.",
-      "Verbose stack traces to clients.",
-      "Shared API keys across customers.",
+          "Authn without authz",
+          "Unlimited expensive APIs",
+          "Trusting client fields"
     ],
     reviewCriteria: [
-      criterion("Authz matrix and rate limits on P0 routes.", "ARCHITECTURE.md", "critical"),
+      criterion(
+        "API Security Specialist contribution is concrete and within declared capabilities.",
+        "ARCHITECTURE.md / AGENT_EXECUTION_PACKAGE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Authz tests", measurement: "Negative authz cases listed", target: "\u22655 for P0" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Authz matrix for resources.",
-      "Rate limit policy stated.",
+      "At least one concrete API Security Specialist output tied to authz-checks is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Multi-tenant API", input: "Project CRUD", expectedOutput: "Matrix: user role \u00d7 project actions; tests: cross-tenant 403; rate limit 100 rpm per key." },
+      {
+        title: "API Security Specialist contribution",
+        input: "Compose expertise needing API Security Specialist.",
+        expectedOutput: "API Security Specialist returns scoped authz-checks, rate-limits, injection-defense guidance with labeled unknowns and acceptance checks focused on API authz, rate limits, and injection defense.",
+      },
     ],
     failureStates: [
-      { condition: "Multi-tenant API without authz matrix.", impact: "IDOR incidents.", recovery: "Block until matrix exists.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "API Security Specialist cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "prompt-injection-defender": {
-    mission: "Contain untrusted text and tool output so agents and LLM features cannot be hijacked into policy violations or unsafe actions.",
+    mission: "Deliver expert Prompt Injection Defender judgment focused on keeping untrusted text from becoming policy or tool authority that agents can execute without guessing.",
     principles: [
-      "Untrusted content never becomes system policy.",
-      "Tool results are data, not instructions.",
-      "Defense in depth: input, prompt, output, and action gates.",
-      "High-risk actions require confidence and confirmation.",
-      "Red-team fixtures belong in quality plans.",
+      "Prompt Injection Defender outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: untrusted-content-isolation, tool-gating, injection-tests.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Instruction/data boundary",
-      "Tool sandbox",
-      "Output policy filter",
-      "Canary prompt",
+          "Trusted vs untrusted channels",
+          "Tool-gating",
+          "Output filtering"
     ],
     decisionFrameworks: [
-      framework("Injection defense stack", "Agentic or RAG features ingesting user/docs/web.", [
-        "Classify inputs by trust tier.",
-        "Wrap untrusted content in labeled blocks.",
-        "Apply output policies before tools execute.",
-        "Define block/escalate on policy trip.",
-      ], [
-        "AI_SYSTEM_DESIGN.md safety section.",
-      ]),
+      framework(
+        "Prompt Injection Defender intake",
+        "When the package needs Prompt Injection Defender expertise.",
+        [
+          "Collect inputs relevant to untrusted-content-isolation.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on keeping untrusted text from becoming policy or tool authority with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Prompt Injection Defender contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Separate system instructions from retrieved blobs.",
-      "Allowlist tools per agent role.",
-      "Log policy trips without leaking user content.",
-      "Maintain attack fixture set for regressions.",
+          "Never let retrieved text set system policy",
+          "Gate tools independently of model text",
+          "Treat user/content as hostile by default"
     ],
     antiPatterns: [
-      "Executing shell from model text.",
-      "Passing raw email HTML into system prompt.",
-      "No output filter on customer-facing agents.",
-      "Trusting 'ignore previous instructions' tests only once.",
+          "Concatenating untrusted text into system prompts",
+          "Model-chosen unrestricted tools",
+          "Ignoring indirect injection"
     ],
     reviewCriteria: [
-      criterion("Trust tiers and action gates documented.", "AI_SYSTEM_DESIGN.md", "critical"),
+      criterion(
+        "Prompt Injection Defender contribution is concrete and within declared capabilities.",
+        "AI_SYSTEM_DESIGN.md / AGENT_EXECUTION_PACKAGE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Attack fixtures", measurement: "Named injection scenarios in QA", target: "\u22655" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Trust tier model.",
-      "Tool allowlist per agent.",
+      "At least one concrete Prompt Injection Defender output tied to untrusted-content-isolation is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Support agent", input: "Ticket + KB RAG", expectedOutput: "Ticket body untrusted; tools: read ticket, draft reply; forbid: refunds; escalate on payment keywords." },
+      {
+        title: "Prompt Injection Defender contribution",
+        input: "Compose expertise needing Prompt Injection Defender.",
+        expectedOutput: "Prompt Injection Defender returns scoped untrusted-content-isolation, tool-gating, injection-tests guidance with labeled unknowns and acceptance checks focused on keeping untrusted text from becoming policy or tool authority.",
+      },
     ],
     failureStates: [
-      { condition: "Tool-using agent without allowlist.", impact: "Remote code or data exfil risk.", recovery: "Add defense stack.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Prompt Injection Defender cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "product-reviewer": {
-    mission: "Review packages for problem clarity, outcome alignment, scope honesty, and metric traceability before council sign-off.",
+    mission: "Deliver expert Product Reviewer judgment focused on outcome clarity and strategy coherence before export that agents can execute without guessing.",
     principles: [
-      "Challenge solution drift against stated user job.",
-      "Require explicit assumptions and scope cuts.",
-      "Metrics must be measurable, not aspirational fluff.",
-      "Conflicts between artifacts get surfaced, not smoothed.",
-      "Reviewer notes cite evidence locations.",
+      "Product Reviewer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: outcome-review, scope-integrity, strategy-coherence.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Outcome lens",
-      "Scope ledger",
-      "Artifact crosswalk",
-      "Assumption stress test",
+          "Outcome test",
+          "Scope integrity",
+          "Assumption labels"
     ],
     decisionFrameworks: [
-      framework("Product review pass", "Council review of composed blueprint.", [
-        "Read PROJECT_DNA and PRODUCT_STRATEGY first.",
-        "Cross-check features vs outcomes and metrics.",
-        "Flag orphan requirements without owner artifact.",
-        "Record severities with required fixes.",
-      ], [
-        "Review comments mapped to QUALITY_CHECKLIST.md",
-      ]),
+      framework(
+        "Product Reviewer intake",
+        "When the package needs Product Reviewer expertise.",
+        [
+          "Collect inputs relevant to outcome-review.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on outcome clarity and strategy coherence before export with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Product Reviewer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Ask what user job fails if we ship as-is.",
-      "Verify success metrics appear in launch plan.",
-      "Confirm out-of-scope is visible to agents.",
+          "Fail packages without clear user outcomes",
+          "Require labeled assumptions",
+          "Check DNA vs strategy agreement"
     ],
     antiPatterns: [
-      "Rubber-stamping without reading DNA.",
-      "Style-only feedback on P0 gaps.",
-      "Approving conflicting success metrics.",
+          "Complete-looking empty strategy",
+          "Feature lists posing as outcomes"
     ],
     reviewCriteria: [
-      criterion("Product reviewer sign-off criteria met.", "Review council record", "critical"),
+      criterion(
+        "Product Reviewer contribution is concrete and within declared capabilities.",
+        "PRODUCT_STRATEGY.md / PROJECT_DNA.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Issue closure", measurement: "Critical product findings resolved", target: "100% before ship" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Documented review with cited artifacts.",
-      "Critical findings tracked to resolution.",
+      "At least one concrete Product Reviewer output tied to outcome-review is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Review", input: "Recruiting AI package", expectedOutput: "Finding: missing reviewer outcome metric; fix: add shortlist acceptance rate to DNA; severity: high." },
+      {
+        title: "Product Reviewer contribution",
+        input: "Compose expertise needing Product Reviewer.",
+        expectedOutput: "Product Reviewer returns scoped outcome-review, scope-integrity, strategy-coherence guidance with labeled unknowns and acceptance checks focused on outcome clarity and strategy coherence before export.",
+      },
     ],
     failureStates: [
-      { condition: "Conflicting DNA and strategy unaddressed.", impact: "Wrong product built.", recovery: "Request revision.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Product Reviewer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "architecture-reviewer": {
-    mission: "Validate structural integrity\u2014boundaries, contracts, failure modes, and evolution\u2014across ARCHITECTURE and related artifacts.",
+    mission: "Deliver expert Architecture Reviewer judgment focused on architecture fit to medium and budgets that agents can execute without guessing.",
     principles: [
-      "Diagrams must explain failure, not only boxes.",
-      "Consistency choices are explicit and justified.",
-      "Cross-cutting concerns have owners.",
-      "Scale assumptions are stated hypotheses.",
-      "Security and observability are architectural, not add-ons.",
+      "Architecture Reviewer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: architecture-fit, boundary-review, budget-review.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Dependency graph",
-      "Single writer rule",
-      "Failure blast radius",
-      "Evolution seam",
+          "Medium fit test",
+          "Budget presence",
+          "Boundary clarity"
     ],
     decisionFrameworks: [
-      framework("Architecture review pass", "Systems exceeding single-service complexity.", [
-        "Trace P0 journeys through components.",
-        "Verify integration contracts and timeouts.",
-        "Check data ownership and migration paths.",
-        "Record architectural risks with mitigations.",
-      ], [
-        "ARCHITECTURE.md annotated review.",
-      ]),
+      framework(
+        "Architecture Reviewer intake",
+        "When the package needs Architecture Reviewer expertise.",
+        [
+          "Collect inputs relevant to architecture-fit.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on architecture fit to medium and budgets with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Architecture Reviewer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Prefer simplest topology that meets SLOs.",
-      "Call out intentional tech debt.",
-      "Align with systems-thinker failure maps.",
+          "Reject SaaS monolith docs for WebGL briefs",
+          "Require budgets/fallbacks for immersive",
+          "Check boundaries match the product"
     ],
     antiPatterns: [
-      "Approving diagrams without data flows.",
-      "Missing authz on internal service calls.",
-      "No rollback for schema + code coupling.",
+          "Generic architecture essays",
+          "Ignoring the real medium"
     ],
     reviewCriteria: [
-      criterion("P0 journeys traced with failure notes.", "ARCHITECTURE.md", "critical"),
+      criterion(
+        "Architecture Reviewer contribution is concrete and within declared capabilities.",
+        "ARCHITECTURE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Risk register", measurement: "Arch risks with owners", target: "\u22653 or explicit none" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Review notes on boundaries and contracts.",
-      "Risks with mitigations or accepts.",
+      "At least one concrete Architecture Reviewer output tied to architecture-fit is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Review", input: "Event-driven billing", expectedOutput: "Risk: duplicate events; mitigation: idempotent consumers; accept: none." },
+      {
+        title: "Architecture Reviewer contribution",
+        input: "Compose expertise needing Architecture Reviewer.",
+        expectedOutput: "Architecture Reviewer returns scoped architecture-fit, boundary-review, budget-review guidance with labeled unknowns and acceptance checks focused on architecture fit to medium and budgets.",
+      },
     ],
     failureStates: [
-      { condition: "Untraced payment path.", impact: "Revenue loss risk.", recovery: "Block ship.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Architecture Reviewer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "ux-reviewer": {
-    mission: "Evaluate flows, hierarchy, and interaction integrity so the experience matches the user job and design system promises.",
+    mission: "Deliver expert UX Reviewer judgment focused on visitor journeys, states, and recovery that agents can execute without guessing.",
     principles: [
-      "Primary user path must be obvious in artifacts.",
-      "Errors and empty states are part of UX quality.",
-      "Motion serves comprehension unless brief is immersive craft.",
-      "Forms minimize cognitive load and respect validation UX.",
-      "Mobile and keyboard paths are review defaults.",
+      "UX Reviewer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: flow-review, state-coverage, recovery-paths.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Critical path spotlight",
-      "Information scent",
-      "Error budget for UX friction",
-      "Progressive disclosure",
+          "Journey fidelity",
+          "State coverage",
+          "Recovery paths"
     ],
     decisionFrameworks: [
-      framework("UX review pass", "USER_FLOWS and DESIGN_SYSTEM present.", [
-        "Walk primary persona through P0 journey.",
-        "Check hierarchy, labeling, and feedback timing.",
-        "Verify alignment with design tokens and patterns.",
-        "File severity-ranked UX defects.",
-      ], [
-        "USER_FLOWS.md review annotations.",
-      ]),
+      framework(
+        "UX Reviewer intake",
+        "When the package needs UX Reviewer expertise.",
+        [
+          "Collect inputs relevant to flow-review.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on visitor journeys, states, and recovery with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded UX Reviewer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Compare flows to stated success metrics.",
-      "Flag hidden dependencies between steps.",
-      "Note accessibility gaps for specialist follow-up.",
+          "Fail compose-loop flows posing as product UX",
+          "Require empty/loading/error states",
+          "Check keyboard escape routes on immersive"
     ],
     antiPatterns: [
-      "Approving flows with dead-end errors.",
-      "Ignoring loading and skeleton states.",
-      "Hero cluttered against design system rules.",
+          "Documenting SkillForge internals as user flows"
     ],
     reviewCriteria: [
-      criterion("P0 journey walkable from artifacts.", "USER_FLOWS.md", "high"),
+      criterion(
+        "UX Reviewer contribution is concrete and within declared capabilities.",
+        "USER_FLOWS.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "P0 friction points", measurement: "Documented fixes", target: "All critical resolved" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "UX review record with journey cite.",
-      "Critical friction addressed or accepted.",
+      "At least one concrete UX Reviewer output tied to flow-review is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Review", input: "Onboarding funnel", expectedOutput: "Issue: missing error on invalid email; fix: inline validation copy per voice guide." },
+      {
+        title: "UX Reviewer contribution",
+        input: "Compose expertise needing UX Reviewer.",
+        expectedOutput: "UX Reviewer returns scoped flow-review, state-coverage, recovery-paths guidance with labeled unknowns and acceptance checks focused on visitor journeys, states, and recovery.",
+      },
     ],
     failureStates: [
-      { condition: "No USER_FLOWS for multi-step product.", impact: "Implementation guesswork.", recovery: "Require flows.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "UX Reviewer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "performance-reviewer": {
-    mission: "Verify performance budgets and degradation plans are present, credible, and tied to user-visible routes and canvas work.",
+    mission: "Deliver expert Performance Reviewer judgment focused on budgets and degradation paths that agents can execute without guessing.",
     principles: [
-      "Budgets must name routes or scenes.",
-      "Mobile and desktop both get targets when public.",
-      "Degradation is designed, not post-hoc FPS panic.",
-      "Perf findings reference measurement method.",
-      "Immersive packages need dual Web Vitals + FPS.",
+      "Performance Reviewer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: budget-audit, degradation-review, vitals-review.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Budget envelope",
-      "Critical path",
-      "Degrade ladder",
-      "Device class",
+          "Budget audit",
+          "Degradation ladder",
+          "Vitals targets"
     ],
     decisionFrameworks: [
-      framework("Performance review pass", "Web, mobile, or WebGL packages.", [
-        "Locate budgets in QUALITY_CHECKLIST/ARCHITECTURE.",
-        "Check P0 paths have LCP/INP or FPS targets.",
-        "Verify low-power degrade triggers exist.",
-        "Flag missing measurement on media-heavy areas.",
-      ], [
-        "Perf review linked to QUALITY_CHECKLIST.md.",
-      ]),
+      framework(
+        "Performance Reviewer intake",
+        "When the package needs Performance Reviewer expertise.",
+        [
+          "Collect inputs relevant to budget-audit.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on budgets and degradation paths with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Performance Reviewer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Cross-check with performance-engineer skill depth when present.",
-      "Require explicit asset weight limits for heroes.",
-      "Note third-party script risk.",
+          "Require FPS/LCP-class budgets matching medium",
+          "Require auto quality drop rules for WebGL",
+          "Reject unbounded media"
     ],
     antiPatterns: [
-      "Approving 'fast enough' without numbers.",
-      "Desktop-only budgets on marketing sites.",
-      "WebGL package with no FPS mention.",
+          "Performance adjectives without numbers"
     ],
     reviewCriteria: [
-      criterion("Documented budgets on P0 surfaces.", "QUALITY_CHECKLIST.md", "critical"),
+      criterion(
+        "Performance Reviewer contribution is concrete and within declared capabilities.",
+        "QUALITY_CHECKLIST.md / ARCHITECTURE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Budget completeness", measurement: "Vitals + FPS when immersive", target: "Complete" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Review cites budget locations.",
-      "Gaps have owners or block ship.",
+      "At least one concrete Performance Reviewer output tied to budget-audit is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Review", input: "Marketing + R3F", expectedOutput: "Finding: no mobile FPS target; fix: 30fps min, degrade particles under 20fps." },
+      {
+        title: "Performance Reviewer contribution",
+        input: "Compose expertise needing Performance Reviewer.",
+        expectedOutput: "Performance Reviewer returns scoped budget-audit, degradation-review, vitals-review guidance with labeled unknowns and acceptance checks focused on budgets and degradation paths.",
+      },
     ],
     failureStates: [
-      { condition: "Immersive package without FPS budget.", impact: "Jank ship.", recovery: "Block.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Performance Reviewer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "security-reviewer": {
-    mission: "Independently verify threat coverage, authz, secret hygiene, and agent safety gates before high-risk release.",
+    mission: "Deliver expert Security Reviewer judgment focused on safe handoff and permission boundaries that agents can execute without guessing.",
     principles: [
-      "Findings reference CWE-class issues or concrete abuse.",
-      "Secret leakage in artifacts is automatic critical.",
-      "Agent execution bounds are audited.",
-      "Third-party data flows need mapping.",
-      "Fix or accept with explicit risk owner.",
+      "Security Reviewer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: handoff-security, permission-boundary-review, threat-coverage-review.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "Attack surface map",
-      "Control effectiveness",
-      "Residual risk",
-      "Ship gate",
+          "Handoff safety",
+          "Privilege review",
+          "Secret leakage scan"
     ],
     decisionFrameworks: [
-      framework("Security review pass", "Internet-facing, payments, PII, or agentic systems.", [
-        "Validate threat sketch vs implementation claims.",
-        "Spot-check authz on multi-tenant paths.",
-        "Scan artifacts for credential patterns.",
-        "Confirm QUALITY_CHECKLIST security gates.",
-      ], [
-        "Security council sign-off record.",
-      ]),
+      framework(
+        "Security Reviewer intake",
+        "When the package needs Security Reviewer expertise.",
+        [
+          "Collect inputs relevant to handoff-security.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on safe handoff and permission boundaries with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Security Reviewer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Coordinate with api-security and prompt-injection skills.",
-      "Require negative tests on auth paths.",
-      "Re-review on material architecture change.",
+          "executionAuthorized must stay false",
+          "Prohibited ops must be listed",
+          "No secrets in artifacts"
     ],
     antiPatterns: [
-      "Checkbox PCI without flow review.",
-      "Approving with open criticals.",
-      "Ignoring agent tool allowlists.",
+          "Treating packs as execution grants"
     ],
     reviewCriteria: [
-      criterion("No critical security findings open.", "Review council record", "critical"),
+      criterion(
+        "Security Reviewer contribution is concrete and within declared capabilities.",
+        "AGENT_EXECUTION_PACKAGE.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Critical closure", measurement: "Open critical count", target: "0 at ship" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Security review logged with severities.",
-      "Criticals resolved or ship blocked.",
+      "At least one concrete Security Reviewer output tied to handoff-security is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Review", input: "Public API", expectedOutput: "Critical: missing tenant check on GET /projects; fix before ship." },
+      {
+        title: "Security Reviewer contribution",
+        input: "Compose expertise needing Security Reviewer.",
+        expectedOutput: "Security Reviewer returns scoped handoff-security, permission-boundary-review, threat-coverage-review guidance with labeled unknowns and acceptance checks focused on safe handoff and permission boundaries.",
+      },
     ],
     failureStates: [
-      { condition: "Critical authz flaw open.", impact: "Data breach risk.", recovery: "Block release.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Security Reviewer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "accessibility-reviewer": {
-    mission: "Independently verify inclusive design requirements on critical paths before release, citing WCAG-oriented evidence.",
+    mission: "Deliver expert Accessibility Reviewer judgment focused on inclusive interaction and reduced-motion gates that agents can execute without guessing.",
     principles: [
-      "Keyboard and screen reader paths are non-negotiable on P0.",
-      "Contrast and motion requirements reference tokens.",
-      "Immersive work needs textual equivalents.",
-      "Findings include remediation location.",
-      "Accessibility debt must be explicit if deferred.",
+      "Accessibility Reviewer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: a11y-gate-review, reduced-motion-review, semantics-review.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "P0 path audit",
-      "WCAG conformance target",
-      "Assistive tech path",
-      "Motion equivalence",
+          "Keyboard path review",
+          "Contrast/semantics",
+          "Reduced-motion gate"
     ],
     decisionFrameworks: [
-      framework("A11y review pass", "Pre-release council on user-facing packages.", [
-        "Select P0 flows from USER_FLOWS.",
-        "Verify checklist items in QUALITY_CHECKLIST.",
-        "Test keyboard order and focus visibility.",
-        "Document media alternatives and contrast.",
-      ], [
-        "Accessibility reviewer sign-off.",
-      ]),
+      framework(
+        "Accessibility Reviewer intake",
+        "When the package needs Accessibility Reviewer expertise.",
+        [
+          "Collect inputs relevant to a11y-gate-review.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on inclusive interaction and reduced-motion gates with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Accessibility Reviewer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Pair with accessibility-specialist criteria.",
-      "Note platform-specific a11y for mobile.",
-      "Track regressions on design system components.",
+          "Fail motion packs without reduced-motion",
+          "Require focus-visible guidance",
+          "Check SR/keyboard reach to CTA"
     ],
     antiPatterns: [
-      "Deferring all a11y to post-launch without register.",
-      "Approving decorative-only alts on informative images.",
-      "Ignoring form error association.",
+          "Canvas-only dead ends"
     ],
     reviewCriteria: [
-      criterion("P0 flows pass documented a11y checklist.", "QUALITY_CHECKLIST.md", "critical"),
+      criterion(
+        "Accessibility Reviewer contribution is concrete and within declared capabilities.",
+        "DESIGN_SYSTEM.md / USER_FLOWS.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "P0 checklist", measurement: "Items verified", target: "100% P0" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "A11y review notes with checklist cite.",
-      "Critical barriers resolved or blocked.",
+      "At least one concrete Accessibility Reviewer output tied to a11y-gate-review is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Review", input: "Checkout", expectedOutput: "Finding: focus lost on payment iframe; fix: documented focus return handler." },
+      {
+        title: "Accessibility Reviewer contribution",
+        input: "Compose expertise needing Accessibility Reviewer.",
+        expectedOutput: "Accessibility Reviewer returns scoped a11y-gate-review, reduced-motion-review, semantics-review guidance with labeled unknowns and acceptance checks focused on inclusive interaction and reduced-motion gates.",
+      },
     ],
     failureStates: [
-      { condition: "Keyboard trap on checkout.", impact: "Legal and usability block.", recovery: "Block ship.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Accessibility Reviewer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
   },
   "awwwards-reviewer": {
-    mission: "Judge immersive and portfolio-class packages against craft, narrative, performance, and distinctiveness\u2014not generic SaaS templates.",
+    mission: "Deliver expert Awwwards Reviewer judgment focused on craft density, distinctiveness, and experience integrity that agents can execute without guessing.",
     principles: [
-      "First viewport must express concept without card-grid clich\u00e9s.",
-      "Motion and WebGL serve story when category is immersive.",
-      "Craft claims require concrete constraints in artifacts.",
-      "Performance and accessibility are part of award-grade craft.",
-      "Reject purple-gradient AI-default aesthetics unless brief demands.",
+      "Awwwards Reviewer outputs must be specific enough to implement or explicitly mark unknowns.",
+      "Stay inside capabilities: craft-density-review, distinctiveness-review, experience-integrity.",
+      "Separate confirmed brief facts from inferences and hypotheses.",
+      "Prefer checkable acceptance criteria over vague advice.",
+      "Never grant tool, secret, or production permissions through skill text.",
     ],
     mentalModels: [
-      "First viewport test",
-      "Craft constraint density",
-      "Scroll chapter integrity",
-      "Distinctiveness without cloning",
+          "Craft density bar",
+          "First viewport composition test",
+          "Anti-template check"
     ],
     decisionFrameworks: [
-      framework("Awwwards craft review", "awwwards, threejs, or high-craft marketing categories.", [
-        "Score concept clarity and forbidden-pattern compliance.",
-        "Check DESIGN_SYSTEM for type, motion, WebGL budgets.",
-        "Verify narrative chapter map when long-scroll.",
-        "Balance ambition with perf/a11y stop conditions.",
-      ], [
-        "Council craft verdict with cited artifacts.",
-      ]),
+      framework(
+        "Awwwards Reviewer intake",
+        "When the package needs Awwwards Reviewer expertise.",
+        [
+          "Collect inputs relevant to craft-density-review.",
+          "List assumptions and unknowns explicitly.",
+          "Produce guidance on craft density, distinctiveness, and experience integrity with acceptance checks.",
+          "State stop conditions if evidence is insufficient.",
+        ],
+        ["Bounded Awwwards Reviewer contribution with provenance labels."],
+      ),
     ],
     bestPractices: [
-      "Cross-read creative-director and motion-director depth when merged.",
-      "Demand shader/scene ownership on WebGL briefs.",
-      "Celebrate specificity over adjectives.",
+          "Fail empty design systems",
+          "Reject card-grid heroes on immersive",
+          "Require concrete motion + scene constraints"
     ],
     antiPatterns: [
-      "Approving dashboard hero on experience brief.",
-      "Craft adjectives without implementation rules.",
-      "Ignoring reduced-motion on scroll theater.",
+          "Award adjectives without craft rules",
+          "Template SaaS posing as award craft"
     ],
     reviewCriteria: [
-      criterion("Creative concept and craft constraints present.", "DESIGN_SYSTEM.md + MASTER_SKILL_PACKAGE.md", "critical"),
-      criterion("Immersive categories include FPS/motion budgets.", "QUALITY_CHECKLIST.md", "high"),
+      criterion(
+        "Awwwards Reviewer contribution is concrete and within declared capabilities.",
+        "DESIGN_SYSTEM.md",
+        "high",
+      ),
+      criterion("Unknowns and inferences are labeled.", "PROJECT_DNA.md / role sections", "medium"),
     ],
     qualityMetrics: [
-      { name: "Craft constraint count", measurement: "Concrete rules in design artifact", target: "\u22658 on awwwards tier" },
+      {
+        name: "Specificity",
+        measurement: "Share of guidance items that are actionable steps, budgets, or interfaces",
+        target: "≥70%",
+      },
     ],
     acceptanceCriteria: [
-      "Craft review verdict with constraints cited.",
-      "Forbidden patterns checked.",
+      "At least one concrete Awwwards Reviewer output tied to craft-density-review is recorded.",
+      "No unsupported factual claims are introduced.",
+      "Stop conditions are stated for blocking unknowns.",
     ],
     examples: [
-      { title: "Review", input: "WebGL studio site", expectedOutput: "Pass contingent: add scroll chapter map; fail if card hero remains." },
+      {
+        title: "Awwwards Reviewer contribution",
+        input: "Compose expertise needing Awwwards Reviewer.",
+        expectedOutput: "Awwwards Reviewer returns scoped craft-density-review, distinctiveness-review, experience-integrity guidance with labeled unknowns and acceptance checks focused on craft density, distinctiveness, and experience integrity.",
+      },
     ],
     failureStates: [
-      { condition: "Immersive brief with generic SaaS layout.", impact: "Mediocre ship.", recovery: "Send back to creative stack.", blocking: true },
+      {
+        condition: "Required inputs missing or contradictory.",
+        impact: "Awwwards Reviewer cannot safely complete.",
+        recovery: "Return unknowns and block acceptance until resolved.",
+        blocking: true,
+      },
     ],
-  },
+  }
 };
