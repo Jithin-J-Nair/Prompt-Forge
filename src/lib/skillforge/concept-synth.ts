@@ -35,11 +35,26 @@ export type ConceptCandidate = {
   total: number;
 };
 
+export type ConceptVerdict = "viable" | "rejected-weak" | "rejected-generic";
+
+export type ConceptHardReject = {
+  id: string;
+  label: string;
+  verdict: Exclude<ConceptVerdict, "viable">;
+  reasons: string[];
+};
+
 export type ConceptSelection = {
   selected: ConceptCandidate;
   why: string;
   explored: ConceptCandidate[];
   rejectedOneLiners: string[];
+  /** Brief signals that justify the winner (not score theater). */
+  evidence: string[];
+  /** Explicit tradeoff vs next-best viable (or strongest rejected foil). */
+  tradeoff: string;
+  /** Hard-rejected as weak/generic — never eligible to win. */
+  hardRejected: ConceptHardReject[];
 };
 
 export type ConceptSynth = {
@@ -1147,9 +1162,208 @@ function scoreDraft(draft: DraftCandidate, ctx: ConceptContext): ConceptScorecar
   };
 }
 
+/** Foil families that are weak/generic by design — never ship unless the brief asks for them. */
+const FOIL_FAMILIES = new Set<DirectionFamily>([
+  "spectacle-demo",
+  "marketing-cosplay",
+  "cinematic-saas",
+  "template-consumer",
+  "overbuilt-campaign",
+]);
+
+type ScoredDraft = {
+  draft: DraftCandidate;
+  candidate: ConceptCandidate;
+};
+
 /**
- * Explore genuinely different creative directions, score from brief context, select strongest.
- * Present selected + short why — not a brainstorm dump. No preset winners or fixed originality.
+ * Evaluate a scored direction against the actual brief.
+ * Hard-rejects weak/generic foils and score failures; returns brief-evidence for viable ones.
+ */
+function evaluateAgainstBrief(
+  scored: ScoredDraft,
+  ctx: ConceptContext,
+): {
+  verdict: ConceptVerdict;
+  reasons: string[];
+  evidence: string[];
+} {
+  const { draft, candidate } = scored;
+  const family = draft.family;
+  const scores = candidate.scores;
+  const reasons: string[] = [];
+  const evidence: string[] = [];
+
+  const briefAsksDemoReel = /\b(demo\s*reel|shader playground|effects playground|tech demo)\b/i.test(
+    ctx.lower,
+  );
+
+  if (FOIL_FAMILIES.has(family) && !(family === "spectacle-demo" && briefAsksDemoReel)) {
+    const generic =
+      family === "template-consumer" ||
+      family === "marketing-cosplay" ||
+      family === "spectacle-demo";
+    if (family === "spectacle-demo") {
+      reasons.push("Demo-reel spectacle — effects outrank the brief promise");
+    } else if (family === "marketing-cosplay") {
+      reasons.push("Marketing-site cosplay — brochure sections instead of the product job");
+    } else if (family === "cinematic-saas") {
+      reasons.push("Cinematic SaaS spectacle — shaders/scroll theater over workflows");
+    } else if (family === "template-consumer") {
+      reasons.push("Interchangeable template kit — any brand could wear it");
+    } else {
+      reasons.push("Overbuilt campaign noise — no single thesis for the brief");
+    }
+    return {
+      verdict: generic ? "rejected-generic" : "rejected-weak",
+      reasons,
+      evidence: [],
+    };
+  }
+
+  if (scores.relevance < 2.5) {
+    reasons.push(`Weak brief relevance (${scores.relevance}/5)`);
+  }
+  if (scores.coherence < 2.0) {
+    reasons.push(`Incoherent craft (${scores.coherence}/5)`);
+  }
+  if (scores.originality < 2.0 && scores.brandFit < 2.2) {
+    reasons.push(
+      `Generic / low distinctiveness (originality ${scores.originality}, brandFit ${scores.brandFit})`,
+    );
+  }
+  if (candidate.total < 2.8) {
+    reasons.push(`Overall score too weak (${candidate.total}/5)`);
+  }
+
+  // Mode mismatches that survived scoring still get cut
+  if (family === "world-immersion" && ctx.editorialBias && !ctx.techHeavy && !ctx.eventBias) {
+    reasons.push("World-immersion mismatches editorial-without-WebGL brief");
+  }
+  if (family === "sensory-brand" && ctx.opsBias && !ctx.sensoryBias) {
+    reasons.push("Sensory brand mismatches ops / incident workbench brief");
+  }
+  if (
+    (family === "job-workbench" || family === "guided-workflow") &&
+    (ctx.mode === "immersive" || ctx.mode === "brand") &&
+    (ctx.techHeavy || ctx.sensoryBias || ctx.eventBias)
+  ) {
+    reasons.push("Job-system direction mismatches immersive/brand brief");
+  }
+
+  if (reasons.length) {
+    const verdict: ConceptVerdict =
+      reasons.some((r) => /generic|template|distinctiveness/i.test(r))
+        ? "rejected-generic"
+        : "rejected-weak";
+    return { verdict, reasons, evidence: [] };
+  }
+
+  // Viable — collect evidence from the actual brief
+  if (ctx.motifs.length) {
+    const motifHits = ctx.motifs.filter(
+      (m) =>
+        draft.artDirection.toLowerCase().includes(m) ||
+        draft.label.toLowerCase().includes(m) ||
+        draft.spaceMetaphor.toLowerCase().includes(m),
+    );
+    if (motifHits.length) {
+      evidence.push(`Brief motifs echoed in direction: ${motifHits.slice(0, 3).join(", ")}`);
+    }
+  }
+  if (ctx.materials.length && draft.materialStance) {
+    const matHit = ctx.materials.find((m) =>
+      draft.materialStance.toLowerCase().includes(m.split(" / ")[0]!.split(" ")[0]!),
+    );
+    if (matHit) evidence.push(`Material signal from brief: ${matHit}`);
+  }
+  if (ctx.techHeavy && /r3f|webgl|three/i.test(draft.techStance)) {
+    evidence.push("Brief asks for realtime 3D — tech stance keeps WebGL/R3F");
+  }
+  if (ctx.editorialBias && family === "editorial-scroll") {
+    evidence.push("Brief is editorial / typographic without WebGL — scroll theater fits");
+  }
+  if (ctx.sensoryBias && family === "sensory-brand") {
+    evidence.push(`Sensory/brand brief (“${clip(ctx.emotion, 40)}”) — intimate material thesis`);
+  }
+  if (ctx.opsBias && family === "job-workbench") {
+    evidence.push(`Ops job from brief: “${clip(ctx.why, 50)}”`);
+  }
+  if (ctx.guidedBias && family === "guided-workflow") {
+    evidence.push("Brief signals guided/onboarding wizard path");
+  }
+  if (ctx.eventBias && family === "world-immersion") {
+    evidence.push("Event/festival brief — world-as-product owns the stage");
+  }
+  if (ctx.reference && family === "world-immersion") {
+    evidence.push(`Reference posture: ${ctx.reference}`);
+  }
+  evidence.push(`Audience: ${ctx.audience}`);
+  evidence.push(`Category mode: ${ctx.mode}`);
+  if (ctx.invite) evidence.push(`Invite lock: ${ctx.invite}`);
+
+  return { verdict: "viable", reasons: [], evidence };
+}
+
+function buildTradeoff(
+  winner: ConceptCandidate,
+  runnerUp: ConceptCandidate | undefined,
+  hardRejected: ConceptHardReject[],
+  ctx: ConceptContext,
+): string {
+  if (runnerUp) {
+    const winDims = topScoreDims(winner.scores).slice(0, 2);
+    const loseDims = weakScoreDims(winner.scores).slice(0, 1);
+    const runnerStrength = topScoreDims(runnerUp.scores)[0] ?? "clarity";
+    return [
+      `Tradeoff vs “${runnerUp.label}” (${runnerUp.total}/5):`,
+      `kept ${winner.label} for ${winDims.join("/")} against the brief`,
+      `(motifs: ${ctx.motifPhrase});`,
+      `accepted softer ${loseDims.join("/") || "cost"} vs runner-up’s ${runnerStrength}.`,
+    ].join(" ");
+  }
+  const foil = hardRejected[0];
+  if (foil) {
+    return `Tradeoff: shipping ${winner.label} over hard-rejected “${foil.label}” — ${foil.reasons[0] ?? "weak/generic vs brief"}.`;
+  }
+  return `Tradeoff: sole viable direction for mode ${ctx.mode}; no runner-up survived brief evaluation.`;
+}
+
+function buildEvidenceWhy(input: {
+  selected: ConceptCandidate;
+  evidence: string[];
+  tradeoff: string;
+  hardRejected: ConceptHardReject[];
+  viableRejected: ConceptCandidate[];
+  ctx: ConceptContext;
+}): string {
+  const { selected, evidence, tradeoff, hardRejected, viableRejected, ctx } = input;
+  const hardLine = hardRejected.length
+    ? `Hard-rejected weak/generic: ${hardRejected
+        .map((r) => `${r.label} [${r.verdict}] (${r.reasons[0] ?? "weak"})`)
+        .join("; ")}.`
+    : "";
+  const softLine = viableRejected.length
+    ? `Also ranked below winner: ${viableRejected.map((r) => `${r.label} (${r.total})`).join("; ")}.`
+    : "";
+  return [
+    `Selected “${selected.label}” (score ${selected.total}/5) for ${ctx.audience}.`,
+    `Strongest on ${topScoreDims(selected.scores).join(", ")}.`,
+    `Direction: ${selected.artDirection}`,
+    `Evidence from brief: ${evidence.slice(0, 4).join("; ")}.`,
+    tradeoff,
+    `Scored from brief signals (motifs: ${ctx.motifPhrase}; mode: ${ctx.mode}) — not preset ranks.`,
+    hardLine,
+    softLine,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/**
+ * Explore genuinely different creative directions, score from brief context,
+ * hard-reject weak/generic ideas, select winner from evidence + tradeoffs.
+ * Present selected + short why — not a brainstorm dump. No preset winners.
  */
 export function exploreAndSelectConcept(input: {
   brief: string;
@@ -1158,48 +1372,123 @@ export function exploreAndSelectConcept(input: {
 }): ConceptSelection {
   const ctx = buildConceptContext(input);
   const drafts = draftCandidates(ctx);
-  const candidates: ConceptCandidate[] = drafts.map((draft) => {
+  const scored: ScoredDraft[] = drafts.map((draft) => {
     const scores = scoreDraft(draft, ctx);
     return {
-      id: draft.id,
-      label: draft.label,
-      artDirection: draft.artDirection,
-      spaceMetaphor: draft.spaceMetaphor,
-      narrative: draft.narrative,
-      typeStance: draft.typeStance,
-      materialStance: draft.materialStance,
-      colorStance: draft.colorStance,
-      interactionStance: draft.interactionStance,
-      infoStance: draft.infoStance,
-      motionStance: draft.motionStance,
-      techStance: draft.techStance,
-      scores,
-      total: scoreTotal(scores),
+      draft,
+      candidate: {
+        id: draft.id,
+        label: draft.label,
+        artDirection: draft.artDirection,
+        spaceMetaphor: draft.spaceMetaphor,
+        narrative: draft.narrative,
+        typeStance: draft.typeStance,
+        materialStance: draft.materialStance,
+        colorStance: draft.colorStance,
+        interactionStance: draft.interactionStance,
+        infoStance: draft.infoStance,
+        motionStance: draft.motionStance,
+        techStance: draft.techStance,
+        scores,
+        total: scoreTotal(scores),
+      },
     };
   });
 
-  candidates.sort((a, b) => b.total - a.total || a.id.localeCompare(b.id));
-  const selected = candidates[0]!;
-  const rejected = candidates.slice(1);
-  const why = [
-    `Selected “${selected.label}” (score ${selected.total}/5) for ${ctx.audience}.`,
-    `Strongest on ${topScoreDims(selected.scores).join(", ")}.`,
-    `Direction: ${selected.artDirection}`,
-    `Scored from brief signals (motifs: ${ctx.motifPhrase}; mode: ${ctx.mode}) — not preset ranks.`,
-    rejected.length
-      ? `Rejected weaker alternatives: ${rejected.map((r) => `${r.label} (${r.total})`).join("; ")}.`
-      : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const judged = scored.map((s) => {
+    const evaluation = evaluateAgainstBrief(s, ctx);
+    return { ...s, evaluation };
+  });
+
+  const viable = judged
+    .filter((j) => j.evaluation.verdict === "viable")
+    .sort(
+      (a, b) =>
+        b.candidate.total - a.candidate.total || a.candidate.id.localeCompare(b.candidate.id),
+    );
+
+  // Safety: if every direction failed gates, fall back to best non-foil by score
+  const pool =
+    viable.length > 0
+      ? viable
+      : judged
+          .filter((j) => !FOIL_FAMILIES.has(j.draft.family))
+          .sort(
+            (a, b) =>
+              b.candidate.total - a.candidate.total ||
+              a.candidate.id.localeCompare(b.candidate.id),
+          );
+
+  const fallbackPool =
+    pool.length > 0
+      ? pool
+      : [...judged].sort(
+          (a, b) =>
+            b.candidate.total - a.candidate.total || a.candidate.id.localeCompare(b.candidate.id),
+        );
+
+  const winnerEntry = fallbackPool[0]!;
+  const selected = winnerEntry.candidate;
+  const runnerUp = fallbackPool[1]?.candidate;
+
+  const hardRejected: ConceptHardReject[] = judged
+    .filter((j) => j.evaluation.verdict !== "viable" && j.candidate.id !== selected.id)
+    .map((j) => ({
+      id: j.candidate.id,
+      label: j.candidate.label,
+      verdict: j.evaluation.verdict as Exclude<ConceptVerdict, "viable">,
+      reasons: j.evaluation.reasons,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const winnerEvidence =
+    winnerEntry.evaluation.verdict === "viable" && winnerEntry.evaluation.evidence.length
+      ? winnerEntry.evaluation.evidence
+      : [
+          `Motifs: ${ctx.motifPhrase}`,
+          `Audience: ${ctx.audience}`,
+          `Mode: ${ctx.mode}`,
+          ...(winnerEntry.evaluation.verdict !== "viable"
+            ? [`Fallback after gates (was ${winnerEntry.evaluation.verdict})`]
+            : []),
+        ];
+
+  const tradeoff = buildTradeoff(selected, runnerUp, hardRejected, ctx);
+  const viableRejected = viable
+    .map((v) => v.candidate)
+    .filter((c) => c.id !== selected.id);
+
+  const explored = [...judged.map((j) => j.candidate)].sort(
+    (a, b) => b.total - a.total || a.id.localeCompare(b.id),
+  );
+
+  const why = buildEvidenceWhy({
+    selected,
+    evidence: winnerEvidence,
+    tradeoff,
+    hardRejected,
+    viableRejected,
+    ctx,
+  });
+
+  const rejectedOneLiners = [
+    ...hardRejected.map(
+      (r) =>
+        `${r.label}: ${r.verdict.replace("rejected-", "")} — ${r.reasons[0] ?? "failed brief evaluation"}`,
+    ),
+    ...viableRejected.map(
+      (r) => `${r.label}: lost on ${weakScoreDims(r.scores).join("/")} (${r.total}/5)`,
+    ),
+  ];
 
   return {
     selected,
     why,
-    explored: candidates,
-    rejectedOneLiners: rejected.map(
-      (r) => `${r.label}: lost on ${weakScoreDims(r.scores).join("/")} (${r.total}/5)`,
-    ),
+    explored,
+    rejectedOneLiners,
+    evidence: winnerEvidence,
+    tradeoff,
+    hardRejected,
   };
 }
 

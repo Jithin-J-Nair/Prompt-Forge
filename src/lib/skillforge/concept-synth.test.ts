@@ -179,3 +179,106 @@ test("concept scores are computed from brief context, not preset constants", () 
   assert.match(climate.why, /Scored from brief signals/i);
   assert.match(climate.why, /climate|ocean|data|immersive/i);
 });
+
+test("reject-weak: hard-rejects generic/spectacle foils so they cannot win", () => {
+  const climate = exploreAndSelectConcept({
+    categoryKey: "threejs-experience",
+    brief:
+      "Immersive WebGL climate observatory for scientists — living data ocean with R3F chapters like activetheory.net",
+  });
+  const ops = exploreAndSelectConcept({
+    categoryKey: "saas",
+    brief:
+      "B2B SaaS workspace for ops teams to triage incidents, assign owners, and close loops with audit trails",
+  });
+  const brand = exploreAndSelectConcept({
+    categoryKey: "awwwards-website",
+    brief:
+      "Visually distinctive consumer perfume atelier brand site with glass materials, scent chapters, and intimate invite",
+    mode: "brand",
+  });
+  const ecommerce = exploreAndSelectConcept({
+    categoryKey: "e-commerce",
+    brief: "Online shop for ceramic tableware with clear add-to-cart and shipping honesty",
+    mode: "ecommerce",
+  });
+
+  assert.ok(
+    climate.hardRejected.some((r) => r.id === "spectacle-demo"),
+    "spectacle-demo must be hard-rejected",
+  );
+  assert.ok(
+    climate.hardRejected.every((r) => r.verdict === "rejected-weak" || r.verdict === "rejected-generic"),
+  );
+  assert.ok(!climate.hardRejected.some((r) => r.id === climate.selected.id));
+  assert.match(climate.rejectedOneLiners.join("\n"), /spectacle|generic|weak/i);
+
+  assert.ok(
+    ops.hardRejected.some((r) => /marketing-cosplay|cinematic-saas/.test(r.id)),
+    "SaaS must hard-reject marketing/cinematic foils",
+  );
+  assert.ok(
+    brand.hardRejected.some((r) => r.id === "spectacle-demo"),
+    "brand mode must hard-reject spectacle foil",
+  );
+  assert.ok(
+    ecommerce.hardRejected.some((r) => /template-consumer|overbuilt/.test(r.id)),
+    "ecommerce must hard-reject template/overbuilt foils",
+  );
+
+  // Winner is never a foil id
+  for (const sel of [climate, ops, brand, ecommerce]) {
+    assert.doesNotMatch(
+      sel.selected.id,
+      /spectacle-demo|marketing-cosplay|cinematic-saas|template-consumer|overbuilt-campaign/,
+    );
+  }
+});
+
+test("evidence-based winner: cites brief evidence and an explicit tradeoff", () => {
+  const climate = exploreAndSelectConcept({
+    categoryKey: "threejs-experience",
+    brief:
+      "Immersive WebGL climate observatory for scientists — living data ocean with R3F chapters like activetheory.net",
+  });
+  const editorial = exploreAndSelectConcept({
+    categoryKey: "awwwards-website",
+    brief:
+      "Typographic editorial scroll site for a design magazine — long-form chapter storytelling without WebGL",
+  });
+  const ops = exploreAndSelectConcept({
+    categoryKey: "saas",
+    brief:
+      "B2B SaaS workspace for ops teams to triage incidents, assign owners, and close loops with audit trails",
+  });
+
+  assert.ok(climate.evidence.length >= 2);
+  assert.ok(
+    climate.evidence.some((e) => /climate|ocean|data|WebGL|R3F|activetheory|scientists|immersive/i.test(e)),
+    `climate evidence should cite brief: ${climate.evidence.join(" | ")}`,
+  );
+  assert.match(climate.tradeoff, /Tradeoff/i);
+  assert.match(climate.why, /Evidence from brief/i);
+  assert.match(climate.why, /Tradeoff/i);
+  assert.match(climate.why, /Hard-rejected weak\/generic/i);
+
+  assert.ok(editorial.evidence.some((e) => /editorial|typograph|magazine|without WebGL|scroll/i.test(e)));
+  assert.match(editorial.tradeoff, /Tradeoff/i);
+  assert.match(editorial.selected.id, /^editorial-/);
+
+  assert.ok(ops.evidence.some((e) => /ops|incident|triage|Audience|job/i.test(e)));
+  assert.match(ops.tradeoff, /Tradeoff/i);
+  assert.match(ops.selected.id, /^workbench-/);
+
+  // COOK surfaces evidence + tradeoff
+  const preview = composeProjectPreview({
+    categoryKey: "threejs-experience",
+    brief:
+      "Immersive WebGL climate observatory for scientists — living data ocean with R3F chapters like activetheory.net",
+  });
+  const cook = buildCookPrompt(preview);
+  assert.match(cook, /Evidence:/);
+  assert.match(cook, /Tradeoff:/);
+  const creative = preview.artifactPreviews.find((a) => a.logicalKey === "CREATIVE_DIRECTION.md")!.content;
+  assert.match(creative, /Brief evidence|Tradeoff/i);
+});

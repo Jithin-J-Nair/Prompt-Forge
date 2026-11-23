@@ -14,6 +14,7 @@
 - Craft-first artifacts: `EXPERIENCE_DNA`, `CREATIVE_DIRECTION`, `ART_DIRECTION`, `STORY_SYSTEM`, `REVIEWER_FRAMEWORKS` (architecture stays minimal boundary notes)
 - **Creative Director Engine** (deterministic): brief intelligence → multi-concept explore/score/select → Experience DNA → coherence pack → tech direction → focused skill roster → COOK + PromptForge BODY with **max-3 browser critique loop** and category-adaptive quality gates
 - Concept directions are **project-specific** (motifs/materials/audience in labels + stances); scores are **computed from brief signals** — no predetermined winners or preset originality tables
+- **Real creative evaluation**: directions are judged against the brief; weak/generic foils are hard-rejected; the winner cites brief evidence and an explicit tradeoff vs the runner-up
 - **Cook pack**: downloads `COOK.md` (actionable execution blueprint) + handoff + manifest; pair with PromptForge BODY prompt
 - Deterministic short-brief expansion for craft/product targets
 - Curated skill ingest path: `npm run ingest:skills` (validate distilled JSON — no GitHub paste)

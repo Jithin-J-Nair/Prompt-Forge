@@ -143,6 +143,8 @@ export function buildCookPrompt(preview: CompositionPreview): string {
     "## Selected concept + why",
     `- **${concept.selection.selected.label}** (score ${concept.selection.selected.total}/5)`,
     `- ${concept.selection.why}`,
+    ...concept.selection.evidence.map((line) => `- Evidence: ${line}`),
+    `- Tradeoff: ${concept.selection.tradeoff}`,
     ...concept.selection.rejectedOneLiners.map((line) => `- Rejected: ${line}`),
     "",
     "## Hard laws",
