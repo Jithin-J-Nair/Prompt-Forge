@@ -51,11 +51,13 @@ test("concept selection explores alternatives and picks mode-appropriate winners
   });
   assert.ok(immersive.explored.length >= 3);
   assert.ok(saas.explored.length >= 3);
-  assert.match(immersive.selected.label, /World-as-product|Editorial/i);
+  assert.match(immersive.selected.label, /world-as-product|Climate/i);
   assert.match(saas.selected.label, /Job-first/i);
-  assert.match(brand.selected.label, /Brand-first/i);
+  assert.match(brand.selected.label, /Sensory|Brand-first|perfume/i);
   assert.notEqual(immersive.selected.id, saas.selected.id);
+  assert.notEqual(immersive.selected.id, brand.selected.id);
   assert.ok(immersive.why.length > 40);
+  assert.match(immersive.why, /Scored from brief signals/i);
   assert.ok(saas.rejectedOneLiners.length >= 1);
 });
 
