@@ -145,8 +145,12 @@ export function analyzeBrief(input: {
               ? inferred("brand-curious visitors and prospective clients", 0.6)
               : inferred("primary users implied by the category", 0.55);
 
+  // Group 1 must be the full purpose clause (verb + object). A nested verb-only
+  // capture made matchFirst return just "reduce" / "launch" instead of the why.
   const whyHit = matchFirst(brief, [
-    /\b(?:to|that)\s+(reduce|automate|improve|streamline|replace|showcase|launch|sell)\s+([^.!?]{3,100})/i,
+    /\b(?:to|that)\s+((?:reduce|automate|improve|streamline|replace|showcase|launch|sell)\s+[^.!?]{3,100})/i,
+    /\bin order to\s+([^.!?]{3,100})/i,
+    /\bso (?:that|we can)\s+([^.!?]{3,100})/i,
   ]);
   const why: BriefFact = whyHit
     ? explicit(whyHit)
