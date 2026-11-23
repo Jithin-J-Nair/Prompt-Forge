@@ -19,6 +19,8 @@ test("immersive BODY prompt links COOK skills and Awwwards bar", () => {
   assert.match(body, /Phase 0/i);
   assert.match(body, /Awwwards|Active Theory/i);
   assert.match(body, /EXPERIENCE_DNA/);
+  assert.match(body, /Browser critique loop/);
+  assert.match(body, /Selected concept/);
   for (const node of preview.graph.nodes.slice(0, 3)) {
     assert.match(body, new RegExp(node.nodeKey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }

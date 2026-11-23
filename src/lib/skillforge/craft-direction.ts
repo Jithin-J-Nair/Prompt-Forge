@@ -1,11 +1,17 @@
-import type { ProjectCategoryKey } from "./categories.ts";
+import {
+  analyzeBrief,
+  formatBriefIntelligence,
+} from "./brief-intelligence.ts";
 import { isImmersiveCategory } from "./blueprints-content.ts";
+import type { ProjectCategoryKey } from "./categories.ts";
+import { buildCoherencePack, formatCoherencePack } from "./coherence.ts";
 import {
   formatBeatGrid,
   formatChapterTable,
   formatTokenSheet,
   synthesizeConcept,
 } from "./concept-synth.ts";
+import { buildTechDirection, formatTechDirection } from "./tech-direction.ts";
 import type { ProjectDnaField, SkillGraphNode } from "./types.ts";
 import { REVIEW_COUNCIL_ROLES } from "./types.ts";
 
@@ -26,32 +32,48 @@ function briefClip(brief: string, max = 180): string {
   return trimmed.length <= max ? trimmed : `${trimmed.slice(0, max).trimEnd()}…`;
 }
 
-/** Experience DNA — visitor/feeling thesis beyond product Project DNA. */
+/** Experience DNA — project-specific design/experience system (relevant dimensions only). */
 export function renderExperienceDnaBody(
   categoryKey: ProjectCategoryKey,
   fields: readonly DnaField[],
   brief: string,
 ): Record<string, string> {
   const concept = synthesizeConcept({ brief, categoryKey });
+  const intel = analyzeBrief({ brief, categoryKey });
+  const coherence = buildCoherencePack({
+    mode: intel.categoryMode,
+    northStar: concept.northStar,
+    motifs: concept.motifs,
+  });
   const user = fieldValue(fields, "User") ?? concept.audience;
   const vision = fieldValue(fields, "Vision") ?? briefClip(brief);
   const differentiation =
-    fieldValue(fields, "Differentiation") ??
-    (isImmersiveCategory(categoryKey)
-      ? `Craft-led ${concept.worldNoun} instead of template marketing chrome`
-      : "Clear job-to-be-done with distinctive experience cues");
+    fieldValue(fields, "Differentiation") ?? intel.differentiation.text;
 
-  if (isImmersiveCategory(categoryKey)) {
+  const baseThesis = [
+    `- Promise: ${vision}`,
+    `- For: ${user}`,
+    `- Selected concept: **${concept.selection.selected.label}**`,
+    `- Why this concept: ${concept.selection.why}`,
+    `- Why distinctive: ${differentiation}`,
+    `- Category mode: ${intel.categoryMode}`,
+    `- Concept fingerprint: \`${concept.fingerprint}\``,
+    `- Brief signal: ${briefClip(brief)}`,
+  ];
+
+  if (isImmersiveCategory(categoryKey) || intel.categoryMode === "immersive") {
     return {
       "Experience thesis": [
-        `- Promise: ${vision}`,
-        `- For: ${user}`,
+        ...baseThesis,
         `- World: ${concept.worldNoun}`,
         `- Motifs: ${concept.motifs.slice(0, 5).join(", ")}`,
-        `- Why distinctive: ${differentiation}`,
         `- Medium: ${categoryKey === "threejs-experience" ? "WebGL-first experience host + quiet DOM shell" : "Awwwards-class scroll theater with authored motion"}`,
-        `- Concept fingerprint: \`${concept.fingerprint}\``,
-        `- Brief signal: ${briefClip(brief)}`,
+      ].join("\n"),
+      "Art direction & identity": [
+        `- Type: ${concept.artTokens.displayFace} / ${concept.artTokens.uiFace}`,
+        `- Color accents: \`${concept.artTokens.accent}\` on \`${concept.artTokens.base}\``,
+        `- Materials: ${concept.artTokens.materials.join("; ")}`,
+        `- Space: edge-to-edge ${concept.worldNoun}; quiet chrome`,
       ].join("\n"),
       "Emotional arc": [
         `- Arrival: ${concept.emotionalArc.arrival}`,
@@ -65,45 +87,118 @@ export function renderExperienceDnaBody(
         `- Sound: ${concept.sensory.sound}`,
         `- Touch: ${concept.sensory.touch}`,
       ].join("\n"),
+      "Interaction & motion": [
+        `- Stance: ${concept.selection.selected.interactionStance}`,
+        `- Motion: ${concept.selection.selected.motionStance}`,
+        "- Reduced-motion: static chapter plates still tell the story",
+      ].join("\n"),
       "Visitor jobs": [
         `1) ${user} understands what this ${concept.worldNoun} stands for.`,
         `2) Experiences craft proof through ${concept.motifs.slice(0, 2).join(" / ")} without a paragraph wall.`,
         `3) Reaches invite — ${concept.invite} — with keyboard-accessible escape routes.`,
       ].join("\n"),
+      "Creative coherence": formatCoherencePack(coherence),
       "Anti-experience": concept.antiPatterns.map((item) => `- ${item}`).join("\n"),
+      "Brief intelligence": formatBriefIntelligence(intel),
     };
   }
 
+  if (intel.categoryMode === "saas" || intel.categoryMode === "enterprise" || intel.categoryMode === "ai") {
+    return {
+      "Experience thesis": [
+        ...baseThesis,
+        `- Workbench: ${concept.worldNoun}`,
+        "- Banking ≠ cinematic shaders: usability and state completeness outrank spectacle.",
+      ].join("\n"),
+      "Emotional arc": [
+        `- Orient: ${concept.emotionalArc.arrival}`,
+        `- Progress: ${concept.emotionalArc.deepen}`,
+        `- Confidence: ${concept.emotionalArc.proof}`,
+        `- Completion: ${concept.emotionalArc.invite}`,
+      ].join("\n"),
+      "Sensory register": [
+        `- Sight: hierarchy serves the primary task; accent \`${concept.artTokens.accent}\` on \`${concept.artTokens.base}\`.`,
+        `- Motion: ${concept.sensory.motion}`,
+        "- Sound: none unless product requires alerts — keep optional.",
+        `- Touch: ${concept.sensory.touch}`,
+      ].join("\n"),
+      "Identity & hierarchy": [
+        `- Type: ${concept.artTokens.displayFace} / ${concept.artTokens.uiFace}`,
+        `- Tokens: base \`${concept.artTokens.base}\` · ink \`${concept.artTokens.ink}\` · accent \`${concept.artTokens.accent}\``,
+        `- Content hierarchy: ${intel.contentHierarchy.text}`,
+        "- Primary task surface first; chrome second.",
+      ].join("\n"),
+      "Components & voice": [
+        "- Components exist for jobs (forms, tables, filters) — not decoration cards.",
+        "- Voice: direct, specific, no empty hype.",
+        "- Responsive: degrade chrome before breaking the primary job.",
+      ].join("\n"),
+      "Interaction & motion": [
+        `- ${concept.selection.selected.interactionStance}`,
+        `- Motion: ${concept.selection.selected.motionStance}`,
+        "- A11y: keyboard paths and named controls for critical jobs.",
+      ].join("\n"),
+      "Visitor jobs": [
+        `- ${user} completes the core job implied by the brief.`,
+        "- Operators can recover from errors without dead ends.",
+        "- Secondary explore paths never block the primary job.",
+      ].join("\n"),
+      "Creative coherence": formatCoherencePack(coherence),
+      "Anti-experience": [
+        ...concept.antiPatterns.map((item) => `- ${item}`),
+        ...intel.doNotBuild.slice(0, 4).map((item) => `- ${item}`),
+      ].join("\n"),
+      "Brief intelligence": formatBriefIntelligence(intel),
+    };
+  }
+
+  // Brand / consumer / general — distinctive without forcing WebGL
   return {
     "Experience thesis": [
-      `- Promise: ${vision}`,
-      `- For: ${user}`,
-      `- Why distinctive: ${differentiation}`,
-      `- Category: ${categoryKey.replace(/-/g, " ")}`,
-      `- Concept fingerprint: \`${concept.fingerprint}\``,
-      `- Brief signal: ${briefClip(brief)}`,
+      ...baseThesis,
+      `- World: ${concept.worldNoun}`,
+      `- Motifs: ${concept.motifs.slice(0, 5).join(", ") || "from brief"}`,
     ].join("\n"),
     "Emotional arc": [
-      "- Orient: user knows where they are and what job is possible.",
-      "- Progress: each step reduces uncertainty toward the outcome.",
-      "- Confidence: empty/loading/error states still feel competent.",
-      "- Completion: clear success and next action.",
+      `- Arrival: ${concept.emotionalArc.arrival}`,
+      `- Deepening: ${concept.emotionalArc.deepen}`,
+      `- Proof: ${concept.emotionalArc.proof}`,
+      `- Invite: ${concept.emotionalArc.invite}`,
     ].join("\n"),
     "Sensory register": [
-      "- Visual hierarchy serves the primary task first.",
-      "- Motion only when it clarifies state change or delight that earns its cost.",
-      "- Copy voice matches product stance; no empty hype adjectives.",
+      `- Sight: ${concept.sensory.sight}`,
+      `- Motion: ${concept.sensory.motion}`,
+      `- Sound: ${concept.sensory.sound}`,
+      `- Touch: ${concept.sensory.touch}`,
+    ].join("\n"),
+    "Art direction & identity": [
+      `- Type: ${concept.artTokens.displayFace} / ${concept.artTokens.uiFace}`,
+      `- Materials: ${concept.artTokens.materials.join("; ")}`,
+      `- Color: \`${concept.artTokens.accent}\` on \`${concept.artTokens.base}\` — ${concept.artTokens.glowNote}`,
+      `- Imagery: ${concept.artTokens.imageryPlates.slice(0, 3).join("; ")}`,
+      "- Brand test: first viewport must still read as this brand with nav removed.",
+    ].join("\n"),
+    "Composition & space": [
+      `- ${concept.selection.selected.spaceMetaphor}`,
+      `- Hierarchy: ${intel.contentHierarchy.text}`,
+      "- One job per section; no promo clutter in the first viewport.",
+    ].join("\n"),
+    "Interaction & motion": [
+      `- ${concept.selection.selected.interactionStance}`,
+      `- Motion: ${concept.selection.selected.motionStance}`,
+      "- Sound only if relevant; never required.",
     ].join("\n"),
     "Visitor jobs": [
-      `- ${user} completes the core job implied by the brief.`,
-      "- Operators (if any) can recover from errors without dead ends.",
-      "- Secondary explore paths never block the primary job.",
+      `- ${user} feels distinctive brand presence, then reaches a clear invite.`,
+      "- Proof chapters support desire without feature-menu sprawl.",
+      "- Secondary paths never outrank brand composition.",
     ].join("\n"),
+    "Creative coherence": formatCoherencePack(coherence),
     "Anti-experience": [
-      "- Feature menus without a clear first job.",
-      "- Decorative motion that delays task completion.",
-      "- Unlabeled assumptions presented as confirmed product facts.",
+      ...concept.antiPatterns.map((item) => `- ${item}`),
+      ...intel.doNotBuild.slice(0, 4).map((item) => `- ${item}`),
     ].join("\n"),
+    "Brief intelligence": formatBriefIntelligence(intel),
   };
 }
 
@@ -117,9 +212,15 @@ export function renderCreativeDirectionBody(
   const differentiation = fieldValue(fields, "Differentiation");
   const immersive = isImmersiveCategory(categoryKey);
 
+  const rejected = concept.selection.rejectedOneLiners
+    .map((line) => `- ${line}`)
+    .join("\n");
+
   return {
     "North star concept": [
       `- ${concept.northStar}`,
+      `- Selected direction: **${concept.selection.selected.label}** (score ${concept.selection.selected.total}/5)`,
+      `- Why selected: ${concept.selection.why}`,
       differentiation ? `- Differentiation lock: ${differentiation}` : "- Differentiation still hypothesis — label it as such in UI copy.",
       immersive
         ? `- Creative medium lock: immersive web craft (${concept.worldNoun}), not a marketing template.`
@@ -127,6 +228,14 @@ export function renderCreativeDirectionBody(
       `- Concept fingerprint: \`${concept.fingerprint}\``,
     ].join("\n"),
     "Creative pillars": concept.pillars.map((p, i) => `${i + 1}) ${p}`).join("\n"),
+    "Concept selection (not a brainstorm dump)": [
+      `- Explored ${concept.selection.explored.length} directions; shipping only the winner.`,
+      rejected ? `Rejected:\n${rejected}` : "- No weaker alternatives retained in the cook pack.",
+      `- Art: ${concept.selection.selected.artDirection}`,
+      `- Space: ${concept.selection.selected.spaceMetaphor}`,
+      `- Narrative: ${concept.selection.selected.narrative}`,
+      `- Tech stance: ${concept.selection.selected.techStance}`,
+    ].join("\n"),
     "Reference posture": [
       ...concept.referencePrinciples.map((line) => `- ${line}`),
       concept.referenceLabel
@@ -138,6 +247,7 @@ export function renderCreativeDirectionBody(
       `- Prefer motif recurrence (${concept.motifs.slice(0, 3).join(", ")}) over trend pastiche.`,
       "- Cut decoration that does not serve thesis, pillars, or visitor jobs.",
       "- Immersive claims require budgets, inventories, and reduced-motion paths.",
+      "- Coherence > feature count.",
     ].join("\n"),
     "Forbidden patterns": concept.antiPatterns.map((item) => `- ${item}`).join("\n"),
   };

@@ -77,6 +77,8 @@ test("BODY prompt hard-gates Phase 0 and Phase 3 for immersive", () => {
   assert.match(body, /BLOCKED: COOK craft incomplete/);
   assert.match(body, /Motion scorecard/);
   assert.match(body, /Ownership matrix/);
+  assert.match(body, /Browser critique loop/);
+  assert.match(body, /UNVERIFIED \(no browser\)/);
 });
 
 test("two composed creative artifacts must not share identical pillar blocks", () => {

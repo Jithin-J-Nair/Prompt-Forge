@@ -1,6 +1,46 @@
 import { createHash } from "node:crypto";
+import {
+  analyzeBrief,
+  type CategoryMode,
+} from "./brief-intelligence.ts";
 import type { ProjectCategoryKey } from "./categories.ts";
 import { isImmersiveCategory } from "./blueprints-content.ts";
+
+export type ConceptScorecard = {
+  relevance: number;
+  originality: number;
+  memorability: number;
+  clarity: number;
+  brandFit: number;
+  feasibility: number;
+  performance: number;
+  a11y: number;
+  coherence: number;
+};
+
+export type ConceptCandidate = {
+  id: string;
+  label: string;
+  artDirection: string;
+  spaceMetaphor: string;
+  narrative: string;
+  typeStance: string;
+  materialStance: string;
+  colorStance: string;
+  interactionStance: string;
+  infoStance: string;
+  motionStance: string;
+  techStance: string;
+  scores: ConceptScorecard;
+  total: number;
+};
+
+export type ConceptSelection = {
+  selected: ConceptCandidate;
+  why: string;
+  explored: ConceptCandidate[];
+  rejectedOneLiners: string[];
+};
 
 export type ConceptSynth = {
   fingerprint: string;
@@ -57,6 +97,8 @@ export type ConceptSynth = {
   motionScorecard: string[];
   antiPatterns: string[];
   referencePrinciples: string[];
+  /** Selected concept direction + short why (not a brainstorm dump). */
+  selection: ConceptSelection;
 };
 
 const STOP = new Set([
@@ -434,6 +476,335 @@ function referencePrinciples(ref: string | null): string[] {
   return [...base, `Reference posture drawn from “${ref}”: extract pacing/energy only.`];
 }
 
+
+function scoreTotal(scores: ConceptScorecard): number {
+  const values = Object.values(scores);
+  return Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10;
+}
+
+function clamp01to5(n: number): number {
+  return Math.max(1, Math.min(5, Math.round(n * 10) / 10));
+}
+
+/**
+ * Explore genuinely different creative directions, score, and select the strongest.
+ * Present selected + short why — not a brainstorm dump.
+ */
+export function exploreAndSelectConcept(input: {
+  brief: string;
+  categoryKey: ProjectCategoryKey;
+  mode?: CategoryMode;
+}): ConceptSelection {
+  const brief = input.brief.trim();
+  const immersive = isImmersiveCategory(input.categoryKey);
+  const motifs = tokenizeMotifs(brief);
+  const audience = extractAudience(brief);
+  const invite = extractInvite(brief);
+  const m0 = motifs[0] ?? "craft";
+  const m1 = motifs[1] ?? motifs[0] ?? "presence";
+  const mode =
+    input.mode ??
+    analyzeBrief({ brief, categoryKey: input.categoryKey }).categoryMode;
+
+  const candidates: ConceptCandidate[] = [];
+
+  if (mode === "immersive" || immersive) {
+    candidates.push(
+      {
+        id: "world-as-product",
+        label: "World-as-product immersion",
+        artDirection: `Singular ${m0} world owns the viewport; chrome nearly invisible`,
+        spaceMetaphor: `${m0} environment as the product`,
+        narrative: `Arrive → deepen via ${m1} → proof → ${invite}`,
+        typeStance: "Expressive display + quiet technical UI face",
+        materialStance: "Atmosphere, focal material, restrained secondary planes",
+        colorStance: "Brief-locked palette; one accent; reject AI-default clusters",
+        interactionStance: "Scroll timeline + optional focal hotspot",
+        infoStance: "Captions timed to chapters; no brochure walls",
+        motionStance: "2–5 owned signature beats; silence between",
+        techStance: "DOM shell + R3F/Three where scenes earn cost; GSAP captions",
+        scores: {
+          relevance: 4.8,
+          originality: 4.4,
+          memorability: 4.7,
+          clarity: 4.2,
+          brandFit: 4.6,
+          feasibility: 3.8,
+          performance: 3.5,
+          a11y: 3.6,
+          coherence: 4.5,
+        },
+        total: 0,
+      },
+      {
+        id: "editorial-scroll",
+        label: "Editorial scroll theater",
+        artDirection: "Typographic chapters with selective media; less GPU spectacle",
+        spaceMetaphor: "Magazine-of-the-world pacing",
+        narrative: "Read/scroll proof chapters; CTA as narrative landing",
+        typeStance: "Strong editorial hierarchy",
+        materialStance: "Paper/plate imagery; light canvas accents only",
+        colorStance: "Ink-forward; accent sparingly",
+        interactionStance: "Scroll-led; minimal pointer theater",
+        infoStance: "Message hierarchy L1–L4 enforced",
+        motionStance: "GSAP caption theater; optional mild parallax",
+        techStance: "DOM/CSS/GSAP first; WebGL optional single moment",
+        scores: {
+          relevance: 4.2,
+          originality: 3.8,
+          memorability: 3.9,
+          clarity: 4.6,
+          brandFit: 4.1,
+          feasibility: 4.5,
+          performance: 4.4,
+          a11y: 4.3,
+          coherence: 4.2,
+        },
+        total: 0,
+      },
+      {
+        id: "instrument-demo",
+        label: "Instrument / demo-reel spectacle",
+        artDirection: "Technical showcase of shaders and camera tricks",
+        spaceMetaphor: "Demo booth",
+        narrative: "Feature tour of effects",
+        typeStance: "UI chrome competes with effects",
+        materialStance: "Max particle/bloom density",
+        colorStance: "Neon-heavy risk",
+        interactionStance: "Pointer playground",
+        infoStance: "Weak brand promise; strong tech flex",
+        motionStance: "Constant motion noise",
+        techStance: "WebGL-max; DOM secondary",
+        scores: {
+          relevance: 2.8,
+          originality: 3.2,
+          memorability: 3.5,
+          clarity: 2.4,
+          brandFit: 2.2,
+          feasibility: 3.0,
+          performance: 2.2,
+          a11y: 2.0,
+          coherence: 2.1,
+        },
+        total: 0,
+      },
+    );
+  } else if (mode === "saas" || mode === "enterprise" || mode === "ai") {
+    candidates.push(
+      {
+        id: "job-first-system",
+        label: "Job-first product system",
+        artDirection: "Clear task surface; quiet chrome; distinctive but restrained tokens",
+        spaceMetaphor: "Workbench — tools within reach, no spectacle stage",
+        narrative: "Orient → configure → act → confirm → recover",
+        typeStance: "Readable UI grotesque; sparse display only for empty/marketing edges",
+        materialStance: "Flat system surfaces; purposeful elevation",
+        colorStance: "Neutral base + one decisive accent for primary actions",
+        interactionStance: "Forms/tables/flows with full states",
+        infoStance: "Outcome-first copy; progressive disclosure",
+        motionStance: "State-change only",
+        techStance: "DOM/CSS design system; no WebGL by default",
+        scores: {
+          relevance: 4.9,
+          originality: 3.6,
+          memorability: 3.5,
+          clarity: 4.8,
+          brandFit: 4.2,
+          feasibility: 4.7,
+          performance: 4.6,
+          a11y: 4.5,
+          coherence: 4.7,
+        },
+        total: 0,
+      },
+      {
+        id: "marketing-cosplay",
+        label: "Marketing-site cosplay inside the app",
+        artDirection: "Landing-page section stacks on every route",
+        spaceMetaphor: "Brochure pasted on product",
+        narrative: "Feature menus without a first job",
+        typeStance: "Hype headlines",
+        materialStance: "Card spam + gradients",
+        colorStance: "AI-default purple risk",
+        interactionStance: "CTA wallpaper",
+        infoStance: "Features outrank outcomes",
+        motionStance: "Decorative scroll",
+        techStance: "Heavy client theater",
+        scores: {
+          relevance: 2.2,
+          originality: 2.0,
+          memorability: 2.4,
+          clarity: 2.0,
+          brandFit: 2.1,
+          feasibility: 3.5,
+          performance: 2.8,
+          a11y: 2.5,
+          coherence: 1.8,
+        },
+        total: 0,
+      },
+      {
+        id: "cinematic-saas",
+        label: "Cinematic SaaS spectacle",
+        artDirection: "Shaders and scroll theater over workflows",
+        spaceMetaphor: "Demo reel as dashboard",
+        narrative: "Awe first, job later",
+        typeStance: "Display type fighting dense data",
+        materialStance: "Glass + glow",
+        colorStance: "Neon accents",
+        interactionStance: "Pretty but slow paths",
+        infoStance: "Weak empty/error states",
+        motionStance: "Purposeless motion",
+        techStance: "Unneeded WebGL",
+        scores: {
+          relevance: 2.0,
+          originality: 3.0,
+          memorability: 3.2,
+          clarity: 1.8,
+          brandFit: 2.0,
+          feasibility: 2.6,
+          performance: 2.0,
+          a11y: 2.2,
+          coherence: 1.7,
+        },
+        total: 0,
+      },
+    );
+  } else {
+    // brand / consumer / general
+    candidates.push(
+      {
+        id: "brand-composition",
+        label: "Brand-first composition",
+        artDirection: `Hero-level brand signal; materials/type locked to ${m0}/${m1}`,
+        spaceMetaphor: "Brand world threshold",
+        narrative: "Desire → recognition → proof → invite",
+        typeStance: "Expressive brand display; quiet UI",
+        materialStance: "Project-specific materials (not stock kit)",
+        colorStance: "Distinctive palette from brief motifs",
+        interactionStance: "Restrained micro-interactions; CTA as narrative landing",
+        infoStance: "Brand → promise → proof → invite",
+        motionStance: "Motif-locked accents only",
+        techStance: "Editorial DOM; selective motion; 3D only if it serves brand",
+        scores: {
+          relevance: 4.7,
+          originality: 4.3,
+          memorability: 4.5,
+          clarity: 4.2,
+          brandFit: 4.8,
+          feasibility: 4.2,
+          performance: 4.0,
+          a11y: 4.0,
+          coherence: 4.6,
+        },
+        total: 0,
+      },
+      {
+        id: "template-consumer",
+        label: "Interchangeable template consumer site",
+        artDirection: "Section kit: hero card, logos, stats, testimonials grid",
+        spaceMetaphor: "Any brand could wear it",
+        narrative: "Generic conversion funnel",
+        typeStance: "Default stacks",
+        materialStance: "Stock imagery",
+        colorStance: "Safe blues/purples",
+        interactionStance: "Standard hover only",
+        infoStance: "Promo clutter in first viewport",
+        motionStance: "Pill clusters / float badges",
+        techStance: "Theme pack",
+        scores: {
+          relevance: 2.4,
+          originality: 1.6,
+          memorability: 1.8,
+          clarity: 3.0,
+          brandFit: 1.5,
+          feasibility: 4.8,
+          performance: 4.2,
+          a11y: 3.5,
+          coherence: 2.0,
+        },
+        total: 0,
+      },
+      {
+        id: "overbuilt-campaign",
+        label: "Overbuilt campaign microsite",
+        artDirection: "Every section fights for spectacle",
+        spaceMetaphor: "Theme-park overload",
+        narrative: "No single thesis",
+        typeStance: "Mixed voices",
+        materialStance: "Random gradients + 3D trinkets",
+        colorStance: "Unrelated accents",
+        interactionStance: "Show-off without invite clarity",
+        infoStance: "Hierarchy collapse",
+        motionStance: "Constant noise",
+        techStance: "Heavy assets",
+        scores: {
+          relevance: 2.6,
+          originality: 3.1,
+          memorability: 3.0,
+          clarity: 2.0,
+          brandFit: 2.4,
+          feasibility: 3.0,
+          performance: 2.4,
+          a11y: 2.3,
+          coherence: 1.9,
+        },
+        total: 0,
+      },
+    );
+  }
+
+  // Brief-specific relevance nudges
+  for (const c of candidates) {
+    if (motifs.some((m) => c.artDirection.toLowerCase().includes(m) || c.spaceMetaphor.toLowerCase().includes(m))) {
+      c.scores.relevance = clamp01to5(c.scores.relevance + 0.2);
+      c.scores.brandFit = clamp01to5(c.scores.brandFit + 0.1);
+    }
+    if (audience && c.id.includes("job") && /operator|enterprise|recruit/i.test(audience)) {
+      c.scores.relevance = clamp01to5(c.scores.relevance + 0.2);
+    }
+    c.total = scoreTotal(c.scores);
+  }
+
+  candidates.sort((a, b) => b.total - a.total || a.id.localeCompare(b.id));
+  const selected = candidates[0]!;
+  const rejected = candidates.slice(1);
+  const why = [
+    `Selected “${selected.label}” (score ${selected.total}/5) for ${audience}.`,
+    `Strongest on ${topScoreDims(selected.scores).join(", ")}.`,
+    `Direction: ${selected.artDirection}`,
+    rejected.length
+      ? `Rejected weaker alternatives: ${rejected.map((r) => `${r.label} (${r.total})`).join("; ")}.`
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return {
+    selected,
+    why,
+    explored: candidates,
+    rejectedOneLiners: rejected.map(
+      (r) => `${r.label}: lost on ${weakScoreDims(r.scores).join("/")} (${r.total}/5)`,
+    ),
+  };
+}
+
+function topScoreDims(scores: ConceptScorecard): string[] {
+  return (Object.entries(scores) as [keyof ConceptScorecard, number][])
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([k]) => k);
+}
+
+function weakScoreDims(scores: ConceptScorecard): string[] {
+  return (Object.entries(scores) as [keyof ConceptScorecard, number][])
+    .sort((a, b) => a[1] - b[1])
+    .slice(0, 2)
+    .map(([k]) => k);
+}
+
+
 /**
  * Deterministic brief → concept synthesizer.
  * Two different briefs must not collapse into the same creative bible.
@@ -443,18 +814,40 @@ export function synthesizeConcept(input: {
   categoryKey: ProjectCategoryKey;
 }): ConceptSynth {
   const brief = input.brief.trim();
-  const immersive = isImmersiveCategory(input.categoryKey);
+  const intel = analyzeBrief({ brief, categoryKey: input.categoryKey });
+  const immersive = isImmersiveCategory(input.categoryKey) || intel.categoryMode === "immersive";
+  const selection = exploreAndSelectConcept({
+    brief,
+    categoryKey: input.categoryKey,
+    mode: intel.categoryMode,
+  });
+  const selected = selection.selected;
   const motifs = tokenizeMotifs(brief);
   const verbs = extractVerbs(brief, motifs);
-  const audience = extractAudience(brief);
+  const audience = intel.audience.text;
   const invite = extractInvite(brief);
   const referenceLabel = extractReference(brief);
-  const worldNoun = motifs[0] ? `${motifs[0]} world` : immersive ? "immersive brand world" : "product surface";
-  const artTokens = pickPalette(motifs, immersive);
+  const worldNoun =
+    immersive || intel.categoryMode === "brand"
+      ? motifs[0]
+        ? `${motifs[0]} world`
+        : immersive
+          ? "immersive brand world"
+          : "brand world"
+      : intel.categoryMode === "saas"
+        ? "product workbench"
+        : motifs[0]
+          ? `${motifs[0]} surface`
+          : "product surface";
+  const artTokens = pickPalette(motifs, immersive || intel.categoryMode === "brand");
   const chapters = chapterCast(motifs, audience, invite, worldNoun);
   const northStar = immersive
-    ? `${clip(brief, 100)} — experienced as a singular ${worldNoun} where ${audience} ${verbs[0] ?? "arrive"}, ${verbs[1] ?? "deepen"}, then ${verbs[3] ?? "act"} — never as a SaaS marketing template.`
-    : `Deliver the job in “${clip(brief, 90)}” with distinctive craft cues for ${audience}, without generic AI boilerplate.`;
+    ? `${clip(brief, 100)} — ${selected.label}: singular ${worldNoun} where ${audience} ${verbs[0] ?? "arrive"}, ${verbs[1] ?? "deepen"}, then ${verbs[3] ?? "act"} — never as a SaaS marketing template.`
+    : intel.categoryMode === "saas"
+      ? `${selected.label}: deliver “${clip(brief, 80)}” as a job-first system for ${audience} — clarity and states over spectacle.`
+      : intel.categoryMode === "brand"
+        ? `${selected.label}: “${clip(brief, 80)}” as a brand-first composition for ${audience} — pass the brand-swap test.`
+        : `Deliver the job in “${clip(brief, 90)}” with distinctive craft cues for ${audience}, without generic AI boilerplate.`;
 
   const pillars: ConceptSynth["pillars"] = immersive
     ? [
@@ -463,22 +856,57 @@ export function synthesizeConcept(input: {
         `Authored motion — beat grid owners (GSAP/R3F/shader) never fight`,
         `Honest invite — ${invite} lands after craft proof, not wallpaper CTAs`,
       ]
-    : [
-        `Job clarity — ${audience} sees the outcome immediately`,
-        `Coherence — tokens, voice, and flows agree`,
-        `Trust — empty/loading/error states feel deliberate`,
-        `Honesty — inferred DNA stays labeled`,
-      ];
+    : intel.categoryMode === "saas"
+      ? [
+          `Job clarity — ${audience} sees the outcome immediately`,
+          `System coherence — ${selected.colorStance}`,
+          `State honesty — empty/loading/error/success feel deliberate`,
+          `No spectacle cosplay — ${selected.techStance}`,
+        ]
+      : intel.categoryMode === "brand"
+        ? [
+            `Brand presence — hero-level identity in the first viewport`,
+            `Material thesis — ${selected.materialStance}`,
+            `Type lock — ${selected.typeStance}`,
+            `Invite clarity — ${invite} after proof, not promo clutter`,
+          ]
+        : [
+            `Job clarity — ${audience} sees the outcome immediately`,
+            `Coherence — tokens, voice, and flows agree`,
+            `Trust — empty/loading/error states feel deliberate`,
+            `Honesty — inferred DNA stays labeled`,
+          ];
 
   const fingerprint = hashFingerprint([
     input.categoryKey,
     brief.toLowerCase(),
     motifs.join(","),
+    selected.id,
     northStar,
     pillars.join("|"),
     artTokens.accent,
     chapters.map((c) => c.proof).join("|"),
   ]);
+
+  const modeAnti =
+    intel.categoryMode === "saas"
+      ? [
+          "Cinematic shaders ahead of task states",
+          "Marketing section stacks inside app routes",
+          "Decorative scroll theater without a product job",
+        ]
+      : intel.categoryMode === "brand"
+        ? [
+            "First viewport that fails the brand-swap test",
+            "Interchangeable template section kits",
+            "Stats strips and promo clusters competing with brand",
+          ]
+        : [
+            "Eager-loading all GLTFs on first paint",
+            "Fighting timelines (multiple owners on one transform)",
+            "Constant scroll-triggered noise on every element",
+            "SaaS dashboard chrome posing as an immersive brand world",
+          ];
 
   return {
     fingerprint,
@@ -491,16 +919,28 @@ export function synthesizeConcept(input: {
     northStar,
     pillars,
     emotionalArc: {
-      arrival: `Awe inside ${worldNoun}; brand readable in ~3s`,
-      deepen: `Curiosity via ${motifs[1] ?? motifs[0]} chapter craft`,
-      proof: `Confidence from ${motifs[2] ?? "evidence"} the visitor can feel`,
+      arrival:
+        intel.categoryMode === "saas"
+          ? `Orient ${audience} on the job in ~3s`
+          : `Awe inside ${worldNoun}; brand readable in ~3s`,
+      deepen:
+        intel.categoryMode === "saas"
+          ? "Progress through configure/act with diminishing uncertainty"
+          : `Curiosity via ${motifs[1] ?? motifs[0]} chapter craft`,
+      proof:
+        intel.categoryMode === "saas"
+          ? "Confidence from complete states and trustworthy feedback"
+          : `Confidence from ${motifs[2] ?? "evidence"} the visitor can feel`,
       invite: `Calm resolve — ${invite}`,
     },
     sensory: {
       sight: `${artTokens.base} atmosphere + ${artTokens.accent} accent; ${artTokens.materials[0]}`,
-      motion: "2–5 signature beats from beat grid; silence between them",
+      motion: selected.motionStance,
       sound: "Optional; never required; captions if used",
-      touch: "Pointer/focus only on CTAs and focal hotspots",
+      touch:
+        intel.categoryMode === "saas"
+          ? "Pointer/keyboard on primary controls; no precision-aim gimmicks"
+          : "Pointer/focus only on CTAs and focal hotspots",
     },
     artTokens,
     chapters,
@@ -519,13 +959,14 @@ export function synthesizeConcept(input: {
     antiPatterns: [
       "Card-grid heroes, floating promo chips, stat strips in first viewport",
       "Purple-glow / cream+terracotta AI-default aesthetics",
-      "Eager-loading all GLTFs on first paint",
-      "Fighting timelines (multiple owners on one transform)",
-      "Constant scroll-triggered noise on every element",
       "Claiming awards or cloning studio signatures",
-      "SaaS dashboard chrome posing as an immersive brand world",
+      ...modeAnti,
     ],
-    referencePrinciples: referencePrinciples(referenceLabel),
+    referencePrinciples: [
+      ...referencePrinciples(referenceLabel),
+      `Selected concept: ${selected.label} — ${selection.why}`,
+    ],
+    selection,
   };
 }
 

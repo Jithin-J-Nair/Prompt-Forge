@@ -35,6 +35,31 @@ const IMMERSIVE_CRAFT_MARKERS = [
   "Ownership matrix",
   "ASSET_SPEC",
   "Concept fingerprint",
+  "Selected concept",
+  "Creative coherence",
+  "Brief intelligence",
+  "Technical creative direction",
+];
+
+const FUNCTIONAL_CRAFT_MARKERS = [
+  "Experience thesis",
+  "Concept fingerprint",
+  "Selected concept",
+  "Creative coherence",
+  "Brief intelligence",
+  "Token sheet",
+  "Technical creative direction",
+  "What NOT to build",
+];
+
+const BRAND_CRAFT_MARKERS = [
+  "Experience thesis",
+  "Concept fingerprint",
+  "Selected concept",
+  "Brand test",
+  "Creative coherence",
+  "Token sheet",
+  "Brief intelligence",
 ];
 
 /** Frozen boilerplate pillars from the pre-synth era — must not be the only creative law. */
@@ -135,6 +160,20 @@ function scoreDimensions(
   });
 }
 
+function detectPackageMode(artifacts: readonly ArtifactPreview[]): "immersive" | "saas" | "brand" | "general" {
+  const all = artifacts.map((artifact) => artifact.content).join("\n").toLowerCase();
+  if (/category mode:\s*immersive|awwwards-class|webgl-first|scene inventory/.test(all)) {
+    return "immersive";
+  }
+  if (/category mode:\s*saas|job-first|product workbench|spectacle cosplay/.test(all)) {
+    return "saas";
+  }
+  if (/category mode:\s*brand|brand-swap|brand-first composition/.test(all)) {
+    return "brand";
+  }
+  return "general";
+}
+
 function assessCraftDensity(
   artifacts: readonly ArtifactPreview[],
   role: ReviewerRole,
@@ -149,6 +188,7 @@ function assessCraftDensity(
   const architecture = artifactByKey(artifacts, "ARCHITECTURE.md");
   const flows = artifactByKey(artifacts, "USER_FLOWS.md");
   const all = artifacts.map((artifact) => artifact.content).join("\n");
+  const mode = immersiveCategory ? "immersive" : detectPackageMode(artifacts);
 
   for (const marker of MUSH_MARKERS) {
     if (all.includes(marker)) {
@@ -157,6 +197,19 @@ function assessCraftDensity(
         notes: `Craft density failure: mush/placeholder marker present (${marker.slice(0, 48)}…).`,
       });
     }
+  }
+
+  // Critical coherence failures — only when AI-default looks are prescribed, not when forbidden.
+  // Anti-pattern sections intentionally mention purple/glassmorphism; do not false-positive those.
+  const prescribedAiDefault =
+    /\b(use|ship|apply|default to)\b[^.\\n]{0,80}\b(purple gradient|glassmorphism-by-default|lorem ipsum)\b/i.test(
+      all,
+    ) || /\blorem ipsum\b/i.test(all.replace(/never ship[\s\S]*?(?=\\n## |$)/gi, ""));
+  if (prescribedAiDefault) {
+    penalties.push({
+      delta: -40,
+      notes: "Critical coherence failure: pack appears to prescribe AI-default / placeholder content.",
+    });
   }
 
   if (immersiveCategory && design && design.content.length < 1200) {
@@ -184,6 +237,19 @@ function assessCraftDensity(
           notes: `${key} too thin (${artifact.content.length} chars) for immersive craft export.`,
         });
       }
+    }
+  } else if (mode === "saas" || mode === "brand") {
+    if (experience && experience.content.length < 900) {
+      penalties.push({
+        delta: -20,
+        notes: `EXPERIENCE_DNA.md too thin (${experience.content.length} chars) for ${mode} craft export.`,
+      });
+    }
+    if (creative && !/Selected direction|Selected concept/i.test(creative.content)) {
+      penalties.push({
+        delta: -24,
+        notes: "CREATIVE_DIRECTION missing selected concept — no concept selection evidence.",
+      });
     }
   }
 
@@ -263,6 +329,53 @@ function assessCraftDensity(
         notes: "Missing Motion scorecard / Beat grid — authored motion cannot be enforced.",
       });
     }
+  }
+
+  if (
+    !immersiveCategory &&
+    (mode === "saas" || mode === "general") &&
+    (role === "Creative Director" ||
+      role === "Product Strategist" ||
+      role === "UX Architect" ||
+      role === "Systems Architect")
+  ) {
+    const missing = FUNCTIONAL_CRAFT_MARKERS.filter((marker) => !all.includes(marker));
+    if (missing.length > 0) {
+      penalties.push({
+        delta: -10 * Math.min(4, missing.length),
+        notes: `Functional craft markers missing: ${missing.join(", ")}.`,
+      });
+    }
+    if (/Scene inventory|shader accent|WebGL-first/i.test(all) && /spectacle cosplay|job-first/i.test(all) === false) {
+      // spectacle leaking into functional packs without justification
+      if (/three\.js|R3F|shader budget/i.test(architecture?.content ?? "") && mode === "saas") {
+        penalties.push({
+          delta: -28,
+          notes: "Critical: SaaS/functional package recommends WebGL/shader spectacle without job justification.",
+        });
+      }
+    }
+  }
+
+  if (
+    !immersiveCategory &&
+    mode === "brand" &&
+    (role === "Creative Director" || role === "Awwwards Reviewer" || role === "UX Architect")
+  ) {
+    const missing = BRAND_CRAFT_MARKERS.filter((marker) => !all.includes(marker));
+    if (missing.length > 0) {
+      penalties.push({
+        delta: -10 * Math.min(4, missing.length),
+        notes: `Brand craft markers missing: ${missing.join(", ")}.`,
+      });
+    }
+  }
+
+  if (!/Selected concept/i.test(all) && (role === "Creative Director" || role === "Awwwards Reviewer")) {
+    penalties.push({
+      delta: -22,
+      notes: "Missing Selected concept — creative exploration/selection did not land in artifacts.",
+    });
   }
 
   return penalties;
@@ -492,14 +605,35 @@ export function runReviewCouncil(input: {
     councilRubric.gates.minimumReviewerScore,
   );
 
+  // Category-adaptive: critical craft failures in evidence cannot be hidden by mean scores.
+  for (const assessment of assessments) {
+    if (/Critical(?:\s+coherence)?(?:\s+failure)?:/i.test(assessment.evidence)) {
+      unresolvedFindings.push({
+        severity: "critical",
+        summary: `${assessment.reviewer}: critical craft/coherence failure (not averageable).`,
+        acceptanceCondition:
+          "Resolve critical craft/coherence failures; mean score alone cannot pass the gate.",
+        artifactLogicalKey: assessment.artifactLogicalKey,
+        reviewer: assessment.reviewer,
+      });
+    }
+  }
+
   const belowThreshold = assessments.some(
     (assessment) => assessment.score < councilRubric.gates.minimumReviewerScore,
   );
+  const hasCriticalFinding = unresolvedFindings.some((finding) => finding.severity === "critical");
   const hasBlockingFinding = unresolvedFindings.some(
     (finding) => finding.severity === "critical" || finding.severity === "high",
   );
   const meanOk = overallMean >= councilRubric.gates.minimumOverallMean;
-  const passed = !belowThreshold && !hasBlockingFinding && meanOk && missingArtifacts.length === 0;
+  // Critical findings always block — even if overall mean looks fine.
+  const passed =
+    !belowThreshold &&
+    !hasBlockingFinding &&
+    !hasCriticalFinding &&
+    meanOk &&
+    missingArtifacts.length === 0;
 
   if (!passed) {
     unresolvedFindings = [
