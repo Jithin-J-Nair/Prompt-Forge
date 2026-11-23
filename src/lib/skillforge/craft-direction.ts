@@ -230,6 +230,10 @@ export function renderCreativeDirectionBody(
     "Creative pillars": concept.pillars.map((p, i) => `${i + 1}) ${p}`).join("\n"),
     "Concept selection (not a brainstorm dump)": [
       `- Explored ${concept.selection.explored.length} directions; shipping only the winner.`,
+      concept.selection.evidence.length
+        ? `Brief evidence:\n${concept.selection.evidence.map((e) => `- ${e}`).join("\n")}`
+        : "- Brief evidence: motifs + audience from selection why.",
+      `- Tradeoff: ${concept.selection.tradeoff}`,
       rejected ? `Rejected:\n${rejected}` : "- No weaker alternatives retained in the cook pack.",
       `- Art: ${concept.selection.selected.artDirection}`,
       `- Space: ${concept.selection.selected.spaceMetaphor}`,
