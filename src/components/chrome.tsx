@@ -3,239 +3,155 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Flame, ArrowUpRight, Menu, X } from "lucide-react";
+import { Hammer, Menu, X } from "lucide-react";
 import clsx from "clsx";
 
-/* ------------------------------ NAV ------------------------------ */
-
 const NAV_LINKS = [
-  { href: "/skillforge", label: "SkillForge" },
-  { href: "/promptforge", label: "PromptForge" },
+  { href: "/skillforge", label: "Compose" },
+  { href: "/promptforge", label: "Body" },
   { href: "/forge", label: "Legacy forge" },
   { href: "/library", label: "Library" },
-  { href: "/#anatomy", label: "Anatomy" },
-  { href: "/#how", label: "Protocol" },
 ];
+
+function isActive(pathname: string, href: string) {
+  if (href === "/skillforge") return pathname.startsWith("/skillforge");
+  if (href === "/promptforge") return pathname.startsWith("/promptforge");
+  if (href === "/forge") return pathname === "/forge";
+  if (href === "/library") return pathname.startsWith("/library");
+  return false;
+}
 
 export function Nav() {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 24);
-    fn();
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
 
   useEffect(() => setOpen(false), [pathname]);
 
   return (
-    <header
-      className={clsx(
-        "fixed inset-x-0 top-0 z-40 transition-all duration-300",
-        scrolled
-          ? "border-b border-line bg-ink/75 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent",
-      )}
-    >
-      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6 md:h-[72px] md:px-10">
-        <Link href="/" className="group flex items-center gap-3" aria-label="PromptForge home">
-          <span className="grid size-9 place-items-center rounded-md bg-ember text-ink transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105">
-            <Flame className="size-5" strokeWidth={2.2} />
-          </span>
-          <span className="font-display text-[15px] font-bold tracking-[0.18em] uppercase">
-            Prompt<span className="text-ember">Forge</span>
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-          {NAV_LINKS.map((l) => {
-            const active =
-              (l.href === "/skillforge" && pathname.startsWith("/skillforge")) ||
-              (l.href === "/promptforge" && pathname.startsWith("/promptforge")) ||
-              (l.href === "/forge" && pathname === "/forge") ||
-              (l.href === "/library" && pathname.startsWith("/library"));
-            return (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={clsx(
-                  "rounded-full px-4 py-2 font-mono text-[11px] tracking-[0.14em] uppercase transition-colors duration-200",
-                  active ? "bg-steel text-ivory" : "text-fog hover:text-ivory",
-                )}
-              >
-                {l.label}
-              </Link>
-            );
-          })}
-          <Link
-            href="/skillforge"
-            className="ml-3 inline-flex items-center gap-1.5 rounded-full bg-ivory px-4 py-2 font-mono text-[11px] font-medium tracking-[0.14em] text-ink uppercase transition-all duration-200 hover:bg-ember hover:text-ink"
+    <header className="sticky top-0 z-40 border-b border-base-300 bg-base-100/90 backdrop-blur-md">
+      <div className="navbar mx-auto max-w-[1120px] px-4 md:px-8">
+        <div className="navbar-start gap-2">
+          <button
+            type="button"
+            className="btn btn-ghost btn-square lg:hidden"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
           >
-            Compose package
-            <ArrowUpRight className="size-3.5" />
+            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+          <Link href="/" className="flex items-center gap-2.5" aria-label="PromptForge home">
+            <span className="grid size-9 place-items-center bg-primary text-primary-content">
+              <Hammer className="size-4.5" strokeWidth={2.2} />
+            </span>
+            <span className="font-display text-lg font-bold tracking-tight">PromptForge</span>
           </Link>
-        </nav>
+        </div>
 
-        <button
-          className="grid size-10 place-items-center text-ivory md:hidden"
-          onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-        >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
+        <div className="navbar-center hidden lg:flex">
+          <ul className="menu menu-horizontal gap-1 px-1">
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={clsx(isActive(pathname, link.href) && "menu-active")}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="navbar-end">
+          <Link href="/skillforge" className="btn btn-primary btn-sm">
+            Compose package
+          </Link>
+        </div>
       </div>
 
       {open && (
-        <nav
-          className="border-t border-line bg-ink/95 backdrop-blur-md md:hidden"
-          aria-label="Mobile"
-        >
-          <div className="flex flex-col px-6 py-4">
-            {NAV_LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="border-b border-line py-4 font-display text-2xl font-bold tracking-tight text-ivory last:border-none"
-              >
-                {l.label}
-              </Link>
+        <nav className="border-t border-base-300 bg-base-100 lg:hidden" aria-label="Mobile">
+          <ul className="menu w-full p-4">
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={clsx(
+                    "font-display text-xl font-semibold",
+                    isActive(pathname, link.href) && "menu-active",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              </li>
             ))}
-          </div>
+            <li>
+              <Link href="/#how">How it works</Link>
+            </li>
+          </ul>
         </nav>
       )}
     </header>
   );
 }
 
-/* --------------------------- BACKGROUND --------------------------- */
-
 export function Atmosphere() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      {/* base vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,transparent_40%,rgba(0,0,0,0.55)_100%)]" />
-      {/* ember orbs */}
-      <div className="absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-ember/[0.07] blur-[120px]" />
-      <div className="absolute top-[60%] -left-40 h-[480px] w-[480px] rounded-full bg-blood/[0.05] blur-[110px]" />
-      <div className="absolute top-[30%] -right-40 h-[420px] w-[420px] rounded-full bg-flare/[0.05] blur-[110px]" />
-      {/* blueprint grid */}
-      <div className="absolute inset-0 bg-blueprint mask-fade-y opacity-70" />
-      {/* film grain */}
-      <div className="absolute inset-0 bg-noise opacity-[0.05] mix-blend-overlay" />
+      <div className="absolute inset-0 bg-workshop opacity-80" />
+      <div className="absolute inset-0 bg-patina" />
+      <div className="absolute -top-24 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl animate-heat" />
     </div>
   );
 }
 
-/* --------------------------- MARQUEE --------------------------- */
-
-export function Marquee({
-  items,
-  className,
-  slow = false,
-}: {
-  items: string[];
-  className?: string;
-  slow?: boolean;
-}) {
-  const row = [...items, ...items];
-  return (
-    <div className={clsx("relative overflow-hidden border-y border-line py-4", className)}>
-      <div
-        className={clsx(
-          "flex w-max items-center gap-8 whitespace-nowrap",
-          slow ? "animate-marquee-slow" : "animate-marquee",
-        )}
-      >
-        {row.map((it, i) => (
-          <span key={i} className="flex items-center gap-8">
-            <span className="font-display text-sm font-bold tracking-[0.22em] text-fog uppercase">
-              {it}
-            </span>
-            <span className="text-ember" aria-hidden>
-              ✦
-            </span>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
+export function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <p className="mb-4 font-mono text-xs tracking-wide text-primary">{children}</p>;
 }
 
-/* --------------------------- SECTION HEAD --------------------------- */
-
+/** @deprecated Use SectionLabel — kept for pages still importing Eyebrow */
 export function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mb-5 flex items-center gap-2.5 font-mono text-[11px] tracking-[0.2em] text-ember uppercase">
-      <span className="inline-block size-1.5 bg-ember" aria-hidden />
-      {children}
-    </p>
-  );
+  return <SectionLabel>{children}</SectionLabel>;
 }
-
-/* ------------------------------ FOOTER ------------------------------ */
 
 export function Footer() {
   return (
-    <footer className="relative z-10 border-t border-line bg-coal">
-      <div className="mx-auto max-w-[1280px] px-6 pt-16 pb-10 md:px-10">
-        <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
-          <div>
-            <div className="flex items-center gap-3">
-              <span className="grid size-9 place-items-center rounded-md bg-ember text-ink">
-                <Flame className="size-5" strokeWidth={2.2} />
-              </span>
-              <span className="font-display text-[15px] font-bold tracking-[0.18em] uppercase">
-                Prompt<span className="text-ember">Forge</span>
-              </span>
-            </div>
-            <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-fog">
-              AI-native expertise OS — one project idea becomes a reviewed skill
-              package agents can execute against.
-            </p>
-            <p className="mt-6 font-mono text-[11px] tracking-[0.14em] text-smoke uppercase">
-              SkillForge compose · Deterministic · Export-only
-            </p>
-          </div>
-          <div>
-            <p className="font-mono text-[11px] tracking-[0.2em] text-smoke uppercase">Engine</p>
-            <ul className="mt-4 space-y-3 text-[15px]">
-              <li><Link className="text-fog transition-colors hover:text-ember" href="/skillforge">SkillForge</Link></li>
-              <li><Link className="text-fog transition-colors hover:text-ember" href="/forge">Mega prompt</Link></li>
-              <li><Link className="text-fog transition-colors hover:text-ember" href="/library">Library</Link></li>
-              <li><Link className="text-fog transition-colors hover:text-ember" href="/#how">The protocol</Link></li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-mono text-[11px] tracking-[0.2em] text-smoke uppercase">Output</p>
-            <ul className="mt-4 space-y-3 text-[15px] text-fog">
-              <li>Skill graphs & Project DNA</li>
-              <li>Eleven blueprint artifacts</li>
-              <li>Review Council gates</li>
-              <li>Agent execution packages</li>
-            </ul>
-          </div>
-        </div>
-
-        <p
-          aria-hidden
-          className="text-stroke mt-16 font-display text-[13.5vw] leading-none font-bold tracking-tight whitespace-nowrap uppercase select-none md:text-[10.5vw]"
-        >
-          PromptForge
-        </p>
-
-        <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-line pt-6 font-mono text-[11px] tracking-[0.14em] text-smoke uppercase md:flex-row md:items-center">
-          <span>© 2026 PromptForge Industries</span>
-          <span className="flex items-center gap-2">
-            <span className="inline-block size-1.5 animate-pulse-soft rounded-full bg-ember" aria-hidden />
-            Furnace nominal · Engine v1.0
+    <footer className="footer relative z-10 border-t border-base-300 bg-base-200 p-10 text-base-content sm:footer-horizontal">
+      <aside>
+        <div className="flex items-center gap-2.5">
+          <span className="grid size-9 place-items-center bg-primary text-primary-content">
+            <Hammer className="size-4.5" strokeWidth={2.2} />
           </span>
-          <span>Set in Space Grotesk & JetBrains Mono</span>
+          <span className="font-display text-lg font-bold tracking-tight">PromptForge</span>
         </div>
-      </div>
+        <p className="mt-3 max-w-xs text-sm leading-relaxed opacity-80">
+          Expertise operating system — one idea becomes a reviewed skill package agents can cook
+          against.
+        </p>
+      </aside>
+      <nav>
+        <h6 className="footer-title">Surfaces</h6>
+        <Link href="/skillforge" className="link link-hover">
+          Compose (SkillForge)
+        </Link>
+        <Link href="/promptforge" className="link link-hover">
+          Body (PromptForge)
+        </Link>
+        <Link href="/forge" className="link link-hover">
+          Legacy forge
+        </Link>
+        <Link href="/library" className="link link-hover">
+          Library
+        </Link>
+      </nav>
+      <nav>
+        <h6 className="footer-title">Output</h6>
+        <span className="opacity-80">Skill graphs & Project DNA</span>
+        <span className="opacity-80">COOK brain + body protocol</span>
+        <span className="opacity-80">Review Council gates</span>
+        <span className="opacity-80">Agent execution packages</span>
+      </nav>
     </footer>
   );
 }

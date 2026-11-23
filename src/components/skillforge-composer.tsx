@@ -6,7 +6,6 @@ import {
   ArrowRight,
   CloudUpload,
   Download,
-  LoaderCircle,
   LockKeyhole,
   Network,
   Package,
@@ -145,10 +144,7 @@ export function SkillForgeComposer() {
       const response = await fetch("/api/skillforge/packages?limit=12");
       if (!response.ok) return;
       const data: unknown = await response.json();
-      if (
-        isRecord(data) &&
-        Array.isArray(data.packages)
-      ) {
+      if (isRecord(data) && Array.isArray(data.packages)) {
         setServerPackages(data.packages as ServerPackageSummary[]);
       }
     } catch {
@@ -372,18 +368,14 @@ export function SkillForgeComposer() {
 
   return (
     <div>
-      <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-ember/30 bg-ember/10 px-4 py-2 font-mono text-[11px] tracking-[0.18em] text-flare uppercase">
-        <span className="size-1.5 rounded-full bg-ember" aria-hidden />
-        SkillForge · ready compose
-      </p>
-      <h1 className="max-w-4xl font-display text-4xl leading-[0.98] font-bold tracking-tight text-ivory md:text-5xl">
-        Compose <span className="text-gradient-ember">expertise</span> packages.
+      <span className="badge badge-soft badge-primary mb-4">SkillForge · compose</span>
+      <h1 className="max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl">
+        Compose expertise packages.
       </h1>
-      <p className="mt-3 max-w-2xl text-sm leading-6 text-fog md:text-base">
+      <p className="mt-3 max-w-2xl text-base leading-relaxed text-base-content/70">
         Pick a category, describe the intent, and SkillForge builds a skill graph, Project DNA,
-        craft-dense blueprints, and a Review Council gate. Download COOK.md (the brain), then continue
-        to PromptForge for the BODY prompt — phases, skill links, and review gates for category-best
-        / Awwwards-class builds. Execution stays unauthorized.
+        blueprints, and a Review Council gate. Download COOK.md, then continue to PromptForge for
+        the body prompt.
       </p>
 
       <form
@@ -392,222 +384,204 @@ export function SkillForgeComposer() {
           event.preventDefault();
           void compose();
         }}
-        className="relative z-20 mt-6 rounded-2xl border border-line bg-carbon/75 p-5 backdrop-blur md:p-6"
+        className="relative z-20 mt-8 rounded-box border border-base-300 bg-base-100 p-5 md:p-6"
       >
-        <div className="flex flex-col gap-4">
-          <div>
-            <label
-              htmlFor="skillforge-category"
-              className="mb-2 block font-mono text-xs tracking-[0.14em] text-fog uppercase"
-            >
-              Project category
-            </label>
-            <select
-              id="skillforge-category"
-              value={categoryKey}
-              onChange={(event) => setCategoryKey(event.target.value)}
-              className="w-full rounded-lg border border-line bg-ink px-4 py-3 text-ivory"
-            >
-              {PROJECT_CATEGORIES.map((category) => (
-                <option key={category.key} value={category.key}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="skillforge-brief"
-              className="mb-2 block font-mono text-xs tracking-[0.14em] text-fog uppercase"
-            >
-              Project intent
-            </label>
-            <textarea
-              id="skillforge-brief"
-              value={brief}
-              onChange={(event) => setBrief(event.target.value)}
-              onKeyDown={(event) => {
-                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-                  event.preventDefault();
-                  void compose();
-                }
-              }}
-              minLength={3}
-              maxLength={400}
-              required
-              rows={3}
-              placeholder="Build an enterprise AI recruiting platform..."
-              className="w-full resize-y rounded-lg border border-line bg-ink px-4 py-3 leading-6 text-ivory outline-none transition-colors placeholder:text-smoke focus:border-ember"
-            />
-            <div className="mt-2 flex justify-between font-mono text-[10px] text-smoke">
-              <span>3–400 characters · Ctrl+Enter to compose</span>
-              <span>{brief.length}/400</span>
-            </div>
-          </div>
-          <div className="relative z-20 space-y-3 border-t border-line pt-4">
-            <p className="inline-flex items-center gap-2 text-xs text-fog">
-              <LockKeyhole className="pointer-events-none size-3.5 text-flare" aria-hidden />
-              Deterministic compose · no external model call
-            </p>
-            <button
-              type="submit"
-              data-testid="skillforge-compose"
-              aria-busy={busy}
-              disabled={!canCompose}
-              className="relative z-20 flex w-full items-center justify-center gap-2 rounded-xl bg-ember px-6 py-4 font-mono text-xs font-semibold tracking-[0.12em] text-ink uppercase transition-colors hover:bg-flare disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {busy ? (
-                <>
-                  Composing{" "}
-                  <LoaderCircle className="pointer-events-none size-4 animate-spin" aria-hidden />
-                </>
-              ) : (
-                <>
-                  Compose package{" "}
-                  <ArrowRight className="pointer-events-none size-4" aria-hidden />
-                </>
-              )}
-            </button>
-          </div>
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">Project category</legend>
+          <select
+            id="skillforge-category"
+            value={categoryKey}
+            onChange={(event) => setCategoryKey(event.target.value)}
+            className="select w-full"
+          >
+            {PROJECT_CATEGORIES.map((category) => (
+              <option key={category.key} value={category.key}>
+                {category.label}
+              </option>
+            ))}
+          </select>
+        </fieldset>
+
+        <fieldset className="fieldset mt-2">
+          <legend className="fieldset-legend">Project intent</legend>
+          <textarea
+            id="skillforge-brief"
+            value={brief}
+            onChange={(event) => setBrief(event.target.value)}
+            onKeyDown={(event) => {
+              if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                event.preventDefault();
+                void compose();
+              }
+            }}
+            minLength={3}
+            maxLength={400}
+            required
+            rows={3}
+            placeholder="Build an enterprise AI recruiting platform..."
+            className="textarea w-full"
+          />
+          <p className="label justify-between">
+            <span>3–400 characters · Ctrl+Enter to compose</span>
+            <span>{brief.length}/400</span>
+          </p>
+        </fieldset>
+
+        <div className="mt-4 flex flex-col gap-3 border-t border-base-300 pt-4">
+          <p className="inline-flex items-center gap-2 text-sm text-base-content/70">
+            <LockKeyhole className="size-3.5 text-primary" aria-hidden />
+            Deterministic compose · no external model call
+          </p>
+          <button
+            type="submit"
+            data-testid="skillforge-compose"
+            aria-busy={busy}
+            disabled={!canCompose}
+            className="btn btn-primary btn-block"
+          >
+            {busy ? (
+              <>
+                Composing <span className="loading loading-spinner loading-sm" />
+              </>
+            ) : (
+              <>
+                Compose package <ArrowRight className="size-4" aria-hidden />
+              </>
+            )}
+          </button>
         </div>
       </form>
 
       {error && (
-        <p role="alert" className="mt-5 rounded-lg border border-blood/30 bg-blood/10 p-4 text-sm text-ivory">
-          {error}
-        </p>
+        <div role="alert" className="alert alert-error mt-5">
+          <span>{error}</span>
+        </div>
       )}
       {notice && (
-        <p className="mt-5 rounded-lg border border-flare/30 bg-flare/10 p-4 text-sm text-ivory">{notice}</p>
+        <div role="status" className="alert alert-success alert-soft mt-5">
+          <span>{notice}</span>
+        </div>
       )}
 
       {preview && (
         <section ref={resultsRef} aria-live="polite" className="mt-10 space-y-6">
-          <div className="flex flex-col justify-between gap-4 rounded-xl border border-flare/30 bg-flare/5 p-5 sm:flex-row sm:items-center">
+          <div className="flex flex-col justify-between gap-4 rounded-box border border-base-300 bg-base-100 p-5 sm:flex-row sm:items-center">
             <div>
-              <p className="font-mono text-xs tracking-[0.14em] text-flare uppercase">
+              <p className="font-mono text-xs text-primary">
                 {preview.accepted ? "Accepted for export" : "Draft · council blocked"} ·{" "}
                 {preview.categoryLabel}
               </p>
-              <p className="mt-2 text-sm text-ivory">
+              <p className="mt-2 text-sm text-base-content/75">
                 {preview.graph.nodes.length} skills · {preview.artifactPreviews.length} artifacts ·
                 council {preview.reviewStatus} (mean {preview.council.overallMean}/100) · revision{" "}
                 {preview.council.revisionRound}/{preview.council.maxRevisionRounds}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={saveLocally}
-                className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ivory uppercase"
-              >
-                <Save className="pointer-events-none size-3.5" aria-hidden /> Browser
+              <button type="button" onClick={saveLocally} className="btn btn-outline btn-sm gap-2">
+                <Save className="size-3.5" aria-hidden /> Browser
               </button>
               <button
                 type="button"
                 disabled={savingServer}
                 onClick={() => void saveToServer()}
-                className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ivory uppercase disabled:opacity-50"
+                className="btn btn-outline btn-sm gap-2"
               >
-                <CloudUpload className="pointer-events-none size-3.5" aria-hidden />{" "}
+                <CloudUpload className="size-3.5" aria-hidden />{" "}
                 {savingServer ? "Saving…" : "Server"}
               </button>
-              <button
-                type="button"
-                onClick={downloadExport}
-                className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ivory uppercase"
-              >
-                <Download className="pointer-events-none size-3.5" aria-hidden /> Export MD
+              <button type="button" onClick={downloadExport} className="btn btn-outline btn-sm gap-2">
+                <Download className="size-3.5" aria-hidden /> Export MD
               </button>
               <button
                 type="button"
                 disabled={handoffBusy}
                 onClick={() => void downloadHandoff()}
-                className="inline-flex items-center gap-2 rounded-full bg-ember px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ink uppercase disabled:opacity-50"
+                className="btn btn-primary btn-sm gap-2"
               >
-                <Package className="pointer-events-none size-3.5" aria-hidden />{" "}
-                {handoffBusy ? "Building…" : "Download COOK (brain)"}
+                <Package className="size-3.5" aria-hidden />{" "}
+                {handoffBusy ? "Building…" : "Download COOK"}
               </button>
               <button
                 type="button"
                 disabled={handoffBusy}
                 data-testid="skillforge-next-promptforge"
                 onClick={() => void goToPromptForge()}
-                className="inline-flex items-center gap-2 rounded-full border border-flare/50 bg-flare/15 px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-flare uppercase disabled:opacity-50"
+                className="btn btn-secondary btn-sm gap-2"
               >
-                Next: PromptForge <ArrowRight className="pointer-events-none size-3.5" aria-hidden />
+                Next: PromptForge <ArrowRight className="size-3.5" aria-hidden />
               </button>
             </div>
           </div>
 
           {bridge && (
-            <div className="rounded-xl border border-flare/40 bg-flare/10 p-5">
-              <p className="font-mono text-[11px] tracking-[0.14em] text-flare uppercase">
-                Pipeline · brain ready
-              </p>
-              <p className="mt-2 text-sm leading-6 text-ivory">
-                COOK.md is prepared ({bridge.cookFilename}). Continue to PromptForge to copy the BODY
-                prompt — the agentic AI attaches COOK as the brain and pastes the body as the build
-                protocol.
-              </p>
-              <button
-                type="button"
-                onClick={() => void goToPromptForge()}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ember px-5 py-3 font-mono text-xs font-semibold tracking-[0.12em] text-ink uppercase"
-              >
-                Next → PromptForge body <ArrowRight className="size-4" aria-hidden />
-              </button>
+            <div className="alert alert-info">
+              <div>
+                <p className="font-semibold">COOK brain ready ({bridge.cookFilename})</p>
+                <p className="text-sm">
+                  Continue to PromptForge to copy the body prompt — attach COOK as the brain and
+                  paste the body as the build protocol.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void goToPromptForge()}
+                  className="btn btn-primary btn-sm mt-3"
+                >
+                  Next → PromptForge body
+                </button>
+              </div>
             </div>
           )}
 
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <section className="rounded-xl border border-line bg-carbon/70 p-5 md:p-7">
-              <h2 className="flex items-center gap-2 font-display text-2xl font-bold text-ivory">
-                <Network className="size-5 text-ember" aria-hidden />
+            <section className="rounded-box border border-base-300 bg-base-100 p-5 md:p-7">
+              <h2 className="flex items-center gap-2 font-display text-2xl font-bold">
+                <Network className="size-5 text-primary" aria-hidden />
                 Skill graph
               </h2>
-              <ol className="mt-5 space-y-3">
+              <ul className="list mt-5">
                 {preview.graph.nodes.map((node) => (
-                  <li key={node.nodeKey} className="rounded-lg border border-line bg-ink/70 p-4">
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <h3 className="font-semibold text-ivory">{node.name}</h3>
-                      <span className="font-mono text-[10px] text-flare">
-                        {node.priority} · Tier {node.tier}
-                      </span>
+                  <li key={node.nodeKey} className="list-row items-start border-t border-base-300 py-4">
+                    <div className="list-col-grow">
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <h3 className="font-semibold">{node.name}</h3>
+                        <span className="badge badge-ghost badge-sm">
+                          {node.priority} · Tier {node.tier}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm leading-relaxed text-base-content/70">
+                        {node.rationale}
+                      </p>
+                      <p className="mt-2 font-mono text-[10px] opacity-55">
+                        Scope: {node.assignedScope.join(" · ")}
+                      </p>
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-fog">{node.rationale}</p>
-                    <p className="mt-2 font-mono text-[10px] text-smoke">
-                      Scope: {node.assignedScope.join(" · ")}
-                    </p>
                   </li>
                 ))}
-              </ol>
+              </ul>
             </section>
 
-            <section className="rounded-xl border border-line bg-carbon/70 p-5 md:p-7">
-              <h2 className="font-display text-2xl font-bold text-ivory">Project DNA</h2>
-              <ul className="mt-5 grid grid-cols-1 gap-2">
+            <section className="rounded-box border border-base-300 bg-base-100 p-5 md:p-7">
+              <h2 className="font-display text-2xl font-bold">Project DNA</h2>
+              <ul className="mt-5 space-y-2">
                 {preview.projectDna.fields.map((field) => (
-                  <li
-                    key={field.name}
-                    className="rounded-md border border-line px-3 py-2 text-xs"
-                  >
+                  <li key={field.name} className="rounded-field border border-base-300 px-3 py-2 text-sm">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-ivory">{field.name}</span>
+                      <span className="font-medium">{field.name}</span>
                       <span
                         className={
                           field.status === "confirmed"
-                            ? "text-flare"
+                            ? "badge badge-success badge-sm"
                             : field.status === "inferred"
-                              ? "text-ember"
-                              : "text-smoke"
+                              ? "badge badge-warning badge-sm"
+                              : "badge badge-ghost badge-sm"
                         }
                       >
                         {field.status}
                       </span>
                     </div>
                     {field.value && (
-                      <p className="mt-1 text-[11px] leading-5 text-fog">{field.value}</p>
+                      <p className="mt-1 text-xs leading-5 text-base-content/65">{field.value}</p>
                     )}
                   </li>
                 ))}
@@ -616,43 +590,45 @@ export function SkillForgeComposer() {
           </div>
 
           <div
-            className={`rounded-xl border p-5 md:p-7 ${
+            className={`rounded-box border p-5 md:p-7 ${
               preview.accepted
-                ? "border-flare/30 bg-flare/[0.06]"
-                : "border-blood/25 bg-blood/[0.04]"
+                ? "border-success/40 bg-success/5"
+                : "border-warning/40 bg-warning/5"
             }`}
           >
-            <h2 className="flex items-center gap-2 font-display text-xl font-bold text-ivory">
+            <h2 className="flex items-center gap-2 font-display text-xl font-bold">
               {preview.accepted ? (
-                <ShieldCheck className="size-5 text-flare" aria-hidden />
+                <ShieldCheck className="size-5 text-success" aria-hidden />
               ) : (
-                <ShieldAlert className="size-5 text-flare" aria-hidden />
+                <ShieldAlert className="size-5 text-warning" aria-hidden />
               )}
               Review Council · {preview.reviewStatus}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-fog">{preview.council.gateReason}</p>
+            <p className="mt-2 text-sm leading-relaxed text-base-content/70">
+              {preview.council.gateReason}
+            </p>
             <ul className="mt-5 grid gap-2 sm:grid-cols-2">
               {preview.council.assessments.map((assessment) => (
                 <li
                   key={assessment.reviewer}
-                  className="rounded-md border border-line bg-ink/50 px-3 py-2 text-xs text-ivory"
+                  className="rounded-field border border-base-300 bg-base-100 px-3 py-2 text-sm"
                 >
                   <span className="font-semibold">{assessment.reviewer}</span>
-                  <span className="float-right font-mono text-flare">{assessment.score}/100</span>
+                  <span className="float-right font-mono text-primary">{assessment.score}/100</span>
                 </li>
               ))}
             </ul>
             {preview.council.unresolvedFindings.length > 0 && (
-              <ul className="mt-5 space-y-2 text-xs leading-5 text-fog">
+              <ul className="mt-5 space-y-2 text-sm text-base-content/70">
                 {preview.council.unresolvedFindings.slice(0, 6).map((finding) => (
                   <li key={`${finding.severity}-${finding.summary}`}>
-                    <span className="font-mono text-flare uppercase">{finding.severity}</span>{" "}
+                    <span className="badge badge-warning badge-sm mr-2">{finding.severity}</span>
                     {finding.summary}
                   </li>
                 ))}
               </ul>
             )}
-            <ul className="mt-5 space-y-1 text-xs text-fog">
+            <ul className="mt-5 space-y-1 text-sm text-base-content/70">
               {preview.council.nextActions.map((action) => (
                 <li key={action}>{action}</li>
               ))}
@@ -660,17 +636,19 @@ export function SkillForgeComposer() {
           </div>
 
           <section className="space-y-3">
-            <h2 className="font-display text-2xl font-bold text-ivory">Package artifacts</h2>
+            <h2 className="font-display text-2xl font-bold">Package artifacts</h2>
             {preview.artifactPreviews.map((artifact) => (
-              <details key={artifact.logicalKey} className="group rounded-xl border border-line bg-carbon/70">
-                <summary className="cursor-pointer list-none p-4 font-mono text-xs text-ivory marker:hidden">
+              <div key={artifact.logicalKey} className="collapse collapse-arrow border border-base-300 bg-base-100">
+                <input type="checkbox" />
+                <div className="collapse-title font-mono text-sm font-medium">
                   {artifact.logicalKey}
-                  <span className="float-right text-flare group-open:rotate-90">›</span>
-                </summary>
-                <pre className="overflow-x-auto border-t border-line p-4 font-mono text-xs leading-5 whitespace-pre-wrap text-fog">
-                  {artifact.content}
-                </pre>
-              </details>
+                </div>
+                <div className="collapse-content">
+                  <pre className="overflow-x-auto font-mono text-xs leading-5 whitespace-pre-wrap text-base-content/70">
+                    {artifact.content}
+                  </pre>
+                </div>
+              </div>
             ))}
           </section>
         </section>
@@ -678,19 +656,21 @@ export function SkillForgeComposer() {
 
       {serverPackages.length > 0 && (
         <section className="mt-12">
-          <h2 className="font-display text-xl font-bold text-ivory">Saved on server</h2>
+          <h2 className="font-display text-xl font-bold">Saved on server</h2>
           <ul className="mt-4 space-y-2">
             {serverPackages.map((item) => (
               <li key={item.id}>
                 <button
                   type="button"
-                  className="w-full rounded-lg border border-line bg-carbon/60 px-4 py-3 text-left text-sm text-ivory"
+                  className="btn btn-ghost h-auto w-full justify-start rounded-box border border-base-300 px-4 py-3 text-left"
                   onClick={() => void loadServerPackage(item.id)}
                 >
-                  <span className="font-mono text-[10px] text-flare uppercase">
-                    #{item.id} · {item.categoryKey} · {item.accepted ? "accepted" : "draft"}
+                  <span className="block w-full">
+                    <span className="font-mono text-[10px] text-primary">
+                      #{item.id} · {item.categoryKey} · {item.accepted ? "accepted" : "draft"}
+                    </span>
+                    <span className="mt-1 block text-sm">{item.title}</span>
                   </span>
-                  <span className="mt-1 block">{item.title}</span>
                 </button>
               </li>
             ))}
@@ -700,19 +680,21 @@ export function SkillForgeComposer() {
 
       {saved.length > 0 && (
         <section className="mt-12">
-          <h2 className="font-display text-xl font-bold text-ivory">Saved in this browser</h2>
+          <h2 className="font-display text-xl font-bold">Saved in this browser</h2>
           <ul className="mt-4 space-y-2">
             {saved.map((item) => (
               <li key={item.id}>
                 <button
                   type="button"
-                  className="w-full rounded-lg border border-line bg-carbon/60 px-4 py-3 text-left text-sm text-ivory"
+                  className="btn btn-ghost h-auto w-full justify-start rounded-box border border-base-300 px-4 py-3 text-left"
                   onClick={() => setPreview(item.preview)}
                 >
-                  <span className="font-mono text-[10px] text-flare uppercase">
-                    {item.categoryKey} · {item.accepted ? "accepted" : "draft"}
+                  <span className="block w-full">
+                    <span className="font-mono text-[10px] text-primary">
+                      {item.categoryKey} · {item.accepted ? "accepted" : "draft"}
+                    </span>
+                    <span className="mt-1 block text-sm">{item.title}</span>
                   </span>
-                  <span className="mt-1 block">{item.title}</span>
                 </button>
               </li>
             ))}

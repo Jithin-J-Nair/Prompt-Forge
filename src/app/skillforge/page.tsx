@@ -4,7 +4,7 @@ import { Atmosphere, Footer, Nav } from "@/components/chrome";
 import { SkillForgeComposer } from "@/components/skillforge-composer";
 
 export const metadata: Metadata = {
-  title: "SkillForge — Compose AI expertise packages",
+  title: "Compose — SkillForge expertise packages",
   description:
     "Turn one project idea into a reviewed skill graph, Project DNA, eleven blueprints, and an agent handoff pack.",
 };
@@ -14,12 +14,12 @@ export default function SkillForgePage() {
     <>
       <Atmosphere />
       <Nav />
-      <main className="relative z-10 min-h-screen px-6 pt-24 pb-20 md:px-10">
+      <main className="relative z-10 min-h-screen px-4 pt-16 pb-20 md:px-8">
         <div className="mx-auto max-w-[1120px]">
           <Suspense
             fallback={
-              <p className="font-mono text-sm tracking-[0.14em] text-fog uppercase">
-                Loading SkillForge…
+              <p className="font-mono text-sm text-base-content/60">
+                <span className="loading loading-dots loading-sm" /> Loading SkillForge…
               </p>
             }
           >

@@ -71,10 +71,10 @@ export function TypeCycle({
 
   return (
     <span className={className} aria-label={phrases[0]}>
-      <span className="text-smoke">{prefix}</span>
-      <span className="text-flare">{text}</span>
-      <span className="animate-caret ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em] bg-ember" aria-hidden />
-      <span className="text-smoke">{suffix}</span>
+      <span className="text-base-content/55">{prefix}</span>
+      <span className="text-primary">{text}</span>
+      <span className="inline-block ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em] bg-primary" aria-hidden />
+      <span className="text-base-content/55">{suffix}</span>
     </span>
   );
 }
@@ -101,7 +101,7 @@ export function GlowCard({
         ref.current?.style.setProperty("--mx", `${e.clientX - r.left}px`);
         ref.current?.style.setProperty("--my", `${e.clientY - r.top}px`);
       }}
-      className={`card-sheen ${className ?? ""}`}
+      className={`${className ?? ""}`}
     >
       {children}
     </div>
