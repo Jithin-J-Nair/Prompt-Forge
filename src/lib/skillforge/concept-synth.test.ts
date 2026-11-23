@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { composeProjectPreview } from "./composer.ts";
-import { synthesizeConcept } from "./concept-synth.ts";
+import { exploreAndSelectConcept, synthesizeConcept } from "./concept-synth.ts";
 import { buildCookPrompt } from "./cook-prompt.ts";
 import { buildOrchestratorPrompt } from "../promptforge/orchestrator-prompt.ts";
 
@@ -95,4 +95,87 @@ test("two composed creative artifacts must not share identical pillar blocks", (
   const pillarA = ca.split("## Creative pillars")[1]?.slice(0, 400) ?? "";
   const pillarB = cb.split("## Creative pillars")[1]?.slice(0, 400) ?? "";
   assert.notEqual(pillarA, pillarB);
+});
+
+test("different briefs produce different winners and project-specific directions", () => {
+  const climate = exploreAndSelectConcept({
+    categoryKey: "threejs-experience",
+    brief:
+      "Immersive WebGL climate observatory for scientists — living data ocean with R3F chapters like activetheory.net",
+  });
+  const perfume = exploreAndSelectConcept({
+    categoryKey: "awwwards-website",
+    brief:
+      "Visually distinctive consumer perfume atelier brand site with glass materials, scent chapters, and intimate invite",
+  });
+  const editorial = exploreAndSelectConcept({
+    categoryKey: "awwwards-website",
+    brief:
+      "Typographic editorial scroll site for a design magazine — long-form chapter storytelling without WebGL",
+  });
+  const ops = exploreAndSelectConcept({
+    categoryKey: "saas",
+    brief:
+      "B2B SaaS workspace for ops teams to triage incidents, assign owners, and close loops with audit trails",
+  });
+  const hr = exploreAndSelectConcept({
+    categoryKey: "saas",
+    brief:
+      "SaaS onboarding checklist for HR teams to guide employee step-by-step training wizards",
+  });
+
+  // Not the same predetermined archetype id for every brief
+  const winnerIds = [climate, perfume, editorial, ops, hr].map((s) => s.selected.id);
+  assert.equal(new Set(winnerIds).size, winnerIds.length);
+
+  assert.match(climate.selected.id, /^world-/);
+  assert.match(perfume.selected.id, /^sensory-/);
+  assert.match(editorial.selected.id, /^editorial-/);
+  assert.match(ops.selected.id, /^workbench-/);
+  assert.match(hr.selected.id, /^guided-/);
+
+  // Directions are project-shaped, not template recolors
+  assert.match(climate.selected.artDirection, /climate|ocean|data/i);
+  assert.match(perfume.selected.artDirection, /perfume|glass|scent/i);
+  assert.match(editorial.selected.label, /editorial|design|magazine/i);
+  assert.match(ops.selected.label, /incident|triage|Job-first/i);
+  assert.match(hr.selected.label, /Guided|onboarding/i);
+
+  assert.notEqual(climate.selected.artDirection, perfume.selected.artDirection);
+  assert.notEqual(climate.selected.spaceMetaphor, editorial.selected.spaceMetaphor);
+  assert.notEqual(ops.selected.label, hr.selected.label);
+});
+
+test("concept scores are computed from brief context, not preset constants", () => {
+  const climate = exploreAndSelectConcept({
+    categoryKey: "threejs-experience",
+    brief:
+      "Immersive WebGL climate observatory for scientists — living data ocean with R3F chapters like activetheory.net",
+  });
+  const editorial = exploreAndSelectConcept({
+    categoryKey: "awwwards-website",
+    brief:
+      "Typographic editorial scroll site for a design magazine — long-form chapter storytelling without WebGL",
+  });
+  const ops = exploreAndSelectConcept({
+    categoryKey: "saas",
+    brief:
+      "B2B SaaS workspace for ops teams to triage incidents, assign owners, and close loops with audit trails",
+  });
+
+  // Originality is not a fixed preset shared across all winning directions
+  assert.notEqual(climate.selected.scores.originality, editorial.selected.scores.originality);
+  assert.notEqual(climate.selected.scores.originality, ops.selected.scores.originality);
+
+  // Within one explore, foil directions score below the winner (not theater-ranked equals)
+  const ranked = climate.explored.map((c) => c.total);
+  assert.ok(ranked[0]! > ranked[ranked.length - 1]!);
+  const spectacle = climate.explored.find((c) => c.id === "spectacle-demo");
+  assert.ok(spectacle);
+  assert.ok(spectacle.total < climate.selected.total);
+  assert.ok(spectacle.scores.originality < climate.selected.scores.originality);
+
+  // Why cites computed scoring, not a canned rank table
+  assert.match(climate.why, /Scored from brief signals/i);
+  assert.match(climate.why, /climate|ocean|data|immersive/i);
 });
