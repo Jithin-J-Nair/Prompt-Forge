@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Hammer, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import clsx from "clsx";
+import { Logo } from "@/components/logo";
 
 const NAV_LINKS = [
   { href: "/skillforge", label: "Compose" },
@@ -40,11 +41,8 @@ export function Nav() {
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
-          <Link href="/" className="flex items-center gap-2.5" aria-label="PromptForge home">
-            <span className="grid size-9 place-items-center bg-primary text-primary-content">
-              <Hammer className="size-4.5" strokeWidth={2.2} />
-            </span>
-            <span className="font-display text-lg font-bold tracking-tight">PromptForge</span>
+          <Link href="/" aria-label="PromptForge home">
+            <Logo />
           </Link>
         </div>
 
@@ -119,12 +117,7 @@ export function Footer() {
   return (
     <footer className="footer relative z-10 border-t border-base-300 bg-base-200 p-10 text-base-content sm:footer-horizontal">
       <aside>
-        <div className="flex items-center gap-2.5">
-          <span className="grid size-9 place-items-center bg-primary text-primary-content">
-            <Hammer className="size-4.5" strokeWidth={2.2} />
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight">PromptForge</span>
-        </div>
+        <Logo />
         <p className="mt-3 max-w-xs text-sm leading-relaxed opacity-80">
           Expertise operating system — one idea becomes a reviewed skill package agents can cook
           against.
