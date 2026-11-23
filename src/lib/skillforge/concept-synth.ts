@@ -580,8 +580,9 @@ type ConceptContext = {
 /** True when the brief asks for realtime 3D — not when it says "without WebGL". */
 function hasPositiveTechSignal(lower: string): boolean {
   if (
-    /\bwithout\s+(?:any\s+)?(?:webgl|three\.?js|r3f|shaders?|webgpu)\b/i.test(lower) ||
-    /\bno\s+(?:webgl|three\.?js|r3f|shaders?|webgpu)\b/i.test(lower)
+    /\bwithout\s+(?:any\s+)?(?:webgl|three\.?js|r3f|shaders?|webgpu|3d)\b/i.test(lower) ||
+    /\bno\s+(?:webgl|three\.?js|r3f|shaders?|webgpu|3d)\b/i.test(lower) ||
+    /\bzero\s+(?:webgl|3d|shaders?)\b/i.test(lower)
   ) {
     return false;
   }
@@ -663,13 +664,19 @@ function buildConceptContext(input: {
     techHeavy: hasPositiveTechSignal(lower),
     scrollTheater: /\b(scroll\s*theater|scroll.?driven|chapter|chapters)\b/i.test(lower),
     editorialBias:
-      /\b(editorial|typograph|magazine|publisher|essay|long.?form)\b/i.test(lower) &&
-      !hasPositiveTechSignal(lower),
+      (/\b(editorial|typograph|magazine|publisher|essay|long.?form|pdf archive)\b/i.test(
+        lower,
+      ) &&
+        !hasPositiveTechSignal(lower)) ||
+      (/\b(?:without\s+(?:any\s+)?(?:webgl|three\.?js|r3f|3d)|no\s+(?:webgl|three\.?js|r3f|3d|shaders?)|zero\s+(?:webgl|3d))\b/i.test(
+        lower,
+      ) &&
+        !hasPositiveTechSignal(lower)),
     sensoryBias:
       /\b(perfume|scent|atelier|fashion|glass|intimate|lifestyle|sensory)\b/i.test(lower) ||
       /\bglass materials?\b/i.test(lower),
     opsBias:
-      /\b(ops|incident|triage|audit|dashboard|workspace|assign|operator|enterprise|crm)\b/i.test(
+      /\b(ops|incident|triage|audit|dashboard|workspace|assign|operators?|technicians?|enterprise|crm|wholesale|b2b)\b/i.test(
         lower,
       ),
     guidedBias:

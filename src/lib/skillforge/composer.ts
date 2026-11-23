@@ -124,10 +124,16 @@ function orderByDependencies(skills: readonly SkillPackage[]): SkillPackage[] {
 
 function selectSkills(categoryKey: ProjectCategoryKey, brief: string): SkillPackage[] {
   const slugs = [...CATEGORY_SKILL_POLICY[categoryKey]];
+  // Inject immersive craft only when the category can host it — never hijack SaaS/enterprise.
   if (
     briefSignalsImmersive(brief) &&
     categoryKey !== "awwwards-website" &&
-    categoryKey !== "threejs-experience"
+    categoryKey !== "threejs-experience" &&
+    categoryKey !== "saas" &&
+    categoryKey !== "startup-mvp" &&
+    categoryKey !== "web-application" &&
+    categoryKey !== "internal-tool" &&
+    categoryKey !== "enterprise-platform"
   ) {
     for (const slug of IMMERSIVE_BRIEF_SKILLS) {
       if (!slugs.includes(slug)) slugs.push(slug);

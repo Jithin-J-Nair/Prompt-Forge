@@ -15,6 +15,8 @@
 - **Creative Director Engine** (deterministic): brief intelligence → multi-concept explore/score/select → Experience DNA → coherence pack → tech direction → focused skill roster → COOK + PromptForge BODY with **max-3 browser critique loop** and category-adaptive quality gates
 - Concept directions are **project-specific** (motifs/materials/audience in labels + stances); scores are **computed from brief signals** — no predetermined winners or preset originality tables
 - **Real creative evaluation**: directions are judged against the brief; weak/generic foils are hard-rejected; the winner cites brief evidence and an explicit tradeoff vs the runner-up
+- **Conflict-aware modes**: functional categories (SaaS/enterprise/etc.) stay job-first even when the brief name-drops WebGL; immersive categories with explicit no-3D constraints prefer editorial craft; conflicts surface in clarificationNeeded
+- **Creative quality suite**: edge cases, conflicting briefs, unusual categories, diversity batteries, and brief→experience sensitivity regressions in `creative-quality.test.ts`
 - **Cook pack**: downloads `COOK.md` (actionable execution blueprint) + handoff + manifest; pair with PromptForge BODY prompt
 - Deterministic short-brief expansion for craft/product targets
 - Curated skill ingest path: `npm run ingest:skills` (validate distilled JSON — no GitHub paste)
