@@ -20,32 +20,36 @@ export function LogoMark({ className, title }: LogoMarkProps) {
       role={title ? "img" : undefined}
     >
       {title ? <title>{title}</title> : null}
-      {/* Central prompt spark */}
+      {/* Rising prompt-sparks */}
       <path
-        d="M16 2.75 L19.1 6.5 L16 10.25 L12.9 6.5 Z"
         fill="currentColor"
-      />
-      {/* Side sparks */}
-      <path
-        d="M9.4 8 L11.55 10.55 L9.4 13.1 L7.25 10.55 Z"
-        fill="currentColor"
-        opacity="0.7"
+        d="M16 2.2 19.35 6.15 16 10.1 12.65 6.15 16 2.2Z"
       />
       <path
-        d="M22.6 8 L24.75 10.55 L22.6 13.1 L20.45 10.55 Z"
         fill="currentColor"
-        opacity="0.7"
-      />
-      {/* Beam into the anvil face */}
-      <rect x="15.15" y="10" width="1.7" height="4.75" fill="currentColor" opacity="0.9" />
-      {/* Anvil: horn, face, waist, foot */}
-      <path
-        d="M5.5 15 H11 L12.75 17.35 H19.25 L21 15 H26.5 V17.65 H22.85 L21 20.35 H11 L9.15 17.65 H5.5 V15 Z"
-        fill="currentColor"
+        opacity="0.68"
+        d="M8.85 7.6 11.2 10.35 8.85 13.1 6.5 10.35 8.85 7.6Z"
       />
       <path
-        d="M12.75 20.35 H19.25 V23.35 H22 V27 H10 V23.35 H12.75 V20.35 Z"
         fill="currentColor"
+        opacity="0.68"
+        d="M23.15 7.6 25.5 10.35 23.15 13.1 20.8 10.35 23.15 7.6Z"
+      />
+      {/* Prompt beam into the face */}
+      <path
+        fill="currentColor"
+        d="M15.05 9.85h1.9v4.4h-1.9z"
+        opacity="0.88"
+      />
+      {/* Anvil: horn → face → heel */}
+      <path
+        fill="currentColor"
+        d="M4.75 14.7h5.55l1.85 2.45h7.7l1.85-2.45h5.55v2.85h-3.55L21.2 20.7H10.8L8.3 17.55H4.75V14.7Z"
+      />
+      {/* Anvil waist + foot */}
+      <path
+        fill="currentColor"
+        d="M12.35 20.7h7.3v2.85H22.4V27.2H9.6v-3.65h2.75V20.7Z"
       />
     </svg>
   );
@@ -70,7 +74,7 @@ export function Logo({
     <span className={clsx("inline-flex items-center gap-2.5", className)}>
       <span
         className={clsx(
-          "grid size-9 shrink-0 place-items-center bg-primary p-1.5 text-primary-content",
+          "grid size-9 shrink-0 place-items-center bg-primary p-1 text-primary-content",
           markClassName,
         )}
       >
