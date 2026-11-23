@@ -15,6 +15,7 @@ import { buildProjectDna } from "./dna.ts";
 import {
   briefSignalsImmersive,
   CATEGORY_SKILL_POLICY,
+  focusSkillRoster,
   IMMERSIVE_BRIEF_SKILLS,
   PRIORITY_BY_SKILL,
   PRIORITY_RATIONALE,
@@ -132,8 +133,9 @@ function selectSkills(categoryKey: ProjectCategoryKey, brief: string): SkillPack
       if (!slugs.includes(slug)) slugs.push(slug);
     }
   }
+  const focused = focusSkillRoster({ categoryKey, brief, slugs });
   const selected: SkillPackage[] = [];
-  for (const slug of slugs) {
+  for (const slug of focused.slugs) {
     const skill = getSkillBySlug(slug);
     if (!skill) throw new Error(`Catalog missing skill ${slug} for ${categoryKey}.`);
     selected.push(skill);

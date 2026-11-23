@@ -1,5 +1,8 @@
+import { analyzeBrief, formatBriefIntelligence } from "./brief-intelligence.ts";
 import { getSkillBySlug } from "./catalog.ts";
+import { buildCoherencePack, formatCoherencePack } from "./coherence.ts";
 import { synthesizeConcept } from "./concept-synth.ts";
+import { buildTechDirection, formatTechDirection } from "./tech-direction.ts";
 import type { CompositionPreview } from "./types.ts";
 
 const IMMERSIVE_DEPTH_SKILLS = new Set([
@@ -77,6 +80,20 @@ export function buildCookPrompt(preview: CompositionPreview): string {
     brief: preview.brief,
     categoryKey: preview.categoryKey,
   });
+  const intel = analyzeBrief({
+    brief: preview.brief,
+    categoryKey: preview.categoryKey,
+  });
+  const coherence = buildCoherencePack({
+    mode: intel.categoryMode,
+    northStar: concept.northStar,
+    motifs: concept.motifs,
+  });
+  const tech = buildTechDirection({
+    intel,
+    motifs: concept.motifs,
+    wantsRealtime3d: immersive,
+  });
 
   const skillBlock = preview.graph.nodes
     .map((node) => {
@@ -94,6 +111,8 @@ export function buildCookPrompt(preview: CompositionPreview): string {
       return [
         `### ${node.name} (${node.priority}) \`${node.nodeKey}\``,
         `- Scope: ${node.assignedScope.join(", ")}`,
+        `- Boundary: stay inside assigned scope; do not edit sibling skill deliverables.`,
+        `- Priority rationale: ${node.rationale}`,
         skill?.mission ? `- Mission: ${skill.mission}` : null,
         principles ? `- Principles:\n${principles}` : null,
         acceptance ? `- Acceptance:\n${acceptance}` : null,
@@ -111,10 +130,20 @@ export function buildCookPrompt(preview: CompositionPreview): string {
   const lines = [
     "# SKILLFORGE COOK.md — BRAIN (attach this file to your agent)",
     "",
-    "This file is the **SkillForge brain**: expertise graph, Project DNA, craft artifacts, and acceptance criteria.",
-    "Pair it with the **PromptForge BODY prompt** (execution protocol). Do not invent a generic template and sprinkle these adjectives on top.",
+    "This file is the **SkillForge brain**: brief intelligence, selected concept, Experience DNA, expertise graph, and acceptance criteria.",
+    "Pair it with the **PromptForge BODY prompt** (execution protocol + max-3 browser critique loop). Do not invent a generic template and sprinkle these adjectives on top.",
     "",
     "You are a senior implementation agent. When the PromptForge body is present, follow its phases while treating this COOK file as source of truth.",
+    "",
+    "## Mission",
+    `- ${concept.northStar}`,
+    `- Category mode: **${intel.categoryMode}**`,
+    `- Audience: ${concept.audience}`,
+    "",
+    "## Selected concept + why",
+    `- **${concept.selection.selected.label}** (score ${concept.selection.selected.total}/5)`,
+    `- ${concept.selection.why}`,
+    ...concept.selection.rejectedOneLiners.map((line) => `- Rejected: ${line}`),
     "",
     "## Hard laws",
     "- This package is instructional. It does **not** authorize production deploys, secrets access, or unrestricted shell.",
@@ -122,21 +151,32 @@ export function buildCookPrompt(preview: CompositionPreview): string {
     `- Package status: **${preview.accepted ? "ACCEPTED for export" : "DRAFT — council not passed; treat as guidance only"}**.`,
     "- Do not invent confirmed facts; respect inferred/unknown DNA labels.",
     "- Prefer this brain over your own generic SaaS template instincts.",
+    "- Coherence > feature count.",
     immersive
       ? `- Concept fingerprint \`${concept.fingerprint}\` must remain visible in your implementation choices (motifs: ${concept.motifs.slice(0, 4).join(", ")}).`
-      : null,
+      : `- Concept fingerprint \`${concept.fingerprint}\` must remain visible in tokens, hierarchy, and interaction choices.`,
     "",
     "## Project",
     `- Category: **${preview.categoryLabel}** (\`${preview.categoryKey}\`)`,
     `- Brief: ${preview.brief}`,
     `- Catalog: \`${preview.catalogVersion}\``,
     `- Graph: \`${preview.graphHash}\``,
-    immersive ? `- World: **${concept.worldNoun}** · Audience: ${concept.audience} · Invite: ${concept.invite}` : null,
+    `- World: **${concept.worldNoun}** · Invite: ${concept.invite}`,
+    "",
+    "## Brief intelligence",
+    formatBriefIntelligence(intel),
     "",
     "## Project DNA",
     dnaRows,
     "",
-    "## Expertise graph (cook in priority order)",
+    "## Experience DNA / coherence (summary)",
+    formatCoherencePack(coherence),
+    "",
+    "## Technical creative direction",
+    formatTechDirection(tech),
+    "",
+    "## Expertise graph (focused roster — cook in priority order)",
+    `- Roster size: ${preview.graph.nodes.length} specialists (no skill dump).`,
     skillBlock,
     "",
     "## What to build (implementation intent)",
@@ -155,27 +195,36 @@ export function buildCookPrompt(preview: CompositionPreview): string {
           "8. Pass MOTION_SCORECARD / Beat grid / ASSET_SPEC gates before claiming done",
         ].join("\n")
       : [
-          "Build the product for the stated category and DNA.",
+          `Build the **${intel.categoryMode}** product for the stated DNA — not a recolored template.`,
+          `Selected direction: ${concept.selection.selected.label}.`,
           "Implement primary user flows with empty/loading/error/recovery states.",
-          "Follow design system + architecture boundaries.",
+          "Follow design system tokens + architecture / technical creative direction.",
           "Keep accessibility and performance budgets explicit.",
+          ...intel.doNotBuild.slice(0, 5).map((d) => `- ${d}`),
         ].join("\n"),
     "",
     "## Build order for you (the coding agent)",
     "1. Internalize EXPERIENCE_DNA + CREATIVE_DIRECTION + ART_DIRECTION + STORY_SYSTEM.",
-    "2. Recreate or create a clean app scaffold matching Technical Stack DNA.",
+    "2. Recreate or create a clean app scaffold matching Technical Stack DNA + tech direction.",
     "3. Implement chapter/route structure from STORY_SYSTEM + USER_FLOWS.",
     "4. Apply ART_DIRECTION + DESIGN_SYSTEM tokens, composition, and motion language.",
     "5. Honor existing ARCHITECTURE boundaries only — do not invent extra architecture theater.",
     "6. Wire interactions and motion before decorative extras.",
-    "7. Pass REVIEWER_FRAMEWORKS / QUALITY_CHECKLIST gates.",
-    "8. Stop if you would need secrets/production access — leave stubs labeled.",
+    "7. Run PromptForge BODY critique loop (max 3 browser passes) when tools allow.",
+    "8. Pass REVIEWER_FRAMEWORKS / QUALITY_CHECKLIST / coherence gates.",
+    "9. Stop if you would need secrets/production access — leave stubs labeled.",
     "",
     "## Reference + anti-pattern pack",
     ...concept.referencePrinciples.map((line) => `- ${line}`),
     "",
     "### Never ship",
     ...concept.antiPatterns.map((line) => `- ${line}`),
+    ...intel.doNotBuild.map((line) => `- ${line}`),
+    "",
+    "## Critique loop contract (see BODY prompt)",
+    "- Understand → plan → build → browser inspect (when available) → compare to art direction → fix worst weaknesses → reinspect.",
+    "- Max **three** focused improvement passes; stop early when quality gates pass.",
+    "- If no browser/tools: state what was not verified — never fake screenshots or scores.",
     "",
     "## EXPERIENCE_DNA (source)",
     "```markdown",

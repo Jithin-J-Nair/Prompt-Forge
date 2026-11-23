@@ -332,3 +332,76 @@ export function briefSignalsImmersive(brief: string): boolean {
     brief,
   );
 }
+
+/** Skills that are spectacle-heavy — demote on SaaS/functional briefs unless immersive signaled. */
+const SPECTACLE_SKILLS = new Set([
+  "threejs-architect",
+  "r3f-architect",
+  "shader-engineer",
+  "technical-artist",
+  "rendering-engineer",
+  "post-processing-engineer",
+  "gsap-architect",
+  "motion-director",
+  "awwwards-reviewer",
+]);
+
+/**
+ * Focused project-specific roster: keep category policy, drop spectacle spam on functional briefs,
+ * and attach boundaries so agents do not duplicate work.
+ */
+export function focusSkillRoster(input: {
+  categoryKey: ProjectCategoryKey;
+  brief: string;
+  slugs: readonly string[];
+}): { slugs: string[]; boundaries: Record<string, string> } {
+  const immersive =
+    briefSignalsImmersive(input.brief) ||
+    input.categoryKey === "awwwards-website" ||
+    input.categoryKey === "threejs-experience";
+  const functional =
+    !immersive &&
+    (input.categoryKey === "saas" ||
+      input.categoryKey === "enterprise-platform" ||
+      input.categoryKey === "internal-tool" ||
+      input.categoryKey === "web-application" ||
+      input.categoryKey === "startup-mvp" ||
+      /\b(saas|dashboard|ops|crm|admin|b2b)\b/i.test(input.brief));
+
+  let slugs = [...input.slugs];
+  if (functional) {
+    slugs = slugs.filter((slug) => !SPECTACLE_SKILLS.has(slug));
+  }
+
+  // Cap roster to avoid skill dumping while keeping P0 strategists + reviewers.
+  const MAX = immersive ? 22 : 14;
+  if (slugs.length > MAX) {
+    const priorityRank = (slug: string) => {
+      const p = PRIORITY_BY_SKILL[slug] ?? "P2";
+      return p === "P0" ? 0 : p === "P1" ? 1 : p === "P2" ? 2 : 3;
+    };
+    slugs = [...slugs].sort((a, b) => priorityRank(a) - priorityRank(b) || a.localeCompare(b));
+    const kept = new Set(slugs.slice(0, MAX));
+    // Always keep core strategists if present in original.
+    for (const must of ["product-strategist", "systems-thinker", "ux-architect", "frontend-architect"]) {
+      if (input.slugs.includes(must)) kept.add(must);
+    }
+    slugs = input.slugs.filter((slug) => kept.has(slug));
+  }
+
+  const boundaries: Record<string, string> = {};
+  for (const slug of slugs) {
+    boundaries[slug] =
+      PRIORITY_RATIONALE[slug] ??
+      "Selected by focused composition policy; do not expand into sibling skill scopes.";
+  }
+  if (functional) {
+    boundaries["__roster__"] =
+      "Functional brief: spectacle/WebGL specialists omitted. Do not invent Three.js work.";
+  } else if (immersive) {
+    boundaries["__roster__"] =
+      "Immersive brief: craft + WebGL specialists included. DOM shell stays quiet; no SaaS dashboard cosplay.";
+  }
+
+  return { slugs, boundaries };
+}

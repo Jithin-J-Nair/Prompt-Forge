@@ -1,3 +1,4 @@
+import { analyzeBrief } from "./brief-intelligence.ts";
 import type { ProjectCategoryKey } from "./categories.ts";
 
 /**
@@ -15,10 +16,8 @@ export function expandBriefHypotheses(input: {
 } {
   const brief = input.brief.trim();
   const lower = brief.toLowerCase();
-  const immersive =
-    input.categoryKey === "awwwards-website" ||
-    input.categoryKey === "threejs-experience" ||
-    /\b(webgl|three\.?js|r3f|shader|immersive|awwwards|active\s*theory|gsap)\b/i.test(lower);
+  const intel = analyzeBrief({ brief, categoryKey: input.categoryKey });
+  const immersive = intel.categoryMode === "immersive";
 
   const reference =
     brief.match(/\blike\s+([a-z0-9][a-z0-9.-]{2,60})/i)?.[1] ??
@@ -34,13 +33,31 @@ export function expandBriefHypotheses(input: {
         "GSAP timeline ownership for DOM captions/progress",
         "R3F/Three scene chapters where craft requires, with FPS budgets",
         "Reduced-motion and low-power quality presets",
+        "Selected concept + coherence checklist enforced",
       ]
-    : [
-        "Clear primary task path with empty/loading/error/recovery states",
-        "Consistent design tokens (type, color, space)",
-        "Accessible keyboard flows for critical tasks",
-        "Performance budgets on primary routes",
-      ];
+    : intel.categoryMode === "saas"
+      ? [
+          "Clear primary task path with empty/loading/error/recovery states",
+          "Job-first hierarchy; no spectacle cosplay",
+          "Consistent design tokens (type, color, space)",
+          "Accessible keyboard flows for critical tasks",
+          "Performance budgets on primary routes",
+          ...intel.doNotBuild.slice(0, 2),
+        ]
+      : intel.categoryMode === "brand"
+        ? [
+            "Brand-first first viewport (pass brand-swap test)",
+            "Distinctive material/type thesis from brief motifs",
+            "Proof chapters without promo clutter",
+            "Invite CTA as narrative landing",
+            "Coherence checklist over feature count",
+          ]
+        : [
+            "Clear primary task path with empty/loading/error/recovery states",
+            "Consistent design tokens (type, color, space)",
+            "Accessible keyboard flows for critical tasks",
+            "Performance budgets on primary routes",
+          ];
 
   const productTargets = immersive
     ? [
@@ -58,17 +75,20 @@ export function expandBriefHypotheses(input: {
           "Observable user outcomes before feature sprawl",
           "Scoped v1 vs later",
           "Success metrics hypotheses",
+          `Audience hypothesis: ${intel.audience.text}`,
         ];
 
   const expandedIntent = [
     `User brief: ${brief}`,
-    `Category lens: ${input.categoryKey.replace(/-/g, " ")}.`,
+    `Category lens: ${input.categoryKey.replace(/-/g, " ")} (${intel.categoryMode}).`,
+    `Why (hypothesis): ${intel.why.text}.`,
     immersive
       ? "Expanded intent (hypothesis): deliver a craft-led immersive web experience with authored motion and optional WebGL chapters that an external agent can implement from SkillForge artifacts."
-      : "Expanded intent (hypothesis): deliver a bounded product outcome with clear users, flows, architecture, and quality gates an external agent can implement.",
+      : `Expanded intent (hypothesis): deliver a bounded ${intel.categoryMode} outcome with clear users, flows, architecture, and quality gates an external agent can implement.`,
     reference
       ? `Reference signal (hypothesis, not a clone requirement): principles inspired by “${reference}”.`
       : null,
+    `Do-not-build lock: ${intel.doNotBuild.slice(0, 2).join("; ")}.`,
   ]
     .filter(Boolean)
     .join(" ");

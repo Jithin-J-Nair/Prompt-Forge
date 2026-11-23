@@ -1,3 +1,4 @@
+import { analyzeBrief } from "./brief-intelligence.ts";
 import type { ProjectCategoryKey } from "./categories.ts";
 import {
   formatAssetSpecs,
@@ -6,6 +7,7 @@ import {
   formatTokenSheet,
   synthesizeConcept,
 } from "./concept-synth.ts";
+import { buildTechDirection, formatTechDirection } from "./tech-direction.ts";
 import type { ProjectDnaField, SkillGraphNode } from "./types.ts";
 
 type DnaField = {
@@ -87,20 +89,33 @@ export function renderDesignSystemBody(
     };
   }
 
+  const concept = synthesizeConcept({ brief, categoryKey });
+  const intel = analyzeBrief({ brief, categoryKey });
   const features = fieldValue(fields, "Core Features") ?? "core workflow";
   const stack = fieldValue(fields, "Technical Stack") ?? "application stack from category policy";
   return {
     "Visual principles": [
       `- Visual system serves: ${features}.`,
+      `- Selected concept: ${concept.selection.selected.label}.`,
+      `- Category mode: ${intel.categoryMode}.`,
       "- Establish hierarchy: primary task surface first; secondary chrome quieter.",
       "- Use a coherent token set (color, type, space) before inventing one-off styles.",
       "- Avoid decorative clutter that does not support the job-to-be-done.",
+      "",
+      "### Token sheet (implement these)",
+      formatTokenSheet(concept.artTokens),
     ].join("\n"),
     "Interaction principles": [
+      `- Stance: ${concept.selection.selected.interactionStance}.`,
       "- Optimize for the primary user tasks in USER_FLOWS.",
       "- Every interactive component needs default, hover/focus, loading, error, and empty states where applicable.",
       "- Prefer progressive disclosure over dumping all controls at once.",
       `- Stack context: ${stack}.`,
+    ].join("\n"),
+    "Motion language": [
+      `- ${concept.selection.selected.motionStance}`,
+      "- Motion only clarifies state change unless brand mode explicitly needs motif accents.",
+      "- Reduced-motion: instant state or ≤150ms opacity.",
     ].join("\n"),
     "Accessibility constraints": [
       "- Meet applicable WCAG-oriented acceptance checks for the primary flows.",
@@ -129,12 +144,22 @@ export function renderArchitectureBody(
       brief: brief || fieldValue(fields, "Vision") || "immersive experience",
       categoryKey,
     });
+    const intel = analyzeBrief({
+      brief: brief || fieldValue(fields, "Vision") || "immersive experience",
+      categoryKey,
+    });
+    const tech = buildTechDirection({
+      intel,
+      motifs: concept.motifs,
+      wantsRealtime3d: true,
+    });
     return {
       "System boundaries": [
         "- Experience host (WebGL/R3F canvas) vs app shell (DOM navigation, CTA, a11y).",
         "- Scroll/progress store as the shared timeline signal.",
         "- Asset pipeline boundary: authoring → compress → runtime load → dispose.",
         `- World lock: ${concept.worldNoun} (motifs: ${concept.motifs.slice(0, 4).join(", ")}).`,
+        `- Selected concept: ${concept.selection.selected.label}`,
         architecture ? `- DNA architecture note: ${architecture}` : "- Architecture inferred from immersive category policy.",
       ].join("\n"),
       Components: [
@@ -143,7 +168,7 @@ export function renderArchitectureBody(
         "- Shader/material library with uniform contracts.",
         "- Motion orchestrator (GSAP) for DOM + progress publishing.",
         "- Optional CMS/content adapter only if brief requires editable case studies.",
-        stack ? `- Stack assumptions: ${stack}` : "- Stack: TypeScript client + Three/R3F + motion; no default Postgres unless CMS/auth needed.",
+        stack ? `- Stack assumptions: ${stack}` : `- Stack: ${tech.stack.join("; ")}`,
       ].join("\n"),
       Integrations: [
         "- Analytics (privacy-minimized) after consent if required.",
@@ -157,23 +182,40 @@ export function renderArchitectureBody(
         "- Resilience: WebGL fail → static/filmstrip fallback.",
         "- Maintainability: chapter modules + shared lighting/env.",
       ].join("\n"),
+      "Technical creative direction": formatTechDirection(tech),
       "Scene inventory": formatSceneInventory(concept.chapters),
       "Shader & render budget": formatShaderBudget(concept.shaderBudget),
       ASSET_SPEC: formatAssetSpecs(concept.assetSpecs),
     };
   }
 
+  const intel = analyzeBrief({
+    brief: brief || fieldValue(fields, "Vision") || categoryKey,
+    categoryKey,
+  });
+  const concept = synthesizeConcept({
+    brief: brief || fieldValue(fields, "Vision") || categoryKey,
+    categoryKey,
+  });
+  const tech = buildTechDirection({
+    intel,
+    motifs: concept.motifs,
+    wantsRealtime3d: false,
+  });
+
   return {
     "System boundaries": [
       architecture
         ? `- ${architecture}`
         : `- Modular boundaries for ${categoryKey.replace(/-/g, " ")}.`,
+      `- Primary medium: ${tech.primaryMedium}`,
       "- Separate read/write paths for sensitive data when applicable.",
       "- Keep agent/tool authority outside untrusted model text for AI categories.",
+      `- Selected concept tech stance: ${concept.selection.selected.techStance}`,
     ].join("\n"),
     Components: [
-      stack ? `- Stack: ${stack}` : "- Stack from category policy.",
-      "- Domain modules with explicit interfaces.",
+      stack ? `- Stack: ${stack}` : `- Stack: ${tech.stack.join("; ")}`,
+      ...tech.componentBoundaries.map((c) => `- Boundary: ${c}`),
       "- UI application layer with design-system consumption.",
       "- Observability and auth boundaries as required by category.",
     ].join("\n"),
@@ -183,11 +225,12 @@ export function renderArchitectureBody(
       "- Define failure modes for each integration.",
     ].join("\n"),
     "Quality attributes": [
+      ...tech.perfBudgets.map((p) => `- Perf: ${p}`),
       "- Reliability: explicit error states and retries where safe.",
-      "- Performance: route-level budgets for LCP/INP.",
       "- Security: least privilege and safe handoff.",
       "- Accessibility: primary flows keyboard operable.",
     ].join("\n"),
+    "Technical creative direction": formatTechDirection(tech),
   };
 }
 
