@@ -69,29 +69,28 @@ export function PromptForgeConsole() {
 
   if (!hydrated) {
     return (
-      <p className="font-mono text-sm tracking-[0.14em] text-fog uppercase">Loading PromptForge…</p>
+      <p className="font-mono text-sm text-base-content/60">
+        <span className="loading loading-dots loading-sm" /> Loading PromptForge…
+      </p>
     );
   }
 
   if (!bridge) {
     return (
-      <section className="rounded-2xl border border-line bg-carbon/70 p-6 md:p-8">
-        <p className="inline-flex items-center gap-2 rounded-full border border-ember/30 bg-ember/10 px-4 py-2 font-mono text-[11px] tracking-[0.18em] text-flare uppercase">
+      <section className="rounded-box border border-base-300 bg-base-100 p-6 md:p-8">
+        <span className="badge badge-soft badge-primary gap-2">
           <Flame className="size-3.5" aria-hidden /> PromptForge · body prompt
-        </p>
-        <h1 className="mt-4 max-w-3xl font-display text-4xl leading-[0.98] font-bold tracking-tight text-ivory md:text-5xl">
-          Need a SkillForge <span className="text-gradient-ember">COOK</span> first.
+        </span>
+        <h1 className="mt-4 max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl">
+          Need a SkillForge COOK first.
         </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-6 text-fog md:text-base">
-          PromptForge builds the <strong className="font-medium text-ivory">BODY</strong> prompt — the
-          phased execution protocol with skill links. The{" "}
-          <strong className="font-medium text-ivory">BRAIN</strong> lives in SkillForge COOK.md. Compose
-          a package, download the Cook pack, then hit <span className="text-ivory">Next</span>.
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-base-content/70">
+          PromptForge builds the <strong className="font-semibold text-base-content">BODY</strong>{" "}
+          prompt — the phased execution protocol with skill links. The{" "}
+          <strong className="font-semibold text-base-content">BRAIN</strong> lives in SkillForge
+          COOK.md. Compose a package, download the Cook pack, then hit Next.
         </p>
-        <Link
-          href="/skillforge"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-ember px-5 py-3 font-mono text-xs font-semibold tracking-[0.12em] text-ink uppercase"
-        >
+        <Link href="/skillforge" className="btn btn-primary mt-6 gap-2">
           <ArrowLeft className="size-4" aria-hidden /> Go to SkillForge
         </Link>
       </section>
@@ -100,73 +99,78 @@ export function PromptForgeConsole() {
 
   return (
     <div className="space-y-6">
-      <header className="rounded-2xl border border-flare/30 bg-flare/5 p-6 md:p-8">
-        <p className="inline-flex items-center gap-2 rounded-full border border-ember/30 bg-ember/10 px-4 py-2 font-mono text-[11px] tracking-[0.18em] text-flare uppercase">
+      <header className="rounded-box border border-primary/30 bg-primary/5 p-6 md:p-8">
+        <span className="badge badge-soft badge-primary gap-2">
           <Sparkles className="size-3.5" aria-hidden /> PromptForge · body ready
-        </p>
-        <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[0.98] font-bold tracking-tight text-ivory md:text-5xl">
-          Brain + body for <span className="text-gradient-ember">{bridge.categoryLabel}</span>
+        </span>
+        <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl">
+          Brain + body for {bridge.categoryLabel}
         </h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-fog md:text-base">
-          Attach <code className="text-ivory">{bridge.cookFilename}</code> (SkillForge brain) to your
-          agent, then paste the PromptForge body below. The body tells the agent how to walk skills,
-          phases, and review gates without inventing a generic site.
+        <p className="mt-3 max-w-3xl text-base leading-relaxed text-base-content/70">
+          Attach <code className="font-mono text-sm">{bridge.cookFilename}</code> (SkillForge brain)
+          to your agent, then paste the PromptForge body below.
         </p>
-        <p className="mt-3 text-sm text-ivory">{bridge.brief}</p>
-        <div className="mt-4 flex flex-wrap gap-2 font-mono text-[10px] tracking-[0.12em] text-smoke uppercase">
-          <span className="rounded-full border border-line px-3 py-1">
+        <p className="mt-3 text-sm">{bridge.brief}</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="badge badge-outline">
             {bridge.accepted ? "Accepted" : "Draft"} · {bridge.reviewStatus}
           </span>
-          <span className="rounded-full border border-line px-3 py-1">
-            {bridge.skillSlugs.length} skills
-          </span>
-          <span className="rounded-full border border-line px-3 py-1">{bridge.catalogVersion}</span>
+          <span className="badge badge-outline">{bridge.skillSlugs.length} skills</span>
+          <span className="badge badge-outline">{bridge.catalogVersion}</span>
         </div>
       </header>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-line bg-carbon/70 p-5">
-          <h2 className="flex items-center gap-2 font-display text-xl font-bold text-ivory">
-            <Brain className="size-5 text-ember" aria-hidden /> 1. Attach COOK (brain)
+        <div className="rounded-box border border-base-300 bg-base-100 p-5">
+          <h2 className="flex items-center gap-2 font-display text-xl font-bold">
+            <Brain className="size-5 text-primary" aria-hidden /> 1. Attach COOK (brain)
           </h2>
-          <p className="mt-2 text-sm leading-6 text-fog">
-            Upload or paste <code className="text-ivory">{bridge.cookFilename}</code> into the agent
+          <p className="mt-2 text-sm leading-relaxed text-base-content/70">
+            Upload or paste <code className="font-mono">{bridge.cookFilename}</code> into the agent
             context first. Without it, the body prompt will self-block.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => downloadText(bridge.cookFilename, bridge.cookPrompt)}
-              className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ivory uppercase"
+              className="btn btn-outline btn-sm gap-2"
             >
               <Download className="size-3.5" aria-hidden /> Re-download COOK
             </button>
             <button
               type="button"
               onClick={() => void copyText("cook", bridge.cookPrompt)}
-              className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ivory uppercase"
+              className="btn btn-outline btn-sm gap-2"
             >
-              {copied === "cook" ? <Check className="size-3.5 text-flare" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
+              {copied === "cook" ? (
+                <Check className="size-3.5 text-success" aria-hidden />
+              ) : (
+                <Copy className="size-3.5" aria-hidden />
+              )}
               {copied === "cook" ? "Copied" : "Copy COOK"}
             </button>
           </div>
         </div>
 
-        <div className="rounded-xl border border-ember/40 bg-ember/10 p-5">
-          <h2 className="flex items-center gap-2 font-display text-xl font-bold text-ivory">
-            <Flame className="size-5 text-ember" aria-hidden /> 2. Paste BODY prompt
+        <div className="rounded-box border border-primary/40 bg-primary/10 p-5">
+          <h2 className="flex items-center gap-2 font-display text-xl font-bold">
+            <Flame className="size-5 text-primary" aria-hidden /> 2. Paste BODY prompt
           </h2>
-          <p className="mt-2 text-sm leading-6 text-fog">
-            This is the PromptForge execution protocol: phases, skill roster links into COOK, and done
-            gates for category-best / Awwwards-class craft.
+          <p className="mt-2 text-sm leading-relaxed text-base-content/70">
+            This is the PromptForge execution protocol: phases, skill roster links into COOK, and
+            done gates for category-best craft.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => void copyText("body", bridge.orchestratorPrompt)}
-              className="inline-flex items-center gap-2 rounded-full bg-ember px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ink uppercase"
+              className="btn btn-primary btn-sm gap-2"
             >
-              {copied === "body" ? <Check className="size-3.5" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
+              {copied === "body" ? (
+                <Check className="size-3.5" aria-hidden />
+              ) : (
+                <Copy className="size-3.5" aria-hidden />
+              )}
               {copied === "body" ? "Copied body" : "Copy body prompt"}
             </button>
             <button
@@ -177,7 +181,7 @@ export function PromptForgeConsole() {
                   bridge.orchestratorPrompt,
                 )
               }
-              className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[11px] tracking-[0.12em] text-ivory uppercase"
+              className="btn btn-outline btn-sm gap-2"
             >
               <Download className="size-3.5" aria-hidden /> Download body
             </button>
@@ -185,35 +189,32 @@ export function PromptForgeConsole() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-line bg-carbon/70 p-5 md:p-7">
-        <h2 className="flex items-center gap-2 font-display text-2xl font-bold text-ivory">
-          <Link2 className="size-5 text-ember" aria-hidden /> Skill links the agent must use
+      <section className="rounded-box border border-base-300 bg-base-100 p-5 md:p-7">
+        <h2 className="flex items-center gap-2 font-display text-2xl font-bold">
+          <Link2 className="size-5 text-primary" aria-hidden /> Skill links the agent must use
         </h2>
         <ol className="mt-5 grid gap-2 sm:grid-cols-2">
           {skillList.map((skill, index) => (
             <li
               key={skill.slug}
-              className="rounded-lg border border-line bg-ink/70 px-4 py-3 font-mono text-[11px] text-fog"
+              className="rounded-field border border-base-300 bg-base-200/50 px-4 py-3 font-mono text-xs"
             >
-              <span className="text-flare">{index + 1}.</span>{" "}
-              <span className="text-ivory">{skill.name}</span>
-              <span className="mt-1 block text-smoke">COOK → {skill.slug}</span>
+              <span className="text-primary">{index + 1}.</span>{" "}
+              <span className="text-base-content">{skill.name}</span>
+              <span className="mt-1 block opacity-55">COOK → {skill.slug}</span>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="rounded-xl border border-line bg-ink/80 p-5 md:p-7">
+      <section className="rounded-box border border-base-300 bg-base-100 p-5 md:p-7">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-display text-2xl font-bold text-ivory">Body prompt preview</h2>
-          <Link
-            href="/skillforge"
-            className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.12em] text-fog uppercase hover:text-ivory"
-          >
+          <h2 className="font-display text-2xl font-bold">Body prompt preview</h2>
+          <Link href="/skillforge" className="btn btn-ghost btn-sm gap-2">
             <ArrowLeft className="size-3.5" aria-hidden /> Back to SkillForge
           </Link>
         </div>
-        <pre className="max-h-[min(70vh,720px)] overflow-auto whitespace-pre-wrap rounded-lg border border-line bg-carbon/80 p-4 font-mono text-[11px] leading-5 text-fog">
+        <pre className="max-h-[min(70vh,720px)] overflow-auto whitespace-pre-wrap rounded-field border border-base-300 bg-base-200/40 p-4 font-mono text-[11px] leading-5 text-base-content/75">
           {bridge.orchestratorPrompt}
         </pre>
       </section>

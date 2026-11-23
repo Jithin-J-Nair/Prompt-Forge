@@ -1,70 +1,68 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Space_Grotesk, JetBrains_Mono, Instrument_Serif } from "next/font/google";
+import { Syne, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const syne = Syne({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  variable: "--font-syne",
   display: "swap",
 });
 
-const jetbrains = JetBrains_Mono({
+const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
-  variable: "--font-jetbrains",
+  variable: "--font-source-serif",
   display: "swap",
 });
 
-const instrument = Instrument_Serif({
+const ibmPlex = IBM_Plex_Mono({
   subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-instrument",
+  weight: ["400", "500", "600"],
+  variable: "--font-ibm-plex",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://promptforge.app"),
   title: {
-    default: "PromptForge — God-Tier Website Prompt Engine",
+    default: "PromptForge — Expertise operating system",
     template: "%s · PromptForge",
   },
   description:
-    "Turn one lazy sentence into a production-ready, developer-grade website build spec. Brand identity, design system, page-by-page UX, components, motion, SEO and backend — forged in seconds.",
+    "Compose reviewed skill packages agents can execute. SkillForge builds the COOK brain; PromptForge writes the body protocol — one expertise OS.",
   keywords: [
     "prompt engineering",
-    "website prompt generator",
-    "ai website builder",
+    "skill packages",
+    "ai expertise",
+    "agent handoff",
     "design system generator",
-    "mega prompt",
-    "next.js prompt",
   ],
   openGraph: {
-    title: "PromptForge — God-Tier Website Prompt Engine",
+    title: "PromptForge — Expertise operating system",
     description:
-      "One lazy sentence in. A 2,000-word, production-ready build spec out.",
+      "One project idea becomes a reviewed skill graph, COOK brain, and body protocol.",
     type: "website",
     siteName: "PromptForge",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PromptForge — God-Tier Website Prompt Engine",
+    title: "PromptForge — Expertise operating system",
     description:
-      "One lazy sentence in. A 2,000-word, production-ready build spec out.",
+      "One project idea becomes a reviewed skill graph, COOK brain, and body protocol.",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#070708",
+  themeColor: "#e8eef2",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" data-theme="forge">
       <body
-        className={`${spaceGrotesk.variable} ${jetbrains.variable} ${instrument.variable} bg-ink text-ivory antialiased`}
+        className={`${syne.variable} ${sourceSerif.variable} ${ibmPlex.variable} bg-base-100 text-base-content antialiased`}
       >
         {children}
       </body>

@@ -5,13 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Flame, Check, Loader2, ArrowUpRight, AlertTriangle, RotateCcw, Sparkles,
+  Flame, Check, ArrowUpRight, AlertTriangle, RotateCcw, Sparkles,
 } from "lucide-react";
 import clsx from "clsx";
 import type { EnhancedSpec } from "@/lib/engine/enhancer";
 import { EXAMPLE_PROMPTS } from "@/lib/templates";
 import { SpecRenderer } from "@/components/spec-renderer";
-import { Eyebrow } from "@/components/chrome";
+import { SectionLabel } from "@/components/chrome";
 
 type Phase = "idle" | "forging" | "done" | "error";
 
@@ -95,7 +95,6 @@ export function ForgeConsole() {
     }
   }, [brief, phase]);
 
-  /* pre-fill + auto-forge from ?q= */
   useEffect(() => {
     const q = params.get("q");
     if (q && !autoRan.current) {
@@ -112,54 +111,48 @@ export function ForgeConsole() {
 
   return (
     <div>
-      {/* ------------------------------ console ------------------------------ */}
       <div className="grid gap-8 lg:grid-cols-[400px_1fr] lg:gap-12">
-        {/* input panel */}
-        <div className="lg:sticky lg:top-28 lg:self-start">
-          <div className="rounded-xl border border-line bg-carbon/70 p-6 backdrop-blur">
-            <div className="flex items-center justify-between">
-              <label htmlFor="brief" className="font-mono text-[11px] tracking-[0.2em] text-ember uppercase">
-                Your lazy brief
-              </label>
-              <span className={clsx("font-mono text-[10.5px]", brief.length > 380 ? "text-blood" : "text-smoke")}>
-                {brief.length}/400
-              </span>
-            </div>
-            <textarea
-              id="brief"
-              value={brief}
-              onChange={(e) => setBrief(e.target.value.slice(0, 400))}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void forge();
-              }}
-              placeholder="make a website for a gym"
-              rows={4}
-              autoFocus
-              className="mt-3 w-full resize-none rounded-lg border border-line bg-coal px-4 py-3 font-mono text-[14px] leading-relaxed text-ivory placeholder:text-smoke focus:border-ember focus:outline-none"
-              aria-describedby="brief-hint"
-            />
-            <p id="brief-hint" className="mt-2 font-mono text-[10.5px] text-smoke">
-              Vague is welcome. Cmd/Ctrl + Enter to forge.
-            </p>
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <div className="rounded-box border border-base-300 bg-base-100 p-6">
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend flex w-full items-center justify-between">
+                <span>Your brief</span>
+                <span className={clsx("font-mono text-xs", brief.length > 380 ? "text-error" : "opacity-55")}>
+                  {brief.length}/400
+                </span>
+              </legend>
+              <textarea
+                id="brief"
+                value={brief}
+                onChange={(e) => setBrief(e.target.value.slice(0, 400))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void forge();
+                }}
+                placeholder="make a website for a gym"
+                rows={4}
+                autoFocus
+                className="textarea w-full"
+                aria-describedby="brief-hint"
+              />
+              <p id="brief-hint" className="label">
+                Vague is welcome. Cmd/Ctrl + Enter to forge.
+              </p>
+            </fieldset>
 
             <button
+              type="button"
               onClick={() => void forge()}
               disabled={phase === "forging"}
-              className={clsx(
-                "group mt-5 flex h-13 w-full items-center justify-center gap-2.5 rounded-lg font-mono text-[12.5px] font-medium tracking-[0.16em] uppercase transition-all duration-200",
-                phase === "forging"
-                  ? "cursor-wait bg-steel text-fog"
-                  : "bg-ember text-ink hover:bg-flare hover:shadow-[0_0_40px_rgba(255,92,28,0.35)]",
-              )}
+              className="btn btn-primary btn-block mt-4 gap-2"
             >
               {phase === "forging" ? (
                 <>
-                  <Loader2 className="size-4.5 animate-spin" />
+                  <span className="loading loading-spinner loading-sm" />
                   Forging…
                 </>
               ) : (
                 <>
-                  <Flame className="size-4.5 transition-transform duration-300 group-hover:rotate-12" />
+                  <Flame className="size-4" />
                   Forge the mega prompt
                 </>
               )}
@@ -167,35 +160,36 @@ export function ForgeConsole() {
 
             {phase === "done" && (
               <button
+                type="button"
                 onClick={() => {
                   clearTimers();
                   setPhase("idle");
                   setResult(null);
                   setStage(0);
                 }}
-                className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-line font-mono text-[11px] tracking-[0.16em] text-fog uppercase transition-colors hover:border-ember hover:text-ember"
+                className="btn btn-outline btn-block mt-3 gap-2"
               >
                 <RotateCcw className="size-3.5" />
-                Quench & start over
+                Start over
               </button>
             )}
 
-            {/* examples */}
-            <div className="mt-6 border-t border-line pt-5">
-              <p className="mb-3 flex items-center gap-2 font-mono text-[10.5px] tracking-[0.18em] text-smoke uppercase">
-                <Sparkles className="size-3.5 text-ember" />
-                Or strike a ready spark
+            <div className="mt-6 border-t border-base-300 pt-5">
+              <p className="mb-3 flex items-center gap-2 font-mono text-xs opacity-60">
+                <Sparkles className="size-3.5 text-primary" />
+                Or try a ready spark
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {EXAMPLE_PROMPTS.map((t) => (
                   <button
                     key={t.label}
+                    type="button"
                     onClick={() => {
                       setBrief(t.prompt);
                       void forge(t.prompt);
                     }}
                     disabled={phase === "forging"}
-                    className="rounded-full border border-line bg-coal px-3 py-1.5 font-mono text-[10.5px] text-fog transition-colors duration-150 hover:border-ember/60 hover:text-ember disabled:opacity-40"
+                    className="btn btn-ghost btn-xs"
                   >
                     {t.label}
                   </button>
@@ -205,7 +199,6 @@ export function ForgeConsole() {
           </div>
         </div>
 
-        {/* output panel */}
         <div className="min-h-[420px]">
           <AnimatePresence mode="wait">
             {phase === "idle" && (
@@ -215,25 +208,23 @@ export function ForgeConsole() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className="flex h-full min-h-[420px] flex-col justify-between rounded-xl border border-dashed border-line-bright bg-carbon/30 p-7"
+                className="flex h-full min-h-[420px] flex-col justify-between rounded-box border border-dashed border-base-300 bg-base-100/60 p-7"
               >
                 <div>
-                  <p className="font-mono text-[11px] tracking-[0.2em] text-smoke uppercase">
-                    Furnace idle — awaiting raw material
-                  </p>
-                  <div className="mt-8 space-y-3">
+                  <p className="font-mono text-xs opacity-55">Furnace idle — awaiting raw material</p>
+                  <div className="mt-8 space-y-2">
                     {[
-                      "01 · Mission Brief", "02 · Brand Identity", "03 · Design System",
-                      "04 · Layout Law", "05 · Page Blueprints", "06 · Component Contracts",
-                      "07 · Copy Strategy", "08 · Motion Score", "09 · Technical Stack",
-                      "10 · SEO & Access", "11 · Backend & Data", "12 · Definition of Done",
+                      "Mission Brief", "Brand Identity", "Design System",
+                      "Layout Law", "Page Blueprints", "Component Contracts",
+                      "Copy Strategy", "Motion Score", "Technical Stack",
+                      "SEO & Access", "Backend & Data", "Definition of Done",
                     ].map((s) => (
-                      <p key={s} className="font-mono text-[12px] text-smoke/70">{s}</p>
+                      <p key={s} className="font-mono text-xs opacity-45">{s}</p>
                     ))}
                   </div>
                 </div>
-                <p className="mt-8 font-serif-d text-2xl text-fog italic md:text-3xl">
-                  “Twelve sections are about to exist because of one sentence.”
+                <p className="mt-8  text-2xl italic text-base-content/60 md:text-3xl">
+                  Twelve sections are about to exist because of one sentence.
                 </p>
               </motion.div>
             )}
@@ -245,26 +236,27 @@ export function ForgeConsole() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="rounded-xl border border-line bg-carbon/70 p-7 backdrop-blur"
+                className="rounded-box border border-base-300 bg-base-100 p-7"
               >
                 <div className="flex items-center justify-between">
-                  <p className="font-mono text-[11px] tracking-[0.2em] text-ember uppercase">
+                  <p className="font-mono text-xs text-primary">
                     {phase === "error" ? "Forge halted" : "The forge is hot"}
                   </p>
                   {phase === "forging" && (
-                    <span className="font-mono text-[11px] text-fog">{Math.min(stage, 10)}/10</span>
+                    <span className="font-mono text-xs opacity-60">{Math.min(stage, 10)}/10</span>
                   )}
                 </div>
-                <p className="mt-3 line-clamp-1 font-mono text-[12.5px] text-fog">“{brief}”</p>
+                <p className="mt-3 line-clamp-1 font-mono text-sm text-base-content/70">“{brief}”</p>
 
                 {phase === "error" ? (
-                  <div className="mt-6 flex items-start gap-3 rounded-lg border border-blood/40 bg-blood/10 p-4">
-                    <AlertTriangle className="mt-0.5 size-4.5 shrink-0 text-blood" />
+                  <div role="alert" className="alert alert-error mt-6">
+                    <AlertTriangle className="size-4.5 shrink-0" />
                     <div>
-                      <p className="text-sm text-ivory">{error}</p>
+                      <p className="text-sm">{error}</p>
                       <button
+                        type="button"
                         onClick={() => setPhase("idle")}
-                        className="mt-2 font-mono text-[11px] tracking-[0.14em] text-ember uppercase underline underline-offset-4"
+                        className="btn btn-ghost btn-xs mt-2"
                       >
                         Back to the anvil
                       </button>
@@ -280,18 +272,18 @@ export function ForgeConsole() {
                           key={l}
                           initial={{ opacity: 0.25 }}
                           animate={{ opacity: doneStep || active ? 1 : 0.25 }}
-                          className="flex items-center gap-3 font-mono text-[12.5px]"
+                          className="flex items-center gap-3 font-mono text-sm"
                         >
                           <span className="grid size-5 shrink-0 place-items-center">
                             {doneStep ? (
-                              <Check className="size-4 text-ember" strokeWidth={2.5} />
+                              <Check className="size-4 text-success" strokeWidth={2.5} />
                             ) : active ? (
-                              <Loader2 className="size-4 animate-spin text-flare" />
+                              <span className="loading loading-spinner loading-xs text-primary" />
                             ) : (
-                              <span className="size-1.5 rounded-full bg-steel" />
+                              <span className="size-1.5 rounded-full bg-base-300" />
                             )}
                           </span>
-                          <span className={doneStep ? "text-ivory" : active ? "text-flare" : "text-smoke"}>
+                          <span className={doneStep ? "" : active ? "text-primary" : "opacity-45"}>
                             {l}
                           </span>
                         </motion.li>
@@ -301,14 +293,11 @@ export function ForgeConsole() {
                 )}
 
                 {phase === "forging" && (
-                  <div className="mt-6 h-1 overflow-hidden rounded-full bg-steel">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-ember to-flare"
-                      initial={{ width: "0%" }}
-                      animate={{ width: `${(stage / 10) * 100}%` }}
-                      transition={{ ease: "easeOut", duration: 0.3 }}
-                    />
-                  </div>
+                  <progress
+                    className="progress progress-primary mt-6 w-full"
+                    value={stage}
+                    max={10}
+                  />
                 )}
               </motion.div>
             )}
@@ -319,36 +308,32 @@ export function ForgeConsole() {
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="rounded-xl border border-ember/40 bg-gradient-to-br from-ember/[0.09] to-carbon p-7"
+                className="rounded-box border border-primary/40 bg-primary/5 p-7"
               >
-                <Eyebrow>
+                <SectionLabel>
                   {result.id == null
                     ? "Forged (ephemeral — library unavailable)"
                     : "Forged & filed to your library"}
-                </Eyebrow>
+                </SectionLabel>
                 <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                   <div>
-                    <p className="font-display text-3xl font-bold tracking-tight uppercase md:text-5xl">
+                    <p className="font-display text-3xl font-bold tracking-tight md:text-5xl">
                       {result.spec.brand.name}
-                      <span className="text-ember">.</span>
                     </p>
-                    <p className="mt-2 font-mono text-[12px] text-fog">
+                    <p className="mt-2 font-mono text-xs text-base-content/65">
                       {result.spec.industry} · {result.spec.stats.words.toLocaleString()} words ·{" "}
                       {result.spec.stats.pages} routes · {result.spec.stats.components} components ·{" "}
                       confidence {(result.spec.confidence * 100).toFixed(0)}%
                     </p>
                   </div>
                   {result.id != null && (
-                    <Link
-                      href={`/spec/${result.id}`}
-                      className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-coal px-5 py-2.5 font-mono text-[11px] tracking-[0.14em] text-ivory uppercase transition-colors hover:border-ember hover:text-ember"
-                    >
+                    <Link href={`/spec/${result.id}`} className="btn btn-outline btn-sm gap-2">
                       Permanent link
-                      <ArrowUpRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      <ArrowUpRight className="size-3.5" />
                     </Link>
                   )}
                 </div>
-                <p className="mt-5 border-t border-line pt-4 font-mono text-[10.5px] tracking-[0.14em] text-smoke uppercase">
+                <p className="mt-5 border-t border-base-300 pt-4 font-mono text-xs opacity-55">
                   {result.id == null
                     ? "Not persisted — scroll for the full blueprint"
                     : `Spec #${String(result.id).padStart(4, "0")} — scroll for the full blueprint`}
@@ -359,7 +344,6 @@ export function ForgeConsole() {
         </div>
       </div>
 
-      {/* ------------------------------ full spec ------------------------------ */}
       {phase === "done" && result && (
         <motion.div
           key="spec"

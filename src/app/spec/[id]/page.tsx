@@ -6,7 +6,7 @@ import { ArrowLeft, Flame } from "lucide-react";
 import { db } from "@/db";
 import { prompts } from "@/db/schema";
 import type { EnhancedSpec } from "@/lib/engine/enhancer";
-import { Nav, Footer, Atmosphere, Eyebrow } from "@/components/chrome";
+import { Nav, Footer, Atmosphere, SectionLabel } from "@/components/chrome";
 import { SpecRenderer } from "@/components/spec-renderer";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!row) return { title: "Spec not found" };
   return {
     title: `${row.brandName} — ${row.industry} Build Spec`,
-    description: `A ${row.wordCount.toLocaleString()}-word mega prompt forged from “${row.rawPrompt}”. Brand identity, design system, page blueprints, components, motion, SEO and backend.`,
+    description: `A ${row.wordCount.toLocaleString()}-word mega prompt forged from “${row.rawPrompt}”.`,
   };
 }
 
@@ -41,24 +41,18 @@ export default async function SpecPage({ params }: Props) {
     <>
       <Atmosphere />
       <Nav />
-      <main className="relative z-10 mx-auto max-w-[1280px] px-6 pt-32 pb-24 md:px-10 md:pt-40">
+      <main className="relative z-10 mx-auto max-w-[1120px] px-4 pt-16 pb-24 md:px-8 md:pt-20">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-          <Link
-            href="/library"
-            className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.16em] text-fog uppercase transition-colors hover:text-ember"
-          >
+          <Link href="/library" className="btn btn-ghost btn-sm gap-2">
             <ArrowLeft className="size-4" />
             Back to library
           </Link>
-          <Link
-            href="/forge"
-            className="inline-flex items-center gap-2 rounded-full bg-ember px-4 py-2 font-mono text-[11px] font-medium tracking-[0.14em] text-ink uppercase transition-colors hover:bg-flare"
-          >
+          <Link href="/forge" className="btn btn-primary btn-sm gap-2">
             <Flame className="size-3.5" />
             Forge another
           </Link>
         </div>
-        <Eyebrow>Permanent record · #{String(row.id).padStart(4, "0")}</Eyebrow>
+        <SectionLabel>Permanent record · #{String(row.id).padStart(4, "0")}</SectionLabel>
         <SpecRenderer spec={spec} createdAt={row.createdAt} />
       </main>
       <Footer />
