@@ -67,45 +67,88 @@ function matchFirst(brief: string, patterns: RegExp[]): string | null {
   return null;
 }
 
+/** Functional product categories — mode stays job-first even if the brief name-drops WebGL. */
+export function isFunctionalCategory(categoryKey: ProjectCategoryKey): boolean {
+  return (
+    categoryKey === "saas" ||
+    categoryKey === "startup-mvp" ||
+    categoryKey === "web-application" ||
+    categoryKey === "internal-tool" ||
+    categoryKey === "enterprise-platform"
+  );
+}
+
+function briefSignalsImmersiveCraft(lower: string): boolean {
+  return /\b(webgl|three\.?js|r3f|shader|immersive|awwwards|active\s*theory|scroll\s*theater)\b/i.test(
+    lower,
+  );
+}
+
+function briefSignalsAntiSpectacle(lower: string): boolean {
+  return /\b(?:without\s+(?:any\s+)?(?:webgl|three\.?js|r3f|shaders?|3d)|no\s+(?:webgl|three\.?js|r3f|shaders?|3d|motion)|zero\s+(?:webgl|3d))\b/i.test(
+    lower,
+  );
+}
+
 export function detectCategoryMode(
   categoryKey: ProjectCategoryKey,
   brief: string,
 ): CategoryMode {
   const lower = brief.toLowerCase();
-  if (
-    isImmersiveCategory(categoryKey) ||
-    /\b(webgl|three\.?js|r3f|shader|immersive|awwwards|active\s*theory|scroll\s*theater)\b/i.test(
-      lower,
-    )
-  ) {
+
+  // Category locks first — the user picked the surface; brief keywords don't hijack it.
+  if (isImmersiveCategory(categoryKey)) {
     return "immersive";
   }
   if (
     categoryKey === "saas" ||
     categoryKey === "startup-mvp" ||
     categoryKey === "web-application" ||
-    categoryKey === "internal-tool" ||
-    /\b(saas|dashboard|b2b|workspace|ops|crm|admin)\b/i.test(lower)
+    categoryKey === "internal-tool"
+  ) {
+    return "saas";
+  }
+  if (categoryKey === "enterprise-platform") {
+    return "enterprise";
+  }
+  if (categoryKey.startsWith("ai") || categoryKey === "rag-platform") {
+    return "ai";
+  }
+  if (categoryKey === "e-commerce") {
+    // Sensory / lifestyle shop briefs may run brand-first inside commerce.
+    if (
+      /\b(brand|campaign|consumer|lifestyle|perfume|fashion|atelier)\b/i.test(lower)
+    ) {
+      return "brand";
+    }
+    return "ecommerce";
+  }
+
+  // Flexible / unusual categories — brief heuristics apply.
+  if (briefSignalsImmersiveCraft(lower) && !briefSignalsAntiSpectacle(lower)) {
+    return "immersive";
+  }
+  if (
+    /\b(saas|dashboard|b2b|workspace|ops|crm|admin|operators?|technician|incident|triage)\b/i.test(
+      lower,
+    ) ||
+    categoryKey === "automation-system" ||
+    categoryKey === "analytics-platform" ||
+    (categoryKey === "mobile-app" &&
+      /\b(track|log|field|work|status|operator)/i.test(lower))
   ) {
     return "saas";
   }
   if (
-    categoryKey === "e-commerce" ||
+    categoryKey === "marketplace" ||
     /\b(shop|store|checkout|cart|e-?comm)\b/i.test(lower)
   ) {
     return "ecommerce";
   }
-  if (
-    categoryKey === "enterprise-platform" ||
-    /\b(enterprise|compliance|sso|tenant)\b/i.test(lower)
-  ) {
+  if (/\b(enterprise|compliance|sso|tenant)\b/i.test(lower)) {
     return "enterprise";
   }
-  if (
-    categoryKey.startsWith("ai") ||
-    categoryKey === "rag-platform" ||
-    /\b(ai|llm|agent|rag)\b/i.test(lower)
-  ) {
+  if (/\b(ai|llm|agent|rag)\b/i.test(lower)) {
     return "ai";
   }
   if (
@@ -303,14 +346,39 @@ export function analyzeBrief(input: {
 
   const doNotBuild = buildDoNotList(mode, lower);
   const clarificationNeeded: string[] = [];
-  // Only ask when assumptions are unreasonable — short briefs with clear category are OK.
-  if (brief.length < 20 && mode === "general") {
+  // Extremely thin briefs always need confirmation; short-but-specific category briefs are OK.
+  if (brief.length < 12) {
     clarificationNeeded.push(
-      "Brief is extremely thin with no category signal — confirm audience and primary job.",
+      "Brief is extremely thin — confirm audience, primary job, and craft ambition.",
+    );
+  } else if (brief.length < 20 && mode === "general") {
+    clarificationNeeded.push(
+      "Brief is thin with weak category signal — confirm audience and primary job.",
     );
   }
   if (/\btbd\b|\bTODO\b|\?\?\?/i.test(brief)) {
     clarificationNeeded.push("Brief contains unresolved markers (TBD/TODO/???).");
+  }
+  const wantsImmersive =
+    briefSignalsImmersiveCraft(lower) && !briefSignalsAntiSpectacle(lower);
+  if (isFunctionalCategory(input.categoryKey) && wantsImmersive) {
+    clarificationNeeded.push(
+      "Category is functional/product but brief signals immersive/WebGL craft — keep job-first unless you switch to an immersive category.",
+    );
+  }
+  if (isImmersiveCategory(input.categoryKey) && briefSignalsAntiSpectacle(lower)) {
+    clarificationNeeded.push(
+      "Immersive category with explicit no-WebGL/no-3D constraint — prefer editorial craft over GPU spectacle.",
+    );
+  }
+  if (
+    wantsImmersive &&
+    /\b(saas|dashboard|ops|incident|triage|b2b workspace)\b/i.test(lower) &&
+    isImmersiveCategory(input.categoryKey)
+  ) {
+    clarificationNeeded.push(
+      "Brief mixes product/ops language with immersive craft — confirm whether the site is a world or a workbench.",
+    );
   }
 
   const what: BriefFact = explicit(clip(brief, 180), 0.95);

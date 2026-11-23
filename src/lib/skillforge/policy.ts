@@ -328,9 +328,28 @@ export const IMMERSIVE_BRIEF_SKILLS = [
 ] as const;
 
 export function briefSignalsImmersive(brief: string): boolean {
+  if (
+    /\b(?:without\s+(?:any\s+)?(?:webgl|three\.?js|r3f|shaders?|3d)|no\s+(?:webgl|three\.?js|r3f|shaders?|3d)|zero\s+(?:webgl|3d))\b/i.test(
+      brief,
+    )
+  ) {
+    return false;
+  }
   return /\b(webgl|three\.?js|r3f|shader|immersive|scroll\s*theater|awwwards|active\s*theory|gsap|canvas\s*experience)\b/i.test(
     brief,
   );
+}
+
+const FUNCTIONAL_CATEGORIES = new Set([
+  "saas",
+  "startup-mvp",
+  "web-application",
+  "internal-tool",
+  "enterprise-platform",
+]);
+
+export function isFunctionalProjectCategory(categoryKey: ProjectCategoryKey): boolean {
+  return FUNCTIONAL_CATEGORIES.has(categoryKey);
 }
 
 /** Skills that are spectacle-heavy — demote on SaaS/functional briefs unless immersive signaled. */
@@ -355,17 +374,17 @@ export function focusSkillRoster(input: {
   brief: string;
   slugs: readonly string[];
 }): { slugs: string[]; boundaries: Record<string, string> } {
-  const immersive =
-    briefSignalsImmersive(input.brief) ||
+  const categoryImmersive =
     input.categoryKey === "awwwards-website" ||
     input.categoryKey === "threejs-experience";
+  // Functional categories stay job-first even when the brief name-drops WebGL.
+  const immersive =
+    categoryImmersive ||
+    (briefSignalsImmersive(input.brief) &&
+      !isFunctionalProjectCategory(input.categoryKey));
   const functional =
     !immersive &&
-    (input.categoryKey === "saas" ||
-      input.categoryKey === "enterprise-platform" ||
-      input.categoryKey === "internal-tool" ||
-      input.categoryKey === "web-application" ||
-      input.categoryKey === "startup-mvp" ||
+    (isFunctionalProjectCategory(input.categoryKey) ||
       /\b(saas|dashboard|ops|crm|admin|b2b)\b/i.test(input.brief));
 
   let slugs = [...input.slugs];
