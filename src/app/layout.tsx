@@ -60,10 +60,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-theme="forge">
-      <body
-        className={`${syne.variable} ${sourceSerif.variable} ${ibmPlex.variable} bg-base-100 text-base-content antialiased`}
-      >
+    <html
+      lang="en"
+      data-theme="forge"
+      className={`${syne.variable} ${sourceSerif.variable} ${ibmPlex.variable}`}
+    >
+      <body className="bg-base-100 font-body text-base-content antialiased">
         {children}
       </body>
     </html>
