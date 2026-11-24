@@ -161,6 +161,27 @@ body {
 .menu { font-family: var(--font-display); }
 .textarea { font-family: var(--font-mono); }
 
+/* Hero entrance (taste motion): copy then terminal settle — transform/opacity only */
+.hero-enter-copy {
+  animation: hero-copy-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-enter-media {
+  animation: hero-media-in 1s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+.hero-terminal-mask {
+  mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+}
+
+@keyframes hero-copy-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-media-in {
+  from { opacity: 0; transform: translateY(22px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .layer::before { animation: ignite 1.2s ease-out both; animation-delay: calc(0.5s + var(--i, 0) * 0.13s); }
   .layer-dot { animation: dot-lit 0.5s ease-out both; animation-delay: calc(0.5s + var(--i, 0) * 0.13s); }
@@ -179,15 +200,36 @@ body {
   .btn.btn-primary:hover:not(:disabled):not(.btn-disabled) {
     box-shadow: 0 8px 22px color-mix(in oklab, var(--color-primary) 40%, transparent);
   }
-  .btn:active:not(:disabled):not(.btn-disabled) { transform: scale(0.97); box-shadow: none; }
+  .btn:active:not(:disabled):not(.btn-disabled) {
+    transform: translateY(1px) scale(0.985);
+    box-shadow: none;
+  }
 
   .card {
     transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   }
   a.card:hover { transform: translateY(-2px); }
+
+  .link {
+    text-underline-offset: 3px;
+    transition: color 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-bench-in, .animate-heat { animation: none !important; }
+  .animate-bench-in,
+  .animate-heat,
+  .hero-enter-copy,
+  .hero-enter-media {
+    animation: none !important;
+  }
+  .hero-terminal-mask {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
   html { scroll-behavior: auto; }
+  .btn:hover:not(:disabled):not(.btn-disabled),
+  .btn:active:not(:disabled):not(.btn-disabled) {
+    transform: none;
+  }
 }

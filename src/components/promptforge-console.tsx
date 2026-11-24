@@ -77,11 +77,11 @@ export function PromptForgeConsole() {
 
   if (!bridge) {
     return (
-      <section className="rounded-box border border-base-300 bg-base-100 p-6 md:p-8">
-        <span className="badge badge-soft badge-primary gap-2">
+      <section className="rounded-box border border-base-300 bg-base-100 p-6 shadow-sm md:p-8">
+        <p className="mb-3 flex items-center gap-2 font-mono text-xs tracking-[0.12em] text-primary uppercase">
           <Flame className="size-3.5" aria-hidden /> PromptForge · body prompt
-        </span>
-        <h1 className="mt-4 max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl">
+        </p>
+        <h1 className="max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-[-0.025em] md:text-5xl">
           Need a SkillForge COOK first.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-base-content/70">
@@ -99,11 +99,11 @@ export function PromptForgeConsole() {
 
   return (
     <div className="space-y-6">
-      <header className="rounded-box border border-primary/30 bg-primary/5 p-6 md:p-8">
-        <span className="badge badge-soft badge-primary gap-2">
+      <header className="rounded-box border border-primary/30 bg-primary/5 p-6 shadow-sm md:p-8">
+        <p className="mb-3 flex items-center gap-2 font-mono text-xs tracking-[0.12em] text-primary uppercase">
           <Sparkles className="size-3.5" aria-hidden /> PromptForge · body ready
-        </span>
-        <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl">
+        </p>
+        <h1 className="max-w-4xl font-display text-4xl leading-[1.05] font-bold tracking-[-0.025em] md:text-5xl">
           Brain + body for {bridge.categoryLabel}
         </h1>
         <p className="mt-3 max-w-3xl text-base leading-relaxed text-base-content/70">
