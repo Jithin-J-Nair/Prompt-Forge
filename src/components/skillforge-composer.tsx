@@ -20,6 +20,7 @@ import {
 } from "@/lib/promptforge/orchestrator-prompt";
 import { PROJECT_CATEGORIES } from "@/lib/skillforge/categories";
 import type { CompositionPreview } from "@/lib/skillforge/types";
+import { useLocale } from "@/lib/i18n";
 
 const STORAGE_KEY = "skillforge.saved-packages.v1";
 
@@ -119,6 +120,7 @@ type ServerPackageSummary = {
 };
 
 export function SkillForgeComposer() {
+  const { t } = useLocale();
   const router = useRouter();
   const params = useSearchParams();
   const initialBrief = params.get("q")?.trim() || "Build an enterprise AI recruiting platform";
@@ -170,7 +172,7 @@ export function SkillForgeComposer() {
     const source = overrideBrief ?? brief;
     const trimmed = source.trim();
     if (trimmed.length < 3 || source.length > 400) {
-      setError("Project intent must be 3–400 characters.");
+      setError(t("sf.errorLength"));
       return;
     }
 
@@ -187,24 +189,24 @@ export function SkillForgeComposer() {
       });
       const result: unknown = await response.json();
       if (!response.ok) {
-        setError(getErrorMessage(result) ?? "Composition failed.");
+        setError(getErrorMessage(result) ?? t("sf.errorFailed"));
         return;
       }
       if (!isCompositionPreview(result)) {
-        setError("Unexpected composition response.");
+        setError(t("sf.errorUnexpected"));
         return;
       }
       setPreview(result);
       setNotice(
         result.accepted
-          ? "Package accepted — review the skill graph, DNA, and artifacts below."
-          : "Draft composed — council blocked export until findings are resolved.",
+          ? t("sf.noticeAccepted")
+          : t("sf.noticeDraft"),
       );
       queueMicrotask(() => {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     } catch {
-      setError("Could not reach SkillForge. Try again.");
+      setError(t("sf.errorReach"));
     } finally {
       setBusy(false);
     }
@@ -227,7 +229,7 @@ export function SkillForgeComposer() {
       preview.exportMarkdown,
       "text/markdown;charset=utf-8",
     );
-    setNotice("Exported Markdown package downloaded.");
+    setNotice(t("sf.noticeExport"));
   }
 
   async function requestHandoffPack(options?: {
@@ -245,7 +247,7 @@ export function SkillForgeComposer() {
       });
       const data: unknown = await response.json();
       if (!response.ok || !isRecord(data) || typeof data.markdown !== "string") {
-        setError(getErrorMessage(data) ?? "Could not build agent handoff.");
+        setError(getErrorMessage(data) ?? t("sf.errorHandoff"));
         return null;
       }
 
@@ -276,13 +278,13 @@ export function SkillForgeComposer() {
           );
         }
         setNotice(
-          "COOK.md brain downloaded. Next → PromptForge for the BODY prompt (phases + skill links).",
+          t("sf.noticeCook"),
         );
       }
 
       return nextBridge;
     } catch {
-      setError("Could not build agent handoff.");
+      setError(t("sf.errorHandoff"));
       return null;
     } finally {
       setHandoffBusy(false);
@@ -312,7 +314,7 @@ export function SkillForgeComposer() {
     };
     const next = [entry, ...loadSaved()].slice(0, 20);
     writeSaved(next);
-    setNotice("Saved in this browser.");
+    setNotice(t("sf.noticeLocal"));
   }
 
   async function saveToServer() {
@@ -327,17 +329,17 @@ export function SkillForgeComposer() {
       });
       const data: unknown = await response.json();
       if (!response.ok) {
-        setError(getErrorMessage(data) ?? "Server save failed. Browser save still works.");
+        setError(getErrorMessage(data) ?? t("sf.errorServerSave"));
         return;
       }
       setNotice(
         isRecord(data) && typeof data.id === "number"
           ? `Saved to server as package #${data.id}.`
-          : "Saved to server.",
+          : t("sf.noticeServer"),
       );
       void refreshServerPackages();
     } catch {
-      setError("Server save unavailable. Use browser save or export.");
+      setError(t("sf.errorServerUnavailable"));
     } finally {
       setSavingServer(false);
     }
@@ -349,7 +351,7 @@ export function SkillForgeComposer() {
       const response = await fetch(`/api/skillforge/packages/${id}`);
       const data: unknown = await response.json();
       if (!response.ok || !isRecord(data) || !isCompositionPreview(data.preview)) {
-        setError(getErrorMessage(data) ?? "Could not load package.");
+        setError(getErrorMessage(data) ?? t("sf.errorLoad"));
         return;
       }
       setPreview(data.preview);
@@ -360,7 +362,7 @@ export function SkillForgeComposer() {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     } catch {
-      setError("Could not load package.");
+      setError(t("sf.errorLoad"));
     }
   }
 
@@ -369,15 +371,13 @@ export function SkillForgeComposer() {
   return (
     <div>
       <p className="mb-3 font-mono text-xs tracking-[0.12em] text-primary uppercase">
-        SkillForge · compose
+        {t("sf.badge")}
       </p>
       <h1 className="max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-[-0.025em] md:text-5xl">
-        Compose expertise packages.
+        {t("sf.title")}
       </h1>
       <p className="mt-3 max-w-2xl text-base leading-relaxed text-base-content/70">
-        Pick a category, describe the intent, and SkillForge builds a skill graph, Project DNA,
-        blueprints, and a Review Council gate. Download COOK.md, then continue to PromptForge for
-        the body prompt.
+        {t("sf.body")}
       </p>
 
       <form
@@ -389,7 +389,7 @@ export function SkillForgeComposer() {
         className="relative z-20 mt-8 rounded-box border border-base-300 bg-base-100 p-5 shadow-sm md:p-6"
       >
         <fieldset className="fieldset">
-          <legend className="fieldset-legend">Project category</legend>
+          <legend className="fieldset-legend">{t("sf.category")}</legend>
           <select
             id="skillforge-category"
             value={categoryKey}
@@ -405,7 +405,7 @@ export function SkillForgeComposer() {
         </fieldset>
 
         <fieldset className="fieldset mt-2">
-          <legend className="fieldset-legend">Project intent</legend>
+          <legend className="fieldset-legend">{t("sf.intent")}</legend>
           <textarea
             id="skillforge-brief"
             value={brief}
@@ -420,11 +420,11 @@ export function SkillForgeComposer() {
             maxLength={400}
             required
             rows={3}
-            placeholder="Build an enterprise AI recruiting platform..."
+            placeholder={t("sf.placeholder")}
             className="textarea w-full"
           />
           <p className="label justify-between">
-            <span>3–400 characters · Ctrl+Enter to compose</span>
+            <span>{t("sf.hint")}</span>
             <span>{brief.length}/400</span>
           </p>
         </fieldset>
@@ -432,7 +432,7 @@ export function SkillForgeComposer() {
         <div className="mt-4 flex flex-col gap-3 border-t border-base-300 pt-4">
           <p className="inline-flex items-center gap-2 text-sm text-base-content/70">
             <LockKeyhole className="size-3.5 text-primary" aria-hidden />
-            Deterministic compose · no external model call
+            {t("sf.deterministic")}
           </p>
           <button
             type="submit"
@@ -443,11 +443,11 @@ export function SkillForgeComposer() {
           >
             {busy ? (
               <>
-                Composing <span className="loading loading-spinner loading-sm" />
+                {t("sf.composing")} <span className="loading loading-spinner loading-sm" />
               </>
             ) : (
               <>
-                Compose package <ArrowRight className="size-4" aria-hidden />
+                {t("sf.compose")} <ArrowRight className="size-4" aria-hidden />
               </>
             )}
           </button>
@@ -470,18 +470,23 @@ export function SkillForgeComposer() {
           <div className="flex flex-col justify-between gap-4 rounded-box border border-base-300 bg-base-100 p-5 sm:flex-row sm:items-center">
             <div>
               <p className="font-mono text-xs text-primary">
-                {preview.accepted ? "Accepted for export" : "Draft · council blocked"} ·{" "}
+                {preview.accepted ? t("sf.accepted") : t("sf.draftBlocked")} ·{" "}
                 {preview.categoryLabel}
               </p>
               <p className="mt-2 text-sm text-base-content/75">
-                {preview.graph.nodes.length} skills · {preview.artifactPreviews.length} artifacts ·
-                council {preview.reviewStatus} (mean {preview.council.overallMean}/100) · revision{" "}
-                {preview.council.revisionRound}/{preview.council.maxRevisionRounds}
+                {t("sf.metaLine", {
+                  skills: preview.graph.nodes.length,
+                  artifacts: preview.artifactPreviews.length,
+                  status: preview.reviewStatus,
+                  mean: preview.council.overallMean,
+                  round: preview.council.revisionRound,
+                  max: preview.council.maxRevisionRounds,
+                })}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={saveLocally} className="btn btn-outline btn-sm gap-2">
-                <Save className="size-3.5" aria-hidden /> Browser
+                <Save className="size-3.5" aria-hidden /> {t("sf.browser")}
               </button>
               <button
                 type="button"
@@ -490,10 +495,10 @@ export function SkillForgeComposer() {
                 className="btn btn-outline btn-sm gap-2"
               >
                 <CloudUpload className="size-3.5" aria-hidden />{" "}
-                {savingServer ? "Saving…" : "Server"}
+                {savingServer ? t("sf.saving") : t("sf.server")}
               </button>
               <button type="button" onClick={downloadExport} className="btn btn-outline btn-sm gap-2">
-                <Download className="size-3.5" aria-hidden /> Export MD
+                <Download className="size-3.5" aria-hidden /> {t("sf.exportMd")}
               </button>
               <button
                 type="button"
@@ -502,7 +507,7 @@ export function SkillForgeComposer() {
                 className="btn btn-primary btn-sm gap-2"
               >
                 <Package className="size-3.5" aria-hidden />{" "}
-                {handoffBusy ? "Building…" : "Download COOK"}
+                {handoffBusy ? t("sf.building") : t("sf.downloadCook")}
               </button>
               <button
                 type="button"
@@ -511,7 +516,7 @@ export function SkillForgeComposer() {
                 onClick={() => void goToPromptForge()}
                 className="btn btn-secondary btn-sm gap-2"
               >
-                Next: PromptForge <ArrowRight className="size-3.5" aria-hidden />
+                {t("sf.nextPromptforge")} <ArrowRight className="size-3.5" aria-hidden />
               </button>
             </div>
           </div>
@@ -519,17 +524,14 @@ export function SkillForgeComposer() {
           {bridge && (
             <div className="alert alert-info">
               <div>
-                <p className="font-semibold">COOK brain ready ({bridge.cookFilename})</p>
-                <p className="text-sm">
-                  Continue to PromptForge to copy the body prompt — attach COOK as the brain and
-                  paste the body as the build protocol.
-                </p>
+                <p className="font-semibold">{t("sf.bridgeTitle", { file: bridge.cookFilename })}</p>
+                <p className="text-sm">{t("sf.bridgeBody")}</p>
                 <button
                   type="button"
                   onClick={() => void goToPromptForge()}
                   className="btn btn-primary btn-sm mt-3"
                 >
-                  Next → PromptForge body
+                  {t("sf.nextBody")}
                 </button>
               </div>
             </div>
@@ -539,7 +541,7 @@ export function SkillForgeComposer() {
             <section className="rounded-box border border-base-300 bg-base-100 p-5 md:p-7">
               <h2 className="flex items-center gap-2 font-display text-2xl font-bold">
                 <Network className="size-5 text-primary" aria-hidden />
-                Skill graph
+                {t("sf.skillGraph")}
               </h2>
               <ul className="list mt-5">
                 {preview.graph.nodes.map((node) => (
@@ -564,7 +566,7 @@ export function SkillForgeComposer() {
             </section>
 
             <section className="rounded-box border border-base-300 bg-base-100 p-5 md:p-7">
-              <h2 className="font-display text-2xl font-bold">Project DNA</h2>
+              <h2 className="font-display text-2xl font-bold">{t("sf.projectDna")}</h2>
               <ul className="mt-5 space-y-2">
                 {preview.projectDna.fields.map((field) => (
                   <li key={field.name} className="rounded-field border border-base-300 px-3 py-2 text-sm">
@@ -604,7 +606,7 @@ export function SkillForgeComposer() {
               ) : (
                 <ShieldAlert className="size-5 text-warning" aria-hidden />
               )}
-              Review Council · {preview.reviewStatus}
+              {t("sf.reviewCouncil", { status: preview.reviewStatus })}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-base-content/70">
               {preview.council.gateReason}
@@ -638,7 +640,7 @@ export function SkillForgeComposer() {
           </div>
 
           <section className="space-y-3">
-            <h2 className="font-display text-2xl font-bold">Package artifacts</h2>
+            <h2 className="font-display text-2xl font-bold">{t("sf.artifacts")}</h2>
             {preview.artifactPreviews.map((artifact) => (
               <div key={artifact.logicalKey} className="collapse collapse-arrow border border-base-300 bg-base-100">
                 <input type="checkbox" />
@@ -658,7 +660,7 @@ export function SkillForgeComposer() {
 
       {serverPackages.length > 0 && (
         <section className="mt-12">
-          <h2 className="font-display text-xl font-bold">Saved on server</h2>
+          <h2 className="font-display text-xl font-bold">{t("sf.savedServer")}</h2>
           <ul className="mt-4 space-y-2">
             {serverPackages.map((item) => (
               <li key={item.id}>
@@ -669,7 +671,8 @@ export function SkillForgeComposer() {
                 >
                   <span className="block w-full">
                     <span className="font-mono text-[10px] text-primary">
-                      #{item.id} · {item.categoryKey} · {item.accepted ? "accepted" : "draft"}
+                      #{item.id} · {item.categoryKey} ·{" "}
+                      {item.accepted ? t("sf.acceptedShort") : t("sf.draftShort")}
                     </span>
                     <span className="mt-1 block text-sm">{item.title}</span>
                   </span>
@@ -682,7 +685,7 @@ export function SkillForgeComposer() {
 
       {saved.length > 0 && (
         <section className="mt-12">
-          <h2 className="font-display text-xl font-bold">Saved in this browser</h2>
+          <h2 className="font-display text-xl font-bold">{t("sf.savedBrowser")}</h2>
           <ul className="mt-4 space-y-2">
             {saved.map((item) => (
               <li key={item.id}>
@@ -693,7 +696,8 @@ export function SkillForgeComposer() {
                 >
                   <span className="block w-full">
                     <span className="font-mono text-[10px] text-primary">
-                      {item.categoryKey} · {item.accepted ? "accepted" : "draft"}
+                      {item.categoryKey} ·{" "}
+                      {item.accepted ? t("sf.acceptedShort") : t("sf.draftShort")}
                     </span>
                     <span className="mt-1 block text-sm">{item.title}</span>
                   </span>

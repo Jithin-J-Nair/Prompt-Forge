@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Atmosphere, Footer, Nav } from "@/components/chrome";
 import { SkillForgeComposer } from "@/components/skillforge-composer";
+import { SkillForgeLoading } from "@/components/skillforge-loading";
 
 export const metadata: Metadata = {
   title: "Compose — SkillForge expertise packages",
@@ -16,13 +17,7 @@ export default function SkillForgePage() {
       <Nav />
       <main className="relative z-10 min-h-screen px-5 pt-16 pb-20 md:px-8">
         <div className="mx-auto max-w-[1200px]">
-          <Suspense
-            fallback={
-              <p className="font-mono text-sm text-base-content/60">
-                <span className="loading loading-dots loading-sm" /> Loading SkillForge…
-              </p>
-            }
-          >
+          <Suspense fallback={<SkillForgeLoading />}>
             <SkillForgeComposer />
           </Suspense>
         </div>

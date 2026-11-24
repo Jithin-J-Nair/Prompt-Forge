@@ -6,12 +6,13 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import clsx from "clsx";
 import { Logo } from "@/components/logo";
+import { useLocale, type Locale } from "@/lib/i18n";
 
-const NAV_LINKS = [
-  { href: "/skillforge", label: "Compose" },
-  { href: "/promptforge", label: "Body" },
-  { href: "/forge", label: "Legacy forge" },
-  { href: "/library", label: "Library" },
+const NAV_HREFS = [
+  { href: "/skillforge", key: "nav.compose" as const },
+  { href: "/promptforge", key: "nav.body" as const },
+  { href: "/forge", key: "nav.legacyForge" as const },
+  { href: "/library", key: "nav.library" as const },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -22,9 +23,36 @@ function isActive(pathname: string, href: string) {
   return false;
 }
 
+function LanguageToggle() {
+  const { locale, setLocale, t } = useLocale();
+
+  const option = (code: Locale, label: string) => (
+    <button
+      key={code}
+      type="button"
+      className={clsx(
+        "btn btn-sm join-item min-w-10 px-2.5 font-display font-semibold",
+        locale === code ? "btn-secondary" : "btn-ghost border border-base-300",
+      )}
+      aria-pressed={locale === code}
+      onClick={() => setLocale(code)}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <div className="join" role="group" aria-label={t("nav.language")}>
+      {option("en", t("nav.langEn"))}
+      {option("ja", t("nav.langJp"))}
+    </div>
+  );
+}
+
 export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { t } = useLocale();
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -36,22 +64,21 @@ export function Nav() {
             type="button"
             className="btn btn-ghost btn-square btn-sm lg:hidden"
             onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
             aria-expanded={open}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
-          <Link href="/" aria-label="PromptForge home" className="rounded-field">
+          <Link href="/" aria-label={t("nav.homeAria")} className="rounded-field">
             <Logo />
           </Link>
         </div>
 
-        {/* nav-centre deal */}
         <nav
           className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex"
-          aria-label="Primary"
+          aria-label={t("nav.primary")}
         >
-          {NAV_LINKS.map((link) => (
+          {NAV_HREFS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -63,20 +90,23 @@ export function Nav() {
                   : "text-base-content/65 hover:text-base-content",
               )}
             >
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
         </nav>
 
-        <Link href="/skillforge" className="btn btn-primary btn-sm">
-          Compose package
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <LanguageToggle />
+          <Link href="/skillforge" className="btn btn-primary btn-sm">
+            {t("nav.composePack")}
+          </Link>
+        </div>
       </div>
 
       {open ? (
-        <nav className="border-t border-base-300 bg-base-100 lg:hidden" aria-label="Mobile">
+        <nav className="border-t border-base-300 bg-base-100 lg:hidden" aria-label={t("nav.mobile")}>
           <ul className="mx-auto grid max-w-[1200px] gap-1 p-4">
-            {NAV_LINKS.map((link) => (
+            {NAV_HREFS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -85,7 +115,7 @@ export function Nav() {
                     isActive(pathname, link.href) ? "bg-base-200" : "hover:bg-base-200/60",
                   )}
                 >
-                  {link.label}
+                  {t(link.key)}
                 </Link>
               </li>
             ))}
@@ -94,7 +124,7 @@ export function Nav() {
                 href="/#how"
                 className="block rounded-field px-3 py-3 font-display text-xl font-semibold hover:bg-base-200/60"
               >
-                How it works
+                {t("nav.howItWorks")}
               </Link>
             </li>
           </ul>
@@ -119,6 +149,8 @@ export function Eyebrow({ children }: { children: React.ReactNode }) {
 }
 
 export function Footer() {
+  const { t } = useLocale();
+
   return (
     <footer
       data-theme="forge-night"
@@ -128,41 +160,41 @@ export function Footer() {
         <div>
           <Logo markClassName="text-base-content" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-base-content/70">
-            One project idea becomes a reviewed skill package your agents can build from.
+            {t("footer.blurb")}
           </p>
         </div>
-        <nav aria-label="Surfaces">
-          <h2 className="font-display text-sm font-semibold text-base-content">Surfaces</h2>
+        <nav aria-label={t("footer.surfaces")}>
+          <h2 className="font-display text-sm font-semibold text-base-content">{t("footer.surfaces")}</h2>
           <ul className="mt-3 grid gap-2 text-sm text-base-content/70">
             <li>
               <Link href="/skillforge" className="link link-hover text-base-content/70">
-                Compose (SkillForge)
+                {t("footer.composeSkillforge")}
               </Link>
             </li>
             <li>
               <Link href="/promptforge" className="link link-hover text-base-content/70">
-                Body (PromptForge)
+                {t("footer.bodyPromptforge")}
               </Link>
             </li>
             <li>
               <Link href="/forge" className="link link-hover text-base-content/70">
-                Legacy forge
+                {t("footer.legacyForge")}
               </Link>
             </li>
             <li>
               <Link href="/library" className="link link-hover text-base-content/70">
-                Library
+                {t("footer.library")}
               </Link>
             </li>
           </ul>
         </nav>
         <div>
-          <h2 className="font-display text-sm font-semibold text-base-content">What you get</h2>
+          <h2 className="font-display text-sm font-semibold text-base-content">{t("footer.whatYouGet")}</h2>
           <ul className="mt-3 grid gap-2 text-sm text-base-content/70">
-            <li>Skill graph and Project DNA</li>
-            <li>COOK brain and body protocol</li>
-            <li>Review Council gates</li>
-            <li>Agent execution package</li>
+            <li>{t("footer.get1")}</li>
+            <li>{t("footer.get2")}</li>
+            <li>{t("footer.get3")}</li>
+            <li>{t("footer.get4")}</li>
           </ul>
         </div>
       </div>
