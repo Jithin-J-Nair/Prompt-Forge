@@ -30,7 +30,7 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-base-300 bg-base-100/85 backdrop-blur-lg">
-      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-6 px-5 md:px-8">
+      <div className="relative mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-6 px-5 md:px-8">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -46,7 +46,11 @@ export function Nav() {
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+        {/* nav-centre deal */}
+        <nav
+          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex"
+          aria-label="Primary"
+        >
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -65,11 +69,11 @@ export function Nav() {
         </nav>
 
         <Link href="/skillforge" className="btn btn-primary btn-sm">
-          Compose pack
+          Compose package
         </Link>
       </div>
 
-      {open && (
+      {open ? (
         <nav className="border-t border-base-300 bg-base-100 lg:hidden" aria-label="Mobile">
           <ul className="mx-auto grid max-w-[1200px] gap-1 p-4">
             {NAV_LINKS.map((link) => (
@@ -86,24 +90,27 @@ export function Nav() {
               </li>
             ))}
             <li>
-              <Link href="/#how" className="block rounded-field px-3 py-3 font-display text-xl font-semibold hover:bg-base-200/60">
+              <Link
+                href="/#how"
+                className="block rounded-field px-3 py-3 font-display text-xl font-semibold hover:bg-base-200/60"
+              >
                 How it works
               </Link>
             </li>
           </ul>
         </nav>
-      )}
+      ) : null}
     </header>
   );
 }
 
-/** Kept for pages that still mount it; the new design needs no fixed backdrop. */
+/** Kept for pages that still mount it; blueprint bands carry atmosphere. */
 export function Atmosphere() {
   return null;
 }
 
 export function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="mb-3 text-sm font-semibold text-primary">{children}</p>;
+  return <p className="mb-3 font-mono text-xs tracking-[0.12em] text-primary uppercase">{children}</p>;
 }
 
 /** @deprecated Use SectionLabel */
@@ -127,10 +134,26 @@ export function Footer() {
         <nav aria-label="Surfaces">
           <h2 className="font-display text-sm font-semibold text-base-content">Surfaces</h2>
           <ul className="mt-3 grid gap-2 text-sm text-base-content/70">
-            <li><Link href="/skillforge" className="hover:text-base-content">Compose (SkillForge)</Link></li>
-            <li><Link href="/promptforge" className="hover:text-base-content">Body (PromptForge)</Link></li>
-            <li><Link href="/forge" className="hover:text-base-content">Legacy forge</Link></li>
-            <li><Link href="/library" className="hover:text-base-content">Library</Link></li>
+            <li>
+              <Link href="/skillforge" className="link link-hover text-base-content/70">
+                Compose (SkillForge)
+              </Link>
+            </li>
+            <li>
+              <Link href="/promptforge" className="link link-hover text-base-content/70">
+                Body (PromptForge)
+              </Link>
+            </li>
+            <li>
+              <Link href="/forge" className="link link-hover text-base-content/70">
+                Legacy forge
+              </Link>
+            </li>
+            <li>
+              <Link href="/library" className="link link-hover text-base-content/70">
+                Library
+              </Link>
+            </li>
           </ul>
         </nav>
         <div>

@@ -8,6 +8,13 @@
       "skillPath": "skills/daisyui/SKILL.md",
       "computedHash": "4dfba5cd295d5ee38d352fc40649eb89b550975d8951a323e3de7922eac467d2"
     },
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "commit": "6c0b5c78f5d31776e2210305abaa210cdc0030bf",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "b10eab0a9684cd09cf34c31ef04a3bf530a5f4404422f9c520d42372d670c7fc"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "commit": "e4bb5d960d87126ff3b3a8af1a104b7db67560ba",

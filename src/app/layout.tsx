@@ -36,6 +36,10 @@ export const metadata: Metadata = {
     "agent handoff",
     "design system generator",
   ],
+  other: {
+    "page-type": "software",
+    "site-kind": "software",
+  },
   openGraph: {
     title: "PromptForge — Expertise operating system",
     description:
@@ -62,6 +66,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       data-theme="forge"
+      data-type="software"
+      data-radius="soft"
+      data-buttons="tonal"
+      data-motion="on"
       className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable}`}
     >
       <body className="bg-base-100 font-body text-base-content antialiased">

@@ -368,8 +368,10 @@ export function SkillForgeComposer() {
 
   return (
     <div>
-      <span className="badge badge-soft badge-primary mb-4">SkillForge · compose</span>
-      <h1 className="max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl">
+      <p className="mb-3 font-mono text-xs tracking-[0.12em] text-primary uppercase">
+        SkillForge · compose
+      </p>
+      <h1 className="max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-[-0.025em] md:text-5xl">
         Compose expertise packages.
       </h1>
       <p className="mt-3 max-w-2xl text-base leading-relaxed text-base-content/70">
@@ -384,7 +386,7 @@ export function SkillForgeComposer() {
           event.preventDefault();
           void compose();
         }}
-        className="relative z-20 mt-8 rounded-box border border-base-300 bg-base-100 p-5 md:p-6"
+        className="relative z-20 mt-8 rounded-box border border-base-300 bg-base-100 p-5 shadow-sm md:p-6"
       >
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Project category</legend>

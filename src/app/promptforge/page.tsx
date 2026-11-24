@@ -13,8 +13,8 @@ export default function PromptForgePage() {
     <>
       <Atmosphere />
       <Nav />
-      <main className="relative z-10 min-h-screen px-4 pt-16 pb-20 md:px-8">
-        <div className="mx-auto max-w-[1120px]">
+      <main className="relative z-10 min-h-screen px-5 pt-16 pb-20 md:px-8">
+        <div className="mx-auto max-w-[1200px]">
           <PromptForgeConsole />
         </div>
       </main>
