@@ -2,19 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import {
-  ArrowRight,
-  Brain,
-  FileText,
-  PackageCheck,
-  ScanText,
-  Clock3,
-  Sparkles,
-} from "lucide-react";
-import clsx from "clsx";
-import { useInView, useReducedMotion } from "framer-motion";
-import { SectionLabel } from "@/components/chrome";
+import { useEffect, useState, type CSSProperties } from "react";
+import { useReducedMotion } from "framer-motion";
 import { Reveal } from "@/components/motion";
 import { INDUSTRIES } from "@/lib/engine/industries";
 import { HERO_ROTATIONS } from "@/lib/templates";
@@ -22,215 +11,60 @@ import type { PromptSummary, PromptListResponse } from "@/lib/types";
 
 const STEPS = [
   {
-    icon: ScanText,
-    no: "01",
     title: "State the intent",
-    body: "One plain sentence is enough — category plus a short brief is the whole intake. No forms, no questionnaires.",
-    meta: "3–400 characters · SkillForge intake",
-    detail:
-      "Examples: “Awwwards site like Active Theory”, “enterprise AI recruiting”, “Three.js portfolio for a motion designer”.",
+    body: "One plain sentence is the whole intake. No forms, no questionnaires.",
+    detail: "“Awwwards site like Active Theory”, “enterprise AI recruiting”, “Three.js portfolio for a motion designer”.",
   },
   {
-    icon: Brain,
-    no: "02",
     title: "Compose the COOK brain",
-    body: "SkillForge selects specialist skills, builds Project DNA and craft artifacts, then downloads COOK.md — the full expertise brain for your agent.",
-    meta: "COOK.md · skill graph · Review Council",
-    detail:
-      "The brain carries direction, motion language, and acceptance gates so coding agents cook against real expertise — not vibes.",
+    body: "SkillForge selects specialist skills, builds Project DNA and craft artifacts, and writes COOK.md.",
+    detail: "The brain carries direction, motion language and acceptance gates, so agents build against real expertise.",
   },
   {
-    icon: FileText,
-    no: "03",
     title: "Attach the body package",
-    body: "PromptForge writes the phased body prompt with skill links into COOK and review gates. Paste brain + body into any agentic AI.",
-    meta: "Body protocol · phases · handoff pack",
-    detail:
-      "Brain + body = category-best craft packs agents can execute. Same product, two surfaces.",
+    body: "PromptForge writes the phased body prompt, linked to COOK and the review gates.",
+    detail: "Paste brain and body into any agentic AI, or hand them to your team.",
   },
 ];
 
 const ANATOMY = [
-  {
-    title: "Mission Brief",
-    line: "Objective, brand codename, and the north star the build must protect.",
-  },
-  {
-    title: "Brand Identity",
-    line: "Name, tone, five-token palette, type pairing, and logo direction.",
-  },
-  {
-    title: "Design System",
-    line: "Spacing scale, radius tokens, elevation, grid, and breakpoints.",
-  },
-  {
-    title: "Layout Law",
-    line: "Nav behavior, hero math, section rhythm, and z-index scale.",
-  },
-  {
-    title: "Page Blueprints",
-    line: "Every route with purpose and an ordered section stack.",
-  },
-  {
-    title: "Component Contracts",
-    line: "Named units with states, sizes, and timing values.",
-  },
-  {
-    title: "Copy Strategy",
-    line: "Voice dial, headline options, CTA labels, and microcopy bank.",
-  },
-  {
-    title: "Motion Score",
-    line: "Durations, easings, staggers, and reduced-motion law.",
-  },
-  {
-    title: "Technical Stack",
-    line: "Framework, styling, data, and deploy — each with a reason.",
-  },
-  {
-    title: "SEO & Access",
-    line: "Meta, OG art direction, JSON-LD, and WCAG checklist.",
-  },
-  {
-    title: "Backend & Data",
-    line: "Auth plan, table schemas, and typed API endpoints.",
-  },
-  {
-    title: "Definition of Done",
-    line: "Acceptance criteria that make builders finish cleanly.",
-  },
+  { title: "Mission Brief", line: "Objective, brand codename, and the north star the build must protect." },
+  { title: "Brand Identity", line: "Name, tone, five-token palette, type pairing, and logo direction." },
+  { title: "Design System", line: "Spacing scale, radius tokens, elevation, grid, and breakpoints." },
+  { title: "Layout Law", line: "Nav behavior, hero math, section rhythm, and z-index scale." },
+  { title: "Page Blueprints", line: "Every route with its purpose and an ordered section stack." },
+  { title: "Component Contracts", line: "Named units with states, sizes, and timing values." },
+  { title: "Copy Strategy", line: "Voice dial, headline options, CTA labels, and microcopy bank." },
+  { title: "Motion Score", line: "Durations, easings, staggers, and reduced-motion law." },
+  { title: "Technical Stack", line: "Framework, styling, data, and deploy, each with a reason." },
+  { title: "SEO & Access", line: "Meta, OG art direction, JSON-LD, and a WCAG checklist." },
+  { title: "Backend & Data", line: "Auth plan, table schemas, and typed API endpoints." },
+  { title: "Definition of Done", line: "Acceptance criteria that let builders finish cleanly." },
 ];
 
 const SAMPLE_PACKS = [
-  {
-    industry: "SaaS & Software",
-    brandName: "Northline",
-    rawPrompt: "Enterprise AI recruiting platform with council review gates",
-    wordCount: 2140,
-    surface: "COOK + body",
-  },
-  {
-    industry: "Agency & Creative Studio",
-    brandName: "Kiln Studio",
-    rawPrompt: "Awwwards-grade motion studio site with scroll chapters",
-    wordCount: 1988,
-    surface: "Skill graph",
-  },
-  {
-    industry: "AI Product",
-    brandName: "Forge Desk",
-    rawPrompt: "Expertise OS landing with brain/body handoff story",
-    wordCount: 1764,
-    surface: "Project DNA",
-  },
+  { industry: "SaaS & Software", brandName: "Northline", rawPrompt: "Enterprise AI recruiting platform with council review gates", wordCount: 2140 },
+  { industry: "Agency & Creative Studio", brandName: "Kiln Studio", rawPrompt: "Awwwards-grade motion studio site with scroll chapters", wordCount: 1988 },
+  { industry: "AI Product", brandName: "Forge Desk", rawPrompt: "Expertise OS landing with brain/body handoff story", wordCount: 1764 },
 ];
 
-function HowItWorksFlow() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
-  const reduce = useReducedMotion();
-  const [active, setActive] = useState(0);
+const h2 = "font-display text-4xl leading-[1.05] font-bold tracking-[-0.025em] text-balance md:text-5xl";
 
-  useEffect(() => {
-    if (!inView) return;
-    if (reduce) {
-      setActive(STEPS.length);
-      return;
-    }
-    setActive(1);
-    let n = 1;
-    const id = window.setInterval(() => {
-      n += 1;
-      setActive(n);
-      if (n >= STEPS.length) window.clearInterval(id);
-    }, 780);
-    return () => window.clearInterval(id);
-  }, [inView, reduce]);
-
+function PackRow({ href, industry, brand, prompt, meta }: { href: string; industry: string; brand: string; prompt: string; meta: string }) {
   return (
-    <div ref={ref} className="mt-14 space-y-12">
-      <ul
-        className="steps steps-vertical w-full lg:steps-horizontal"
-        aria-label="How PromptForge works"
+    <li>
+      <Link
+        href={href}
+        className="group grid gap-1 py-6 transition-colors hover:bg-base-200/60 md:grid-cols-[13rem_1fr_auto] md:items-baseline md:gap-8 md:px-3"
       >
-        {STEPS.map((step, i) => (
-          <li
-            key={step.no}
-            data-content={step.no}
-            className={clsx(
-              "step min-h-16 lg:min-h-0",
-              i < active ? "step-primary" : "text-base-content/40",
-            )}
-          >
-            <div
-              className={clsx(
-                "mt-2 max-w-xs text-left transition-opacity duration-500 lg:mx-auto lg:text-center",
-                i < active ? "opacity-100" : "opacity-45",
-              )}
-            >
-              <p className="font-display text-base font-bold md:text-lg">{step.title}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        {STEPS.map((step, i) => {
-          const lit = i < active;
-          return (
-            <article
-              key={step.no}
-              className={clsx(
-                "card card-border h-full bg-base-100 transition-[opacity,border-color,transform,box-shadow] duration-500",
-                lit
-                  ? "border-primary/45 opacity-100 shadow-sm"
-                  : "opacity-50",
-              )}
-            >
-              <div className="card-body gap-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span
-                    className={clsx(
-                      "grid size-10 place-items-center rounded-field border transition-colors duration-500",
-                      lit
-                        ? "border-primary bg-primary text-primary-content"
-                        : "border-base-300 bg-base-200 text-base-content/45",
-                    )}
-                  >
-                    <step.icon className="size-4.5" strokeWidth={1.8} aria-hidden />
-                  </span>
-                  <span className="font-mono text-xs text-primary tabular-nums">
-                    {step.no}
-                  </span>
-                </div>
-                <h3 className="card-title font-display text-xl md:text-2xl">
-                  {step.title}
-                </h3>
-                <p className="text-[15px] leading-relaxed text-base-content/75">
-                  {step.body}
-                </p>
-                <p className="border-t border-base-300 pt-3 text-sm leading-relaxed text-base-content/60">
-                  {step.detail}
-                </p>
-                <p className="font-mono text-[10px] tracking-wide text-base-content/45 uppercase">
-                  {step.meta}
-                </p>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3 rounded-box border border-base-300 bg-base-200/70 px-5 py-4">
-        <PackageCheck className="size-5 shrink-0 text-accent" strokeWidth={1.7} aria-hidden />
-        <p className="text-sm leading-relaxed text-base-content/75 md:text-[15px]">
-          Result: a reviewed expertise pack —{" "}
-          <span className="font-medium text-base-content">COOK brain</span> plus{" "}
-          <span className="font-medium text-base-content">body protocol</span> — ready
-          for agents and human teams.
-        </p>
-      </div>
-    </div>
+        <span className="text-sm font-medium text-accent">{industry}</span>
+        <span>
+          <span className="block font-display text-2xl font-semibold tracking-tight group-hover:text-primary">{brand}</span>
+          <span className="mt-1 line-clamp-2 block max-w-xl text-[15px] leading-relaxed text-base-content/65">“{prompt}”</span>
+        </span>
+        <span className="text-sm text-base-content/55 tabular-nums">{meta}</span>
+      </Link>
+    </li>
   );
 }
 
@@ -258,9 +92,7 @@ export function HomeView() {
 
   useEffect(() => {
     if (reduce) return;
-    const id = window.setInterval(() => {
-      setPhraseIndex((i) => (i + 1) % HERO_ROTATIONS.length);
-    }, 3200);
+    const id = window.setInterval(() => setPhraseIndex((i) => (i + 1) % HERO_ROTATIONS.length), 3200);
     return () => window.clearInterval(id);
   }, [reduce]);
 
@@ -272,234 +104,165 @@ export function HomeView() {
 
   return (
     <>
-      <section className="hero relative min-h-[100svh] px-4 pt-8 pb-16 md:px-8">
-        <div className="hero-content w-full max-w-[1120px] flex-col items-start gap-10 py-16 lg:py-24">
-          <div className="animate-bench-in w-full max-w-3xl">
-            <h1 className="font-display text-5xl leading-[0.95] font-bold tracking-tight sm:text-6xl lg:text-7xl">
-              PromptForge
+      <section data-theme="forge-night" className="blueprint -mt-16 pt-16">
+        <div className="mx-auto grid max-w-[1200px] gap-14 px-5 py-16 md:px-8 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-28">
+          <div className="animate-bench-in">
+            <h1 className="font-display text-5xl leading-[1.02] font-bold tracking-[-0.03em] text-balance sm:text-6xl lg:text-[4.25rem]">
+              Turn one sentence into a pack your agent can build from.
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-base-content/75 md:text-xl">
-              Compose expertise packs agents can execute — brain in COOK.md, body
-              as the build protocol.
-            </p>
-            <p
-              className="mt-4 min-h-6 font-mono text-sm text-accent"
-              aria-live="polite"
-            >
-              {HERO_ROTATIONS[phraseIndex]}
+            <p className="mt-6 max-w-[34rem] text-lg leading-relaxed text-base-content/80">
+              PromptForge composes a COOK brain and a phased body protocol, reviewed before it ships.
             </p>
 
-            <form onSubmit={submit} className="join mt-8 w-full max-w-xl" role="search">
-              <label htmlFor="quick-brief" className="sr-only">
-                Your project idea
-              </label>
+            <form onSubmit={submit} className="mt-9 flex max-w-xl flex-col gap-3 sm:flex-row" role="search">
+              <label htmlFor="quick-brief" className="sr-only">Your project idea</label>
               <input
                 id="quick-brief"
                 value={quick}
                 onChange={(e) => setQuick(e.target.value)}
-                placeholder="Enterprise AI recruiting platform…"
+                placeholder="Enterprise AI recruiting platform"
                 maxLength={200}
-                className="input join-item input-bordered w-full"
+                className="input input-lg w-full flex-1 border-white/25 bg-white/10 font-body text-base placeholder:text-base-content/50"
               />
-              <button type="submit" className="btn btn-primary join-item">
-                Compose
-              </button>
+              <button type="submit" className="btn btn-primary btn-lg">Compose pack</button>
             </form>
+
+            <p className="mt-4 text-sm text-base-content/65">
+              Try{" "}
+              <button
+                type="button"
+                onClick={() => setQuick(HERO_ROTATIONS[phraseIndex])}
+                className="rounded-field text-left font-medium text-base-content underline decoration-primary decoration-2 underline-offset-4"
+              >
+                {HERO_ROTATIONS[phraseIndex]}
+              </button>
+            </p>
+            <p className="mt-2 text-sm text-base-content/55">Free · no account · packs save to your library.</p>
+          </div>
+
+          <div className="animate-bench-in rounded-box border border-white/15 bg-base-100/70 shadow-2xl shadow-black/30 backdrop-blur-sm [animation-delay:150ms]">
+            <div className="flex items-baseline justify-between border-b border-white/10 px-5 py-4">
+              <p className="font-mono text-sm font-medium">COOK.md</p>
+              <p className="text-sm text-base-content/65">12 layers in every pack</p>
+            </div>
+            <ol className="py-2" aria-label="Layers in a finished pack">
+              {ANATOMY.map((item, i) => (
+                <li key={item.title} className="layer flex items-center gap-3 px-5 py-2.5" style={{ "--i": i } as CSSProperties}>
+                  <span className="layer-dot size-2 shrink-0 rotate-45 bg-primary" aria-hidden />
+                  <span className="font-display text-[1.05rem] font-medium">{item.title}</span>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       </section>
 
-      <section id="how" className="relative border-t border-base-300 px-4 py-20 md:px-8 md:py-32">
-        <div className="mx-auto max-w-[1120px]">
+      <section id="how" className="px-5 py-20 md:px-8 md:py-28">
+        <div className="mx-auto max-w-[1200px]">
           <Reveal>
-            <SectionLabel>How it works</SectionLabel>
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <h2 className="max-w-2xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-6xl lg:text-7xl">
-                Intent in.
-                <br />
-                Expertise out.
-              </h2>
-              <p className="max-w-sm text-base leading-relaxed text-base-content/70 md:text-[17px]">
-                Three beats: state the idea, compose the COOK brain, attach the body
-                protocol. Same product — SkillForge and PromptForge as two surfaces.
-              </p>
-            </div>
+            <h2 className={`${h2} max-w-2xl`}>Intent in. Expertise out.</h2>
+            <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-base-content/70">
+              Three steps from an idea to a pack. SkillForge and PromptForge are two surfaces of one product.
+            </p>
           </Reveal>
-
-          <HowItWorksFlow />
+          <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
+            {STEPS.map((step, i) => (
+              <li key={step.title} className="border-t-2 border-base-content pt-5">
+                <p className="font-display text-sm font-semibold text-primary tabular-nums">Step {i + 1}</p>
+                <h3 className="mt-2 font-display text-2xl font-semibold tracking-tight">{step.title}</h3>
+                <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-base-content/75">{step.body}</p>
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-base-content/55">{step.detail}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
-      <section id="anatomy" className="relative border-t border-base-300 px-4 py-20 md:px-8 md:py-32">
-        <div className="mx-auto max-w-[1120px]">
-          <Reveal>
-            <SectionLabel>What ships in a pack</SectionLabel>
-            <h2 className="max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-6xl">
-              Twelve layers inside a finished package.
-            </h2>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-base-content/70 md:text-[17px]">
-              Not a chatbot reply — a filed expertise artifact agents can cook against,
-              section by section.
+      <section id="anatomy" className="border-t border-base-300 bg-base-200/60 px-5 py-20 md:px-8 md:py-28">
+        <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+          <Reveal className="lg:sticky lg:top-28 lg:self-start">
+            <h2 className={h2}>Twelve layers inside a finished pack.</h2>
+            <p className="mt-5 max-w-md text-[17px] leading-relaxed text-base-content/70">
+              Not a chatbot reply. A filed expertise artifact your agent builds against, section by section.
             </p>
           </Reveal>
+          <dl className="divide-y divide-base-300 border-y border-base-300">
+            {ANATOMY.map((item) => (
+              <div key={item.title} className="grid gap-1 py-5 md:grid-cols-[13rem_1fr] md:gap-8">
+                <dt className="font-display text-lg font-semibold">{item.title}</dt>
+                <dd className="text-[15px] leading-relaxed text-base-content/70">{item.line}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
 
-          <ul className="list mt-12 rounded-box border border-base-300 bg-base-100">
-            {ANATOMY.map((item, i) => (
-              <li
-                key={item.title}
-                className="list-row items-start gap-4 py-5 transition-colors hover:bg-base-200/50"
-              >
-                <span className="font-mono text-xs text-primary tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="list-col-grow">
-                  <p className="font-display text-lg font-semibold md:text-xl">
-                    {item.title}
-                  </p>
-                  <p className="mt-1 text-[15px] leading-relaxed text-base-content/65">
-                    {item.line}
-                  </p>
-                </div>
-              </li>
+      <section className="px-5 py-20 md:px-8 md:py-28">
+        <div className="mx-auto max-w-[1200px]">
+          <Reveal>
+            <h2 className={`${h2} max-w-3xl`}>Eighteen industries, matched from your first sentence.</h2>
+            <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-base-content/70">
+              Each industry brings its own brand banks, palettes, routes, components, table schemas and endpoint patterns.
+            </p>
+          </Reveal>
+          <ul className="mt-10 columns-2 gap-8 font-display text-lg font-medium md:columns-3 lg:columns-4">
+            {INDUSTRIES.map((ind) => (
+              <li key={ind.id} className="break-inside-avoid border-b border-base-300 py-2.5">{ind.label}</li>
             ))}
           </ul>
         </div>
       </section>
 
-      <section className="relative border-t border-base-300 px-4 py-20 md:px-8 md:py-28">
-        <div className="mx-auto max-w-[1120px]">
-          <Reveal>
-            <SectionLabel>Coverage</SectionLabel>
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <h2 className="max-w-2xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl lg:text-6xl">
-                Eighteen industries. Matched in milliseconds.
-              </h2>
-              <p className="max-w-sm text-base leading-relaxed text-base-content/70 md:text-[15px]">
-                Each vertical ships its own brand banks, palettes, routes, components,
-                table schemas, and endpoint patterns — locked to your brief without
-                babysitting.
+      <section className="border-t border-base-300 px-5 py-20 md:px-8 md:py-28">
+        <div className="mx-auto max-w-[1200px]">
+          <Reveal className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className={h2}>Fresh from the forge.</h2>
+              <p className="mt-4 max-w-lg text-[17px] leading-relaxed text-base-content/70">
+                {total > 0 ? `${total} packs filed. ` : ""}Each keeps its brand, industry and word count, ready to reopen or hand to an agent.
               </p>
             </div>
-          </Reveal>
-          <div className="mt-10 flex flex-wrap gap-2.5">
-            {INDUSTRIES.map((ind) => (
-              <span
-                key={ind.id}
-                className="badge badge-outline badge-lg h-auto min-h-8 px-4 py-2.5 font-mono text-[11px] tracking-wide"
-              >
-                {ind.label}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative border-t border-base-300 px-4 py-20 md:px-8 md:py-32">
-        <div className="mx-auto max-w-[1120px]">
-          <Reveal>
-            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div>
-                <SectionLabel>
-                  Library{total > 0 ? ` · ${total} forged` : ""}
-                </SectionLabel>
-                <h2 className="font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-6xl">
-                  Fresh from the forge.
-                </h2>
-                <p className="mt-4 max-w-lg text-base leading-relaxed text-base-content/70">
-                  Filed specs keep brand, industry verdict, and word count — ready to
-                  reopen or hand to an agent.
-                </p>
-              </div>
-              <Link href="/library" className="btn btn-ghost gap-2">
-                Open library
-                <ArrowRight className="size-4" />
-              </Link>
-            </div>
+            <Link href="/library" className="btn btn-outline">Open library</Link>
           </Reveal>
 
-          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-10 divide-y divide-base-300 border-y border-base-300">
             {!libraryLoaded &&
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="skeleton h-52 rounded-box" />
+                <li key={i} className="py-6"><div className="skeleton h-16 w-full" /></li>
               ))}
-
             {libraryLoaded &&
               recent.length === 0 &&
-              SAMPLE_PACKS.map((sample) => (
-                <div
-                  key={sample.brandName}
-                  className="card card-border bg-base-100 shadow-none"
-                >
-                  <div className="card-body gap-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="badge badge-soft badge-primary">
-                        {sample.industry}
-                      </span>
-                      <span className="badge badge-ghost gap-1 font-mono text-[10px]">
-                        <Sparkles className="size-3" aria-hidden />
-                        Example
-                      </span>
-                    </div>
-                    <h3 className="card-title font-display text-2xl">
-                      {sample.brandName}
-                    </h3>
-                    <p className="line-clamp-2 text-[15px] leading-relaxed text-base-content/65">
-                      “{sample.rawPrompt}”
-                    </p>
-                    <p className="mt-1 font-mono text-xs text-base-content/50">
-                      {sample.wordCount.toLocaleString()} words · {sample.surface}
-                    </p>
-                    <div className="card-actions mt-2">
-                      <Link href="/skillforge" className="btn btn-sm btn-soft">
-                        Compose one like this
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+              SAMPLE_PACKS.map((s) => (
+                <PackRow
+                  key={s.brandName}
+                  href="/skillforge"
+                  industry={s.industry}
+                  brand={s.brandName}
+                  prompt={s.rawPrompt}
+                  meta={`Example · ${s.wordCount.toLocaleString()} words`}
+                />
               ))}
-
             {recent.map((p) => (
-              <Link
+              <PackRow
                 key={p.id}
                 href={`/spec/${p.id}`}
-                className="card card-border bg-base-100 transition-[border-color,transform] hover:border-primary"
-              >
-                <div className="card-body">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="badge badge-soft badge-primary">{p.industry}</span>
-                    <span className="flex items-center gap-1 font-mono text-xs opacity-60">
-                      <Clock3 className="size-3" />
-                      {new Date(p.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
-                  </div>
-                  <h3 className="card-title font-display text-2xl">{p.brandName}</h3>
-                  <p className="line-clamp-2 text-[15px] leading-relaxed text-base-content/65">
-                    “{p.rawPrompt}”
-                  </p>
-                  <p className="mt-2 font-mono text-xs opacity-55">
-                    {p.wordCount.toLocaleString()} words · 12 sections
-                  </p>
-                </div>
-              </Link>
+                industry={p.industry}
+                brand={p.brandName}
+                prompt={p.rawPrompt}
+                meta={`${new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })} · ${p.wordCount.toLocaleString()} words`}
+              />
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
-      <section className="relative border-t border-base-300 px-4 py-28 text-center md:px-8 md:py-36">
-        <Reveal>
-          <h2 className="mx-auto max-w-3xl font-display text-5xl leading-[1.02] font-bold tracking-tight md:text-7xl">
+      <section data-theme="forge-night" className="blueprint -mb-px px-5 py-24 md:px-8 md:py-32">
+        <Reveal className="mx-auto max-w-[1200px]">
+          <h2 className="max-w-3xl font-display text-5xl leading-[1.02] font-bold tracking-[-0.03em] text-balance md:text-7xl">
             Start with one sentence.
           </h2>
-          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-base-content/70">
-            Free compose · no account · packs stay in your library.
-          </p>
-          <Link href="/skillforge" className="btn btn-primary btn-lg mt-10">
-            Compose a package
-          </Link>
+          <p className="mt-5 max-w-md text-lg text-base-content/75">Free to compose. No account. Packs stay in your library.</p>
+          <Link href="/skillforge" className="btn btn-primary btn-lg mt-9">Compose a pack</Link>
         </Reveal>
       </section>
     </>

@@ -6,8 +6,8 @@ type LogoMarkProps = {
 };
 
 /**
- * PromptForge brand mark — anvil + rising prompt-sparks.
- * Uses currentColor so it inherits chrome (e.g. primary-content on primary tile).
+ * PromptForge mark: a "P" cut from a single stem, with an ember struck below the bowl.
+ * The P follows currentColor; the ember is always the brand orange.
  */
 export function LogoMark({ className, title }: LogoMarkProps) {
   return (
@@ -20,37 +20,12 @@ export function LogoMark({ className, title }: LogoMarkProps) {
       role={title ? "img" : undefined}
     >
       {title ? <title>{title}</title> : null}
-      {/* Rising prompt-sparks */}
       <path
         fill="currentColor"
-        d="M16 2.2 19.35 6.15 16 10.1 12.65 6.15 16 2.2Z"
+        fillRule="evenodd"
+        d="M8 5h8a7.5 7.5 0 0 1 0 15h-2.5v7H8V5ZM13.5 10v5h2.5a2.5 2.5 0 0 0 0-5h-2.5Z"
       />
-      <path
-        fill="currentColor"
-        opacity="0.68"
-        d="M8.85 7.6 11.2 10.35 8.85 13.1 6.5 10.35 8.85 7.6Z"
-      />
-      <path
-        fill="currentColor"
-        opacity="0.68"
-        d="M23.15 7.6 25.5 10.35 23.15 13.1 20.8 10.35 23.15 7.6Z"
-      />
-      {/* Prompt beam into the face */}
-      <path
-        fill="currentColor"
-        d="M15.05 9.85h1.9v4.4h-1.9z"
-        opacity="0.88"
-      />
-      {/* Anvil: horn → face → heel */}
-      <path
-        fill="currentColor"
-        d="M4.75 14.7h5.55l1.85 2.45h7.7l1.85-2.45h5.55v2.85h-3.55L21.2 20.7H10.8L8.3 17.55H4.75V14.7Z"
-      />
-      {/* Anvil waist + foot */}
-      <path
-        fill="currentColor"
-        d="M12.35 20.7h7.3v2.85H22.4V27.2H9.6v-3.65h2.75V20.7Z"
-      />
+      <path fill="#ff6a2b" d="m24 21.5 2.6 3.2-2.6 3.2-2.6-3.2 2.6-3.2Z" />
     </svg>
   );
 }
@@ -59,11 +34,11 @@ type LogoProps = {
   className?: string;
   markClassName?: string;
   wordmarkClassName?: string;
-  /** When false, renders mark only (e.g. dense chrome). */
+  /** When false, renders the mark only. */
   showWordmark?: boolean;
 };
 
-/** Shared brand lockup used in nav + footer. */
+/** Brand lockup used in the nav and footer. */
 export function Logo({
   className,
   markClassName,
@@ -71,19 +46,14 @@ export function Logo({
   showWordmark = true,
 }: LogoProps) {
   return (
-    <span className={clsx("inline-flex items-center gap-2.5", className)}>
-      <span
-        className={clsx(
-          "grid size-9 shrink-0 place-items-center bg-primary p-1 text-primary-content",
-          markClassName,
-        )}
-      >
+    <span className={clsx("inline-flex items-center gap-2", className)}>
+      <span className={clsx("block size-8 shrink-0 text-base-content", markClassName)}>
         <LogoMark />
       </span>
       {showWordmark ? (
         <span
           className={clsx(
-            "font-display text-lg font-bold tracking-tight",
+            "font-display text-[1.15rem] font-bold tracking-[-0.02em]",
             wordmarkClassName,
           )}
         >

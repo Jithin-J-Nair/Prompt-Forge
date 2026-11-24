@@ -29,55 +29,56 @@ export function Nav() {
   useEffect(() => setOpen(false), [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-base-300 bg-base-100/90 backdrop-blur-md">
-      <div className="navbar mx-auto max-w-[1120px] px-4 md:px-8">
-        <div className="navbar-start gap-2">
+    <header className="sticky top-0 z-40 border-b border-base-300 bg-base-100/85 backdrop-blur-lg">
+      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-6 px-5 md:px-8">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            className="btn btn-ghost btn-square lg:hidden"
+            className="btn btn-ghost btn-square btn-sm lg:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
-          <Link href="/" aria-label="PromptForge home">
+          <Link href="/" aria-label="PromptForge home" className="rounded-field">
             <Logo />
           </Link>
         </div>
 
-        <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal gap-1 px-1">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={clsx(isActive(pathname, link.href) && "menu-active")}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={isActive(pathname, link.href) ? "page" : undefined}
+              className={clsx(
+                "rounded-field px-3.5 py-2 font-display text-[0.95rem] font-medium transition-colors",
+                isActive(pathname, link.href)
+                  ? "text-base-content shadow-[inset_0_-2px_0_var(--color-primary)]"
+                  : "text-base-content/65 hover:text-base-content",
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
 
-        <div className="navbar-end">
-          <Link href="/skillforge" className="btn btn-primary btn-sm">
-            Compose package
-          </Link>
-        </div>
+        <Link href="/skillforge" className="btn btn-primary btn-sm">
+          Compose pack
+        </Link>
       </div>
 
       {open && (
         <nav className="border-t border-base-300 bg-base-100 lg:hidden" aria-label="Mobile">
-          <ul className="menu w-full p-4">
+          <ul className="mx-auto grid max-w-[1200px] gap-1 p-4">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   className={clsx(
-                    "font-display text-xl font-semibold",
-                    isActive(pathname, link.href) && "menu-active",
+                    "block rounded-field px-3 py-3 font-display text-xl font-semibold",
+                    isActive(pathname, link.href) ? "bg-base-200" : "hover:bg-base-200/60",
                   )}
                 >
                   {link.label}
@@ -85,7 +86,9 @@ export function Nav() {
               </li>
             ))}
             <li>
-              <Link href="/#how">How it works</Link>
+              <Link href="/#how" className="block rounded-field px-3 py-3 font-display text-xl font-semibold hover:bg-base-200/60">
+                How it works
+              </Link>
             </li>
           </ul>
         </nav>
@@ -94,57 +97,52 @@ export function Nav() {
   );
 }
 
+/** Kept for pages that still mount it; the new design needs no fixed backdrop. */
 export function Atmosphere() {
-  return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      <div className="absolute inset-0 bg-workshop opacity-80" />
-      <div className="absolute inset-0 bg-patina" />
-      <div className="absolute -top-24 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl animate-heat" />
-    </div>
-  );
+  return null;
 }
 
 export function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="mb-4 font-mono text-xs tracking-wide text-primary">{children}</p>;
+  return <p className="mb-3 text-sm font-semibold text-primary">{children}</p>;
 }
 
-/** @deprecated Use SectionLabel — kept for pages still importing Eyebrow */
+/** @deprecated Use SectionLabel */
 export function Eyebrow({ children }: { children: React.ReactNode }) {
   return <SectionLabel>{children}</SectionLabel>;
 }
 
 export function Footer() {
   return (
-    <footer className="footer relative z-10 border-t border-base-300 bg-base-200 p-10 text-base-content sm:footer-horizontal">
-      <aside>
-        <Logo />
-        <p className="mt-3 max-w-xs text-sm leading-relaxed opacity-80">
-          Expertise operating system — one idea becomes a reviewed skill package agents can cook
-          against.
-        </p>
-      </aside>
-      <nav>
-        <h6 className="footer-title">Surfaces</h6>
-        <Link href="/skillforge" className="link link-hover">
-          Compose (SkillForge)
-        </Link>
-        <Link href="/promptforge" className="link link-hover">
-          Body (PromptForge)
-        </Link>
-        <Link href="/forge" className="link link-hover">
-          Legacy forge
-        </Link>
-        <Link href="/library" className="link link-hover">
-          Library
-        </Link>
-      </nav>
-      <nav>
-        <h6 className="footer-title">Output</h6>
-        <span className="opacity-80">Skill graphs & Project DNA</span>
-        <span className="opacity-80">COOK brain + body protocol</span>
-        <span className="opacity-80">Review Council gates</span>
-        <span className="opacity-80">Agent execution packages</span>
-      </nav>
+    <footer
+      data-theme="forge-night"
+      className="blueprint relative z-10 border-t border-white/10 px-5 py-14 md:px-8"
+    >
+      <div className="mx-auto grid max-w-[1200px] gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+        <div>
+          <Logo markClassName="text-base-content" />
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-base-content/70">
+            One project idea becomes a reviewed skill package your agents can build from.
+          </p>
+        </div>
+        <nav aria-label="Surfaces">
+          <h2 className="font-display text-sm font-semibold text-base-content">Surfaces</h2>
+          <ul className="mt-3 grid gap-2 text-sm text-base-content/70">
+            <li><Link href="/skillforge" className="hover:text-base-content">Compose (SkillForge)</Link></li>
+            <li><Link href="/promptforge" className="hover:text-base-content">Body (PromptForge)</Link></li>
+            <li><Link href="/forge" className="hover:text-base-content">Legacy forge</Link></li>
+            <li><Link href="/library" className="hover:text-base-content">Library</Link></li>
+          </ul>
+        </nav>
+        <div>
+          <h2 className="font-display text-sm font-semibold text-base-content">What you get</h2>
+          <ul className="mt-3 grid gap-2 text-sm text-base-content/70">
+            <li>Skill graph and Project DNA</li>
+            <li>COOK brain and body protocol</li>
+            <li>Review Council gates</li>
+            <li>Agent execution package</li>
+          </ul>
+        </div>
+      </div>
     </footer>
   );
 }
