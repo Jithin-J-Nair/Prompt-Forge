@@ -1,24 +1,23 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Syne, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-syne",
+  variable: "--font-bricolage",
   display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
+const instrument = Instrument_Sans({
   subsets: ["latin"],
-  variable: "--font-source-serif",
+  variable: "--font-instrument",
   display: "swap",
 });
 
-const ibmPlex = IBM_Plex_Mono({
+const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-ibm-plex",
+  variable: "--font-jetbrains",
   display: "swap",
 });
 
@@ -53,7 +52,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#e8eef2",
+  themeColor: "#eef2f6",
   width: "device-width",
   initialScale: 1,
 };
@@ -63,7 +62,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       data-theme="forge"
-      className={`${syne.variable} ${sourceSerif.variable} ${ibmPlex.variable}`}
+      className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable}`}
     >
       <body className="bg-base-100 font-body text-base-content antialiased">
         {children}
