@@ -17,6 +17,7 @@ import {
   PROMPTFORGE_BRIDGE_STORAGE_KEY,
   type PromptForgeBridgePayload,
 } from "@/lib/promptforge/orchestrator-prompt";
+import { useLocale } from "@/lib/i18n";
 
 function loadBridge(): PromptForgeBridgePayload | null {
   try {
@@ -30,6 +31,7 @@ function loadBridge(): PromptForgeBridgePayload | null {
 }
 
 export function PromptForgeConsole() {
+  const { t } = useLocale();
   const [bridge, setBridge] = useState<PromptForgeBridgePayload | null>(null);
   const [copied, setCopied] = useState<"body" | "cook" | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -70,28 +72,29 @@ export function PromptForgeConsole() {
   if (!hydrated) {
     return (
       <p className="font-mono text-sm text-base-content/60">
-        <span className="loading loading-dots loading-sm" /> Loading PromptForge…
+        <span className="loading loading-dots loading-sm" /> {t("pf.loading")}
       </p>
     );
   }
 
   if (!bridge) {
     return (
-      <section className="rounded-box border border-base-300 bg-base-100 p-6 shadow-sm md:p-8">
-        <p className="mb-3 flex items-center gap-2 font-mono text-xs tracking-[0.12em] text-primary uppercase">
-          <Flame className="size-3.5" aria-hidden /> PromptForge · body prompt
-        </p>
-        <h1 className="max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-[-0.025em] md:text-5xl">
-          Need a SkillForge COOK first.
+      <section className="rounded-box border border-base-300 bg-base-100 p-6 md:p-8">
+        <span className="badge badge-soft badge-primary gap-2">
+          <Flame className="size-3.5" aria-hidden /> {t("pf.emptyBadge")}
+        </span>
+        <h1 className="mt-4 max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl">
+          {t("pf.emptyTitle")}
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-base-content/70">
-          PromptForge builds the <strong className="font-semibold text-base-content">BODY</strong>{" "}
-          prompt — the phased execution protocol with skill links. The{" "}
-          <strong className="font-semibold text-base-content">BRAIN</strong> lives in SkillForge
-          COOK.md. Compose a package, download the Cook pack, then hit Next.
+          {t("pf.emptyBodyBefore")}
+          <strong className="font-semibold text-base-content">{t("pf.bodyWord")}</strong>
+          {t("pf.emptyBody")}
+          <strong className="font-semibold text-base-content">{t("pf.brainWord")}</strong>
+          {t("pf.emptyBodyAfter")}
         </p>
         <Link href="/skillforge" className="btn btn-primary mt-6 gap-2">
-          <ArrowLeft className="size-4" aria-hidden /> Go to SkillForge
+          <ArrowLeft className="size-4" aria-hidden /> {t("pf.goSkillforge")}
         </Link>
       </section>
     );
@@ -99,23 +102,24 @@ export function PromptForgeConsole() {
 
   return (
     <div className="space-y-6">
-      <header className="rounded-box border border-primary/30 bg-primary/5 p-6 shadow-sm md:p-8">
-        <p className="mb-3 flex items-center gap-2 font-mono text-xs tracking-[0.12em] text-primary uppercase">
-          <Sparkles className="size-3.5" aria-hidden /> PromptForge · body ready
-        </p>
-        <h1 className="max-w-4xl font-display text-4xl leading-[1.05] font-bold tracking-[-0.025em] md:text-5xl">
-          Brain + body for {bridge.categoryLabel}
+      <header className="rounded-box border border-primary/30 bg-primary/5 p-6 md:p-8">
+        <span className="badge badge-soft badge-primary gap-2">
+          <Sparkles className="size-3.5" aria-hidden /> {t("pf.readyBadge")}
+        </span>
+        <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl">
+          {t("pf.readyTitle", { category: bridge.categoryLabel })}
         </h1>
         <p className="mt-3 max-w-3xl text-base leading-relaxed text-base-content/70">
-          Attach <code className="font-mono text-sm">{bridge.cookFilename}</code> (SkillForge brain)
-          to your agent, then paste the PromptForge body below.
+          {t("pf.readyBody", { file: bridge.cookFilename })}
         </p>
         <p className="mt-3 text-sm">{bridge.brief}</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="badge badge-outline">
-            {bridge.accepted ? "Accepted" : "Draft"} · {bridge.reviewStatus}
+            {bridge.accepted ? t("pf.accepted") : t("pf.draft")} · {bridge.reviewStatus}
           </span>
-          <span className="badge badge-outline">{bridge.skillSlugs.length} skills</span>
+          <span className="badge badge-outline">
+            {t("pf.skillsCount", { n: bridge.skillSlugs.length })}
+          </span>
           <span className="badge badge-outline">{bridge.catalogVersion}</span>
         </div>
       </header>
@@ -123,11 +127,10 @@ export function PromptForgeConsole() {
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-box border border-base-300 bg-base-100 p-5">
           <h2 className="flex items-center gap-2 font-display text-xl font-bold">
-            <Brain className="size-5 text-primary" aria-hidden /> 1. Attach COOK (brain)
+            <Brain className="size-5 text-primary" aria-hidden /> {t("pf.attachCook")}
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-base-content/70">
-            Upload or paste <code className="font-mono">{bridge.cookFilename}</code> into the agent
-            context first. Without it, the body prompt will self-block.
+            {t("pf.attachBody", { file: bridge.cookFilename })}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
@@ -135,7 +138,7 @@ export function PromptForgeConsole() {
               onClick={() => downloadText(bridge.cookFilename, bridge.cookPrompt)}
               className="btn btn-outline btn-sm gap-2"
             >
-              <Download className="size-3.5" aria-hidden /> Re-download COOK
+              <Download className="size-3.5" aria-hidden /> {t("pf.redownloadCook")}
             </button>
             <button
               type="button"
@@ -147,18 +150,17 @@ export function PromptForgeConsole() {
               ) : (
                 <Copy className="size-3.5" aria-hidden />
               )}
-              {copied === "cook" ? "Copied" : "Copy COOK"}
+              {copied === "cook" ? t("pf.copied") : t("pf.copyCook")}
             </button>
           </div>
         </div>
 
         <div className="rounded-box border border-primary/40 bg-primary/10 p-5">
           <h2 className="flex items-center gap-2 font-display text-xl font-bold">
-            <Flame className="size-5 text-primary" aria-hidden /> 2. Paste BODY prompt
+            <Flame className="size-5 text-primary" aria-hidden /> {t("pf.pasteBody")}
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-base-content/70">
-            This is the PromptForge execution protocol: phases, skill roster links into COOK, and
-            done gates for category-best craft.
+            {t("pf.pasteBodyHelp")}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
@@ -171,7 +173,7 @@ export function PromptForgeConsole() {
               ) : (
                 <Copy className="size-3.5" aria-hidden />
               )}
-              {copied === "body" ? "Copied body" : "Copy body prompt"}
+              {copied === "body" ? t("pf.copiedBody") : t("pf.copyBody")}
             </button>
             <button
               type="button"
@@ -183,7 +185,7 @@ export function PromptForgeConsole() {
               }
               className="btn btn-outline btn-sm gap-2"
             >
-              <Download className="size-3.5" aria-hidden /> Download body
+              <Download className="size-3.5" aria-hidden /> {t("pf.downloadBody")}
             </button>
           </div>
         </div>
@@ -191,7 +193,7 @@ export function PromptForgeConsole() {
 
       <section className="rounded-box border border-base-300 bg-base-100 p-5 md:p-7">
         <h2 className="flex items-center gap-2 font-display text-2xl font-bold">
-          <Link2 className="size-5 text-primary" aria-hidden /> Skill links the agent must use
+          <Link2 className="size-5 text-primary" aria-hidden /> {t("pf.skillLinks")}
         </h2>
         <ol className="mt-5 grid gap-2 sm:grid-cols-2">
           {skillList.map((skill, index) => (
@@ -209,9 +211,9 @@ export function PromptForgeConsole() {
 
       <section className="rounded-box border border-base-300 bg-base-100 p-5 md:p-7">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-display text-2xl font-bold">Body prompt preview</h2>
+          <h2 className="font-display text-2xl font-bold">{t("pf.bodyPreview")}</h2>
           <Link href="/skillforge" className="btn btn-ghost btn-sm gap-2">
-            <ArrowLeft className="size-3.5" aria-hidden /> Back to SkillForge
+            <ArrowLeft className="size-3.5" aria-hidden /> {t("pf.backSkillforge")}
           </Link>
         </div>
         <pre className="max-h-[min(70vh,720px)] overflow-auto whitespace-pre-wrap rounded-field border border-base-300 bg-base-200/40 p-4 font-mono text-[11px] leading-5 text-base-content/75">

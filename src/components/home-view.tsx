@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   Brain,
@@ -16,71 +16,82 @@ import { CookTerminal } from "@/components/cook-terminal";
 import { INDUSTRIES } from "@/lib/engine/industries";
 import { HERO_ROTATIONS } from "@/lib/templates";
 import type { PromptSummary, PromptListResponse } from "@/lib/types";
+import { useLocale, type MessageKey } from "@/lib/i18n";
 
-const STEPS = [
+type StepFrame = "brief" | "cook" | "body";
+
+type StepDef = {
+  icon: typeof ScanText;
+  no: string;
+  titleKey: MessageKey;
+  bodyKey: MessageKey;
+  detailKey: MessageKey;
+  metaKey: MessageKey;
+  frame: StepFrame;
+};
+
+const STEP_DEFS: StepDef[] = [
   {
     icon: ScanText,
     no: "01",
-    title: "State the intent",
-    body: "One plain sentence is the whole intake. No forms, no questionnaires.",
-    detail:
-      "Examples: Awwwards site like Active Theory, enterprise AI recruiting, Three.js portfolio for a motion designer.",
-    meta: "3–400 characters · SkillForge intake",
-    frame: "brief" as const,
+    titleKey: "home.step1Title",
+    bodyKey: "home.step1Body",
+    detailKey: "home.step1Detail",
+    metaKey: "home.step1Meta",
+    frame: "brief",
   },
   {
     icon: Brain,
     no: "02",
-    title: "Compose the COOK brain",
-    body: "SkillForge selects specialist skills, builds Project DNA and craft artifacts, and writes COOK.md.",
-    detail:
-      "The brain carries direction, motion language and acceptance gates, so agents build against real expertise.",
-    meta: "COOK.md · skill graph · Review Council",
-    frame: "cook" as const,
+    titleKey: "home.step2Title",
+    bodyKey: "home.step2Body",
+    detailKey: "home.step2Detail",
+    metaKey: "home.step2Meta",
+    frame: "cook",
   },
   {
     icon: FileText,
     no: "03",
-    title: "Attach the body package",
-    body: "PromptForge writes the phased body prompt, linked to COOK and the review gates.",
-    detail: "Paste brain and body into any agentic AI, or hand them to your team.",
-    meta: "Body protocol · phases · handoff pack",
-    frame: "body" as const,
+    titleKey: "home.step3Title",
+    bodyKey: "home.step3Body",
+    detailKey: "home.step3Detail",
+    metaKey: "home.step3Meta",
+    frame: "body",
   },
 ];
 
-const ANATOMY = [
-  { title: "Mission Brief", line: "Objective, brand codename, and the north star the build must protect." },
-  { title: "Brand Identity", line: "Name, tone, five-token palette, type pairing, and logo direction." },
-  { title: "Design System", line: "Spacing scale, radius tokens, elevation, grid, and breakpoints." },
-  { title: "Layout Law", line: "Nav behavior, hero math, section rhythm, and z-index scale." },
-  { title: "Page Blueprints", line: "Every route with its purpose and an ordered section stack." },
-  { title: "Component Contracts", line: "Named units with states, sizes, and timing values." },
-  { title: "Copy Strategy", line: "Voice dial, headline options, CTA labels, and microcopy bank." },
-  { title: "Motion Score", line: "Durations, easings, staggers, and reduced-motion law." },
-  { title: "Technical Stack", line: "Framework, styling, data, and deploy, each with a reason." },
-  { title: "SEO & Access", line: "Meta, OG art direction, JSON-LD, and a WCAG checklist." },
-  { title: "Backend & Data", line: "Auth plan, table schemas, and typed API endpoints." },
-  { title: "Definition of Done", line: "Acceptance criteria that let builders finish cleanly." },
+const ANATOMY_KEYS: { titleKey: MessageKey; lineKey: MessageKey }[] = [
+  { titleKey: "layer.missionBrief", lineKey: "layer.missionBriefLine" },
+  { titleKey: "layer.brandIdentity", lineKey: "layer.brandIdentityLine" },
+  { titleKey: "layer.designSystem", lineKey: "layer.designSystemLine" },
+  { titleKey: "layer.layoutLaw", lineKey: "layer.layoutLawLine" },
+  { titleKey: "layer.pageBlueprints", lineKey: "layer.pageBlueprintsLine" },
+  { titleKey: "layer.componentContracts", lineKey: "layer.componentContractsLine" },
+  { titleKey: "layer.copyStrategy", lineKey: "layer.copyStrategyLine" },
+  { titleKey: "layer.motionScore", lineKey: "layer.motionScoreLine" },
+  { titleKey: "layer.technicalStack", lineKey: "layer.technicalStackLine" },
+  { titleKey: "layer.seoAccess", lineKey: "layer.seoAccessLine" },
+  { titleKey: "layer.backendData", lineKey: "layer.backendDataLine" },
+  { titleKey: "layer.definitionOfDone", lineKey: "layer.definitionOfDoneLine" },
 ];
 
-const SAMPLE_PACKS = [
+const SAMPLE_PACK_KEYS = [
   {
-    industry: "SaaS & Software",
+    industryKey: "sample.saasIndustry" as const,
     brandName: "Northline",
-    rawPrompt: "Enterprise AI recruiting platform with council review gates",
+    promptKey: "sample.saasPrompt" as const,
     wordCount: 2140,
   },
   {
-    industry: "Agency & Creative Studio",
+    industryKey: "sample.agencyIndustry" as const,
     brandName: "Kiln Studio",
-    rawPrompt: "Awwwards-grade motion studio site with scroll chapters",
+    promptKey: "sample.agencyPrompt" as const,
     wordCount: 1988,
   },
   {
-    industry: "AI Product",
+    industryKey: "sample.aiIndustry" as const,
     brandName: "Forge Desk",
-    rawPrompt: "Expertise OS landing with brain/body handoff story",
+    promptKey: "sample.aiPrompt" as const,
     wordCount: 1764,
   },
 ];
@@ -88,39 +99,37 @@ const SAMPLE_PACKS = [
 const h2 =
   "font-display text-4xl leading-[1.05] font-bold tracking-[-0.025em] text-balance md:text-5xl lg:text-[3.25rem]";
 
-function HowFrame({ step }: { step: (typeof STEPS)[number] }) {
-  if (step.frame === "brief") {
+function HowFrame({ frame }: { frame: StepFrame }) {
+  const { t } = useLocale();
+
+  if (frame === "brief") {
     return (
       <div className="flex h-full flex-col justify-between gap-4 p-5 md:p-6">
         <div>
           <p className="font-mono text-[10px] tracking-[0.12em] text-primary uppercase">
-            Intake
+            {t("home.frameIntake")}
           </p>
           <p className="mt-3 font-display text-xl font-semibold tracking-tight md:text-2xl">
-            Enterprise AI recruiting with council gates
+            {t("home.frameBriefTitle")}
           </p>
         </div>
-        <div className="rounded-field border border-white/15 bg-white/5 p-4 font-mono text-xs leading-relaxed text-base-content/70">
-          category · ai-product
-          <br />
-          length · 58 chars
-          <br />
-          status · ready to compose
+        <div className="rounded-field border border-white/15 bg-white/5 p-4 font-mono text-xs leading-relaxed whitespace-pre-line text-base-content/70">
+          {t("home.frameBriefMeta")}
         </div>
       </div>
     );
   }
-  if (step.frame === "cook") {
+  if (frame === "cook") {
     return (
       <div className="flex h-full flex-col gap-2.5 overflow-hidden p-4 font-mono text-[11px] leading-relaxed md:p-5">
         <p className="text-accent"># COOK.md — BRAIN</p>
-        <p className="text-base-content/80">## Mission</p>
-        <p className="text-base-content/65">- North star: council-gated shortlists</p>
-        <p className="text-base-content/80">## Expertise graph</p>
+        <p className="text-base-content/80">{t("home.frameCookMission")}</p>
+        <p className="text-base-content/65">{t("home.frameCookMissionLine")}</p>
+        <p className="text-base-content/80">{t("home.frameCookGraph")}</p>
         <p className="text-primary">01 craft-direction</p>
         <p className="text-primary">02 layout-law</p>
         <p className="text-primary">03 copy-strategy</p>
-        <p className="mt-auto text-success">ACCEPTED for export</p>
+        <p className="mt-auto text-success">{t("home.frameCookAccepted")}</p>
       </div>
     );
   }
@@ -128,16 +137,16 @@ function HowFrame({ step }: { step: (typeof STEPS)[number] }) {
     <div className="flex h-full flex-col justify-between gap-4 p-5 md:p-6">
       <div>
         <p className="font-mono text-[10px] tracking-[0.12em] text-accent uppercase">
-          Body protocol
+          {t("home.frameBodyLabel")}
         </p>
         <p className="mt-3 font-display text-xl font-semibold tracking-tight md:text-2xl">
-          Phased execution for the agent
+          {t("home.frameBodyTitle")}
         </p>
       </div>
       <ol className="space-y-2 font-mono text-xs text-base-content/70">
-        <li>01 · Attach COOK.md as source of truth</li>
-        <li>02 · Run phases with skill links</li>
-        <li>03 · Pass review gates before claim-done</li>
+        <li>{t("home.frameBody1")}</li>
+        <li>{t("home.frameBody2")}</li>
+        <li>{t("home.frameBody3")}</li>
       </ol>
     </div>
   );
@@ -145,6 +154,7 @@ function HowFrame({ step }: { step: (typeof STEPS)[number] }) {
 
 /** Dealt moment: pinned-chapters — steps open while the frame crossfades. */
 function HowItWorksPinned() {
+  const { t } = useLocale();
   const reduce = useReducedMotion();
   const [active, setActive] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -152,7 +162,7 @@ function HowItWorksPinned() {
 
   useEffect(() => {
     if (reduce) {
-      setActive(STEPS.length - 1);
+      setActive(STEP_DEFS.length - 1);
       return;
     }
 
@@ -167,7 +177,7 @@ function HowItWorksPinned() {
       }
       const raw = Math.min(1, Math.max(0, -rect.top / total));
       setPinnedProgress(raw);
-      const idx = Math.min(STEPS.length - 1, Math.floor(raw * STEPS.length));
+      const idx = Math.min(STEP_DEFS.length - 1, Math.floor(raw * STEP_DEFS.length));
       setActive(idx);
     };
 
@@ -184,96 +194,97 @@ function HowItWorksPinned() {
     if (reduce) return;
     if (pinnedProgress > 0.02) return;
     const id = window.setInterval(() => {
-      setActive((a) => (a + 1) % STEPS.length);
+      setActive((a) => (a + 1) % STEP_DEFS.length);
     }, 2800);
     return () => window.clearInterval(id);
   }, [reduce, pinnedProgress]);
 
   return (
     <>
-    <div
-      ref={sectionRef}
-      className="relative mt-14"
-      style={{ minHeight: reduce ? undefined : "210vh" }}
-    >
       <div
-        className={clsx(
-          "grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-12",
-          !reduce && "lg:sticky lg:top-24 lg:min-h-[calc(100vh-8rem)]",
-        )}
+        ref={sectionRef}
+        className="relative mt-14"
+        style={{ minHeight: reduce ? undefined : "210vh" }}
       >
-        <div className="space-y-3">
-          {STEPS.map((step, i) => {
-            const lit = i === active;
-            return (
-              <button
-                key={step.no}
-                type="button"
-                onClick={() => setActive(i)}
-                className={clsx(
-                  "w-full border-t-2 px-1 py-5 text-left transition-[opacity,border-color,color] duration-300",
-                  lit
-                    ? "border-primary opacity-100"
-                    : "border-base-300 opacity-50 hover:opacity-80",
-                )}
-                aria-current={lit ? "step" : undefined}
-              >
-                <div className="flex items-start gap-3">
-                  <span
-                    className={clsx(
-                      "mt-0.5 grid size-9 shrink-0 place-items-center rounded-field border",
-                      lit
-                        ? "border-primary bg-primary text-primary-content"
-                        : "border-base-300 bg-base-200 text-base-content/45",
-                    )}
-                  >
-                    <step.icon className="size-4" strokeWidth={1.8} aria-hidden />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <h3 className="font-display text-xl font-semibold tracking-tight md:text-2xl">
-                        {step.title}
-                      </h3>
-                      <span className="font-mono text-[10px] text-primary tabular-nums">
-                        {step.no}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-[15px] leading-relaxed text-base-content/75">
-                      {step.body}
-                    </p>
-                    {lit ? (
-                      <p className="mt-2 text-sm leading-relaxed text-base-content/55">
-                        {step.detail}
-                      </p>
-                    ) : null}
-                    <p className="mt-2 font-mono text-[10px] tracking-wide text-base-content/45 uppercase">
-                      {step.meta}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
         <div
-          data-theme="forge-night"
-          className="relative min-h-[280px] overflow-hidden rounded-box border border-white/15 bg-base-100 md:min-h-[340px]"
+          className={clsx(
+            "grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-12",
+            !reduce && "lg:sticky lg:top-24 lg:min-h-[calc(100vh-8rem)]",
+          )}
         >
-          <div key={STEPS[active].no} className="absolute inset-0 bg-base-100">
-            <HowFrame step={STEPS[active]} />
+          <div className="space-y-3">
+            {STEP_DEFS.map((step, i) => {
+              const lit = i === active;
+              return (
+                <button
+                  key={step.no}
+                  type="button"
+                  onClick={() => setActive(i)}
+                  className={clsx(
+                    "w-full border-t-2 px-1 py-5 text-left transition-[opacity,border-color,color] duration-300",
+                    lit
+                      ? "border-primary opacity-100"
+                      : "border-base-300 opacity-50 hover:opacity-80",
+                  )}
+                  aria-current={lit ? "step" : undefined}
+                >
+                  <div className="flex items-start gap-3">
+                    <span
+                      className={clsx(
+                        "mt-0.5 grid size-9 shrink-0 place-items-center rounded-field border",
+                        lit
+                          ? "border-primary bg-primary text-primary-content"
+                          : "border-base-300 bg-base-200 text-base-content/45",
+                      )}
+                    >
+                      <step.icon className="size-4" strokeWidth={1.8} aria-hidden />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <h3 className="font-display text-xl font-semibold tracking-tight md:text-2xl">
+                          {t(step.titleKey)}
+                        </h3>
+                        <span className="font-mono text-[10px] text-primary tabular-nums">
+                          {step.no}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-[15px] leading-relaxed text-base-content/75">
+                        {t(step.bodyKey)}
+                      </p>
+                      {lit ? (
+                        <p className="mt-2 text-sm leading-relaxed text-base-content/55">
+                          {t(step.detailKey)}
+                        </p>
+                      ) : null}
+                      <p className="mt-2 font-mono text-[10px] tracking-wide text-base-content/45 uppercase">
+                        {t(step.metaKey)}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div
+            data-theme="forge-night"
+            className="relative min-h-[280px] overflow-hidden rounded-box border border-white/15 bg-base-100 md:min-h-[340px]"
+          >
+            <div key={STEP_DEFS[active].no} className="absolute inset-0 bg-base-100">
+              <HowFrame frame={STEP_DEFS[active].frame} />
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
       <div className="mt-10 flex flex-wrap items-center gap-3 border border-base-300 bg-base-200/70 px-5 py-4">
         <PackageCheck className="size-5 shrink-0 text-accent" strokeWidth={1.7} aria-hidden />
         <p className="text-sm leading-relaxed text-base-content/75 md:text-[15px]">
-          Result: a reviewed expertise pack —{" "}
-          <span className="font-medium text-base-content">COOK brain</span> plus{" "}
-          <span className="font-medium text-base-content">body protocol</span> — ready for
-          agents and human teams.
+          {t("home.resultBefore")}
+          <span className="font-medium text-base-content">{t("home.resultCook")}</span>
+          {t("home.resultPlus")}
+          <span className="font-medium text-base-content">{t("home.resultBody")}</span>
+          {t("home.resultAfter")}
         </p>
       </div>
     </>
@@ -316,12 +327,15 @@ function PackRow({
 
 export function HomeView() {
   const router = useRouter();
+  const { locale, t } = useLocale();
   const [quick, setQuick] = useState("");
   const [recent, setRecent] = useState<PromptSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [libraryLoaded, setLibraryLoaded] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const reduce = useReducedMotion();
+
+  const dateLocale = useMemo(() => (locale === "ja" ? "ja-JP" : "en-US"), [locale]);
 
   useEffect(() => {
     fetch("/api/prompts?limit=6")
@@ -363,7 +377,7 @@ export function HomeView() {
         <div className="mx-auto flex max-w-[1200px] flex-col items-center px-5 pt-14 pb-10 text-center md:px-8 md:pt-20 md:pb-14">
           <div className={clsx("w-full max-w-3xl", !reduce && "hero-enter-copy")}>
             <p className="font-mono text-[11px] tracking-[0.14em] text-primary uppercase">
-              Expertise OS · SkillForge + PromptForge
+              {t("home.eyebrow")}
             </p>
             <h1
               id="hero-h"
@@ -372,8 +386,7 @@ export function HomeView() {
               PromptForge
             </h1>
             <p className="mx-auto mt-5 max-w-[34rem] text-lg leading-relaxed text-base-content/80">
-              Agent-cookable expertise packs — COOK.md brain plus body protocol from one
-              sentence.
+              {t("home.heroBody")}
             </p>
 
             <form
@@ -382,23 +395,23 @@ export function HomeView() {
               role="search"
             >
               <label htmlFor="quick-brief" className="sr-only">
-                Your project idea
+                {t("home.quickLabel")}
               </label>
               <input
                 id="quick-brief"
                 value={quick}
                 onChange={(e) => setQuick(e.target.value)}
-                placeholder="Enterprise AI recruiting platform"
+                placeholder={t("home.quickPlaceholder")}
                 maxLength={200}
                 className="input input-lg w-full flex-1 border-white/25 bg-white/10 font-body text-base placeholder:text-base-content/50"
               />
               <button type="submit" className="btn btn-primary btn-lg shrink-0">
-                Compose package
+                {t("home.composePack")}
               </button>
             </form>
 
             <p className="mt-4 text-sm text-base-content/65">
-              Try{" "}
+              {t("home.try")}{" "}
               <button
                 type="button"
                 onClick={() => setQuick(HERO_ROTATIONS[phraseIndex])}
@@ -408,7 +421,7 @@ export function HomeView() {
               </button>
             </p>
             <p className="mt-2 font-mono text-xs text-base-content/55">
-              Free · no account · packs save to your library
+              {t("home.freeNote")}
             </p>
           </div>
 
@@ -425,10 +438,9 @@ export function HomeView() {
 
       <section id="how" className="px-5 py-20 md:px-8 md:py-28">
         <div className="mx-auto max-w-[1200px]">
-          <h2 className={`${h2} max-w-2xl`}>Intent in. Expertise out.</h2>
+          <h2 className={`${h2} max-w-2xl`}>{t("home.howTitle")}</h2>
           <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-base-content/70">
-            Three steps from an idea to a pack. SkillForge and PromptForge are two surfaces of
-            one product.
+            {t("home.howBody")}
           </p>
           <HowItWorksPinned />
         </div>
@@ -440,20 +452,21 @@ export function HomeView() {
       >
         <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <h2 className={h2}>Twelve layers inside a finished pack.</h2>
+            <h2 className={h2}>{t("home.anatomyTitle")}</h2>
             <p className="mt-5 max-w-md text-[17px] leading-relaxed text-base-content/70">
-              Not a chatbot reply. A filed expertise artifact your agent builds against,
-              section by section.
+              {t("home.anatomyBody")}
             </p>
           </div>
           <dl className="divide-y divide-base-300 border-y border-base-300">
-            {ANATOMY.map((item) => (
+            {ANATOMY_KEYS.map((item) => (
               <div
-                key={item.title}
+                key={item.titleKey}
                 className="grid gap-1 py-5 md:grid-cols-[13rem_1fr] md:gap-8"
               >
-                <dt className="font-display text-lg font-semibold">{item.title}</dt>
-                <dd className="text-[15px] leading-relaxed text-base-content/70">{item.line}</dd>
+                <dt className="font-display text-lg font-semibold">{t(item.titleKey)}</dt>
+                <dd className="text-[15px] leading-relaxed text-base-content/70">
+                  {t(item.lineKey)}
+                </dd>
               </div>
             ))}
           </dl>
@@ -465,12 +478,9 @@ export function HomeView() {
         className="blueprint border-t border-white/10 px-5 py-20 md:px-8 md:py-28"
       >
         <div className="mx-auto max-w-[1200px]">
-          <h2 className={`${h2} max-w-3xl`}>
-            Eighteen industries, matched from your first sentence.
-          </h2>
+          <h2 className={`${h2} max-w-3xl`}>{t("home.industriesTitle")}</h2>
           <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-base-content/70">
-            Each industry brings its own brand banks, palettes, routes, components, table
-            schemas and endpoint patterns.
+            {t("home.industriesBody")}
           </p>
           <ul className="mt-10 columns-2 gap-8 font-display text-lg font-medium md:columns-3 lg:columns-4">
             {INDUSTRIES.map((ind) => (
@@ -486,15 +496,14 @@ export function HomeView() {
         <div className="mx-auto max-w-[1200px]">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <h2 className={h2}>Fresh from the forge.</h2>
+              <h2 className={h2}>{t("home.freshTitle")}</h2>
               <p className="mt-4 max-w-lg text-[17px] leading-relaxed text-base-content/70">
-                {total > 0 ? `${total} packs filed. ` : ""}
-                Each keeps its brand, industry and word count, ready to reopen or hand to an
-                agent.
+                {total > 0 ? t("home.freshBodyCount", { n: total }) : ""}
+                {t("home.freshBody")}
               </p>
             </div>
             <Link href="/library" className="btn btn-outline gap-2">
-              Open library
+              {t("home.openLibrary")}
               <ArrowRight className="size-4" />
             </Link>
           </div>
@@ -508,14 +517,16 @@ export function HomeView() {
               ))}
             {libraryLoaded &&
               recent.length === 0 &&
-              SAMPLE_PACKS.map((s) => (
+              SAMPLE_PACK_KEYS.map((s) => (
                 <PackRow
                   key={s.brandName}
                   href="/skillforge"
-                  industry={s.industry}
+                  industry={t(s.industryKey)}
                   brand={s.brandName}
-                  prompt={s.rawPrompt}
-                  meta={`Example · ${s.wordCount.toLocaleString()} words`}
+                  prompt={t(s.promptKey)}
+                  meta={t("home.exampleMeta", {
+                    n: s.wordCount.toLocaleString(dateLocale),
+                  })}
                 />
               ))}
             {recent.map((p) => (
@@ -525,10 +536,13 @@ export function HomeView() {
                 industry={p.industry}
                 brand={p.brandName}
                 prompt={p.rawPrompt}
-                meta={`${new Date(p.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })} · ${p.wordCount.toLocaleString()} words`}
+                meta={t("home.wordsMeta", {
+                  date: new Date(p.createdAt).toLocaleDateString(dateLocale, {
+                    month: "short",
+                    day: "numeric",
+                  }),
+                  n: p.wordCount.toLocaleString(dateLocale),
+                })}
               />
             ))}
           </ul>
@@ -542,14 +556,14 @@ export function HomeView() {
         <div className="mx-auto flex max-w-[1200px] flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="max-w-3xl font-display text-5xl leading-[1.02] font-bold tracking-[-0.03em] text-balance md:text-7xl">
-              Start with one sentence.
+              {t("home.ctaTitle")}
             </h2>
             <p className="mt-5 max-w-md text-lg text-base-content/75">
-              Free to compose. No account. Packs stay in your library.
+              {t("home.ctaBody")}
             </p>
           </div>
           <Link href="/skillforge" className="btn btn-primary btn-lg">
-            Compose package
+            {t("home.ctaButton")}
           </Link>
         </div>
       </section>

@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Instrument_Sans,
+  JetBrains_Mono,
+  Noto_Sans_JP,
+} from "next/font/google";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -18,6 +24,13 @@ const instrument = Instrument_Sans({
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
+  display: "swap",
+});
+
+const notoJp = Noto_Sans_JP({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-jp",
   display: "swap",
 });
 
@@ -70,10 +83,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       data-radius="soft"
       data-buttons="tonal"
       data-motion="on"
-      className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable}`}
+      className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable} ${notoJp.variable}`}
     >
       <body className="bg-base-100 font-body text-base-content antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

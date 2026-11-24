@@ -1,15 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, Clock3, Trash2, Flame } from "lucide-react";
 import type { PromptSummary, PromptListResponse } from "@/lib/types";
 import { Reveal } from "@/components/motion";
+import { SectionLabel } from "@/components/chrome";
+import { useLocale } from "@/lib/i18n";
 
 export function LibraryView() {
+  const { locale, t } = useLocale();
   const [items, setItems] = useState<PromptSummary[] | null>(null);
   const [error, setError] = useState(false);
   const [confirming, setConfirming] = useState<number | null>(null);
+  const dateLocale = useMemo(() => (locale === "ja" ? "ja-JP" : "en-US"), [locale]);
 
   useEffect(() => {
     fetch("/api/prompts?limit=48")
@@ -30,9 +34,19 @@ export function LibraryView() {
 
   return (
     <div>
+      <header className="mb-10 md:mb-14">
+        <SectionLabel>{t("lib.label")}</SectionLabel>
+        <h1 className="max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-[-0.025em] md:text-6xl">
+          {t("lib.title")}
+        </h1>
+        <p className="mt-5 max-w-xl text-base leading-relaxed text-base-content/70">
+          {t("lib.body")}
+        </p>
+      </header>
+
       {error && (
         <div role="alert" className="alert alert-error">
-          <span>The library could not be loaded. Check the furnace and refresh.</span>
+          <span>{t("lib.error")}</span>
         </div>
       )}
 
@@ -48,13 +62,13 @@ export function LibraryView() {
         <div className="mx-auto max-w-lg rounded-box border border-dashed border-base-300 bg-base-100 px-8 py-20 text-center">
           <Flame className="mx-auto size-8 text-primary" strokeWidth={1.5} />
           <p className="mt-6 font-display text-2xl font-bold tracking-tight">
-            The library is empty.
+            {t("lib.emptyTitle")}
           </p>
           <p className="mt-3 text-base leading-relaxed text-base-content/70">
-            Nothing forged yet. Feed the forge one sentence and the ledger starts here.
+            {t("lib.emptyBody")}
           </p>
           <Link href="/forge" className="btn btn-primary mt-8 gap-2">
-            Forge the first spec
+            {t("lib.forgeFirst")}
             <ArrowUpRight className="size-4" />
           </Link>
         </div>
@@ -83,7 +97,7 @@ export function LibraryView() {
                   <div className="card-actions mt-4 items-center justify-between border-t border-base-300 pt-4">
                     <span className="flex items-center gap-1.5 font-mono text-xs opacity-55">
                       <Clock3 className="size-3" />
-                      {new Date(p.createdAt).toLocaleDateString("en-US", {
+                      {new Date(p.createdAt).toLocaleDateString(dateLocale, {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",
@@ -91,7 +105,7 @@ export function LibraryView() {
                       })}
                     </span>
                     <span className="font-mono text-xs opacity-55">
-                      {p.wordCount.toLocaleString()} words
+                      {t("lib.words", { n: p.wordCount.toLocaleString(dateLocale) })}
                     </span>
                     {confirming === p.id ? (
                       <button
@@ -99,14 +113,14 @@ export function LibraryView() {
                         onClick={() => void remove(p.id)}
                         className="btn btn-error btn-ghost btn-xs"
                       >
-                        Sure?
+                        {t("lib.sure")}
                       </button>
                     ) : (
                       <button
                         type="button"
                         onClick={() => setConfirming(p.id)}
                         className="btn btn-ghost btn-square btn-xs"
-                        aria-label={`Delete spec ${p.brandName}`}
+                        aria-label={t("lib.deleteAria", { name: p.brandName })}
                       >
                         <Trash2 className="size-3.5" />
                       </button>

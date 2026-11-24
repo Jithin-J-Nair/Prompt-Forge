@@ -79,8 +79,8 @@
 }
 
 @theme {
-  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --font-body: var(--font-instrument), "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", var(--font-noto-jp), "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-instrument), "Instrument Sans", var(--font-noto-jp), "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
 
   --animate-bench-in: bench-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
